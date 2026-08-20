@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/31279050/README.md)
 # AROUND Product System v1.0
 
 Production-oriented starter for the AROUND media + discovery platform.
