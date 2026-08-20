@@ -20,7 +20,7 @@ export const story = defineType({
     defineField({
       name:"related",type:"array",
       of:[{type:"reference",to:[
-        {type:"destination"},{type:"place"},{type:"person"},{type:"object"},{type:"collection"}
+        {type:"destination"},{type:"place"},{type:"person"},{type:"product"},{type:"collection"}
       ]}]
     })
   ]

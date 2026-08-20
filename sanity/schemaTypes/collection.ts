@@ -10,7 +10,7 @@ export const collection = defineType({
     defineField({
       name:"items",type:"array",
       of:[{type:"reference",to:[
-        {type:"destination"},{type:"place"},{type:"story"},{type:"person"},{type:"object"}
+        {type:"destination"},{type:"place"},{type:"story"},{type:"person"},{type:"product"}
       ]}]
     })
   ]
