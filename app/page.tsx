@@ -1,8 +1,11 @@
 import Link from "next/link";
-import { ContentCard } from "@/components/ContentCard";
-import { cityGolf, content, lisbon, stories } from "@/lib/sample-content";
+import { ContentCard, contentHref } from "@/components/ContentCard";
+import { getHomepageContent } from "@/lib/content";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const {featured,latest} = await getHomepageContent();
+  const highlights = featured.length ? featured : latest.slice(0,2);
+
   return (
     <main>
       <section className="hero">
@@ -15,35 +18,42 @@ export default function HomePage() {
           </p>
           <div className="heroActions">
             <Link className="primary" href="/discover">AROUND entdecken →</Link>
-            <Link className="secondary" href={`/stories/${stories[0].slug}`}>Neueste Story</Link>
+            {latest.find(item=>item.type === "story") && (
+              <Link className="secondary" href={contentHref(latest.find(item=>item.type === "story")!)}>Neueste Story</Link>
+            )}
           </div>
         </div>
       </section>
 
-      <section className="section">
-        <div className="container">
-          <div className="editorialGrid">
-            <Link href={`/destinations/${lisbon.slug}`} className="featureCard">
-              <div><div className="eyebrow lime">WORTH THE TRIP</div><h2>LISBON</h2></div>
-              <p className="serif" style={{fontSize:28,maxWidth:520}}>
-                Atlantic golf. City nights. Food worth staying for.
-              </p>
-            </Link>
-
-            <Link href={`/collections/${cityGolf.slug}`} className="featureCard dark">
-              <div><div className="eyebrow lime">AROUND COLLECTION</div><h2>CITY +<br/>GOLF</h2></div>
-              <p className="serif" style={{fontSize:24}}>Städte, bei denen 18 Löcher nicht reichen.</p>
-            </Link>
+      {highlights.length > 0 && (
+        <section className="section">
+          <div className="container">
+            <div className="editorialGrid">
+              {highlights.slice(0,2).map((item,index)=>(
+                <Link
+                  href={contentHref(item)}
+                  key={item.id}
+                  className={`featureCard ${index===1 ? "dark" : ""}`}
+                  style={item.image ? {
+                    backgroundImage:`linear-gradient(rgba(20,22,21,.18),rgba(20,22,21,.55)),url(${item.image})`,
+                    backgroundSize:"cover",backgroundPosition:"center",color:"#F5F3EE"
+                  } : undefined}
+                >
+                  <div><div className="eyebrow lime">{item.kicker || (item.featured ? "FEATURED" : "THIS IS AROUND")}</div><h2>{item.title}</h2></div>
+                  <p className="serif" style={{fontSize:26,maxWidth:520}}>{item.description}</p>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="section">
         <div className="container">
           <div className="eyebrow">THIS IS AROUND</div>
           <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>Entdecken.</h2>
           <div className="cardGrid">
-            {content.slice(0,6).map(item => <ContentCard item={item} key={item.id} />)}
+            {latest.slice(0,9).map(item => <ContentCard item={item} key={item.id} />)}
           </div>
         </div>
       </section>

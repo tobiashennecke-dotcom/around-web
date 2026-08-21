@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { ContentCard } from "@/components/ContentCard";
-import { content } from "@/lib/sample-content";
+import { getDiscoverContent } from "@/lib/content";
 
-export default function DiscoverPage() {
+export default async function DiscoverPage() {
+  const content = await getDiscoverContent();
   const moods = [
     ["WORTH THE TRIP","/destinations/lisbon"],
     ["48 HOURS","/destinations/lisbon"],
     ["CITY + GOLF","/collections/city-golf"],
     ["UNDER THE RADAR","/stories/warum-lissabon-mehr-ist-als-golf"],
-    ["FOOD FIRST","/places/prado"],
+    ["FOOD FIRST","/search?q=food"],
     ["ROADTRIP","/search?q=roadtrip"]
   ];
 

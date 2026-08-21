@@ -1,22 +1,30 @@
 "use client";
-import { useMemo, useState } from "react";
-import { content } from "@/lib/sample-content";
+import { useEffect, useState } from "react";
 import { ContentCard } from "@/components/ContentCard";
+import type { ContentCard as CardType } from "@/lib/types";
 
-export function SearchClient() {
-  const [query,setQuery] = useState("");
+export function SearchClient({initialQuery=""}:{initialQuery?:string}) {
+  const [query,setQuery] = useState(initialQuery);
   const [type,setType] = useState("all");
+  const [results,setResults] = useState<CardType[]>([]);
+  const [loading,setLoading] = useState(true);
 
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return content.filter(item => {
-      const typeOk = type === "all" || item.type === type;
-      const queryOk = !q || `${item.title} ${item.kicker || ""} ${item.description}`.toLowerCase().includes(q);
-      return typeOk && queryOk;
-    });
+  useEffect(()=>{
+    const timer=window.setTimeout(async()=>{
+      setLoading(true);
+      try{
+        const params=new URLSearchParams({q:query,type});
+        const response=await fetch(`/api/search?${params.toString()}`);
+        const data=await response.json();
+        setResults(Array.isArray(data.results)?data.results:[]);
+      } finally {
+        setLoading(false);
+      }
+    },180);
+    return ()=>window.clearTimeout(timer);
   },[query,type]);
 
-  const filters = [["all","Alles"],["destination","Orte"],["place","Places"],["story","Stories"],["person","Menschen"],["collection","Collections"]];
+  const filters = [["all","Alles"],["destination","Orte"],["place","Places"],["story","Stories"],["person","Menschen"],["product","Objects"],["collection","Collections"]];
 
   return (
     <>
@@ -28,7 +36,7 @@ export function SearchClient() {
           </button>
         ))}
       </div>
-      <div className="eyebrow" style={{marginBottom:20}}>{results.length} Ergebnisse / Curated, not complete.</div>
+      <div className="eyebrow" style={{marginBottom:20}}>{loading?"Suche …":`${results.length} Ergebnisse / Curated, not complete.`}</div>
       <div className="cardGrid">{results.map(item=><ContentCard key={item.id} item={item}/>)}</div>
     </>
   );

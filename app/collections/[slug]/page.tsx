@@ -1,50 +1,39 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getCollection } from "@/lib/content";
-import { SaveButton } from "@/components/SaveButton";
-import type { ContentCard } from "@/lib/types";
+import { ContentCard } from "@/components/ContentCard";
 
-function href(item: ContentCard) {
-  if (item.type === "destination") return `/destinations/${item.slug}`;
-  if (item.type === "place") return `/places/${item.slug}`;
-  if (item.type === "story") return `/stories/${item.slug}`;
-  if (item.type === "collection") return `/collections/${item.slug}`;
-  return "/discover";
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
+  const {slug}=await params;
+  const collection=await getCollection(slug);
+  if(!collection) return {};
+  const title=collection.seoTitle || `${collection.title} — AROUND`;
+  const description=collection.seoDescription || collection.description;
+  const image=collection.socialImage || collection.image;
+  return {title,description,openGraph:{title,description,images:image?[image]:undefined}};
 }
 
-export default async function CollectionPage({ params }: { params: Promise<{slug:string}>}) {
-  const { slug } = await params;
-  const collection = await getCollection(slug);
-  if (!collection) notFound();
-  const items = collection.items || [];
+export default async function CollectionPage({params}:{params:Promise<{slug:string}>}){
+  const {slug}=await params;
+  const collection=await getCollection(slug);
+  if(!collection) notFound();
+  const items=collection.items || [];
 
-  return (
-    <main>
-      <section className="hero" style={{minHeight:"62vh"}}>
-        <div className="container">
-          <div className="eyebrow lime">{collection.kicker}</div>
-          <h1>{collection.title.toUpperCase()}</h1>
-          <p className="heroIntro">{collection.description}</p>
-          <div className="heroActions">
-            <SaveButton sourceId={collection.id} sourceType={collection.type} title={collection.title} slug={collection.slug} label="Collection merken"/>
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-          <div className="collectionList">
-            {items.map((item,index) => (
-              <div className="collectionRow" key={item.id}>
-                <div className="eyebrow">{String(index+1).padStart(2,"0")}</div>
-                <h3><Link href={href(item)}>{item.title}</Link></h3>
-                <p>{item.description}</p>
-                <SaveButton sourceId={item.id} sourceType={item.type} title={item.title} slug={item.slug}/>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </main>
-  );
+  return <main>
+    <section
+      className={`hero ${collection.image ? "heroWithImage" : ""}`}
+      style={collection.image ? {backgroundImage:`linear-gradient(rgba(18,20,19,.25),rgba(18,20,19,.82)),url(${collection.image})`} : undefined}
+    >
+      <div className="container">
+        <div className="eyebrow lime">{collection.kicker || "AROUND COLLECTION"}</div>
+        <h1>{collection.title.toUpperCase()}</h1>
+        <p className="heroIntro">{collection.description}</p>
+      </div>
+    </section>
+    <section className="section"><div className="container">
+      <div className="eyebrow">CURATED / NOT COMPLETE</div>
+      <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>Die Auswahl.</h2>
+      {items.length ? <div className="cardGrid">{items.map(item=><ContentCard key={item.id} item={item}/>)}</div> : <p>Noch keine Inhalte in dieser Collection.</p>}
+    </div></section>
+  </main>;
 }

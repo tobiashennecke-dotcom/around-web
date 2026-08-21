@@ -1,8 +1,19 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getDestination } from "@/lib/content";
 import { SaveButton } from "@/components/SaveButton";
 import { ContentCard } from "@/components/ContentCard";
+
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
+  const {slug}=await params;
+  const destination=await getDestination(slug);
+  if(!destination) return {};
+  const title=destination.seoTitle || `${destination.title} — AROUND`;
+  const description=destination.seoDescription || destination.description;
+  const image=destination.socialImage || destination.image;
+  return {title,description,openGraph:{title,description,images:image?[image]:undefined}};
+}
 
 export default async function DestinationPage({ params }: { params: Promise<{ slug:string }> }) {
   const { slug } = await params;
@@ -13,11 +24,17 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
 
   return (
     <main>
-      <section className="hero">
+      <section
+        className={`hero ${destination.image ? "heroWithImage" : ""}`}
+        style={destination.image ? {backgroundImage:`linear-gradient(rgba(18,20,19,.25),rgba(18,20,19,.78)),url(${destination.image})`} : undefined}
+      >
         <div className="container">
-          <div className="eyebrow lime">{destination.kicker}</div>
+          <div className="eyebrow lime">{destination.aroundSelected ? "AROUND SELECTED · " : ""}{destination.kicker}</div>
           <h1>{destination.title.toUpperCase()}</h1>
           <p className="heroIntro">{destination.description}</p>
+          {destination.bestFor && destination.bestFor.length > 0 && (
+            <div className="metaPills">{destination.bestFor.map(item=><span key={item}>{item}</span>)}</div>
+          )}
           <div className="heroActions">
             <SaveButton sourceId={destination.id} sourceType={destination.type} title={destination.title} slug={destination.slug} label={`${destination.title} merken`} />
             <Link href="#play" className="primary">Entdecken →</Link>
@@ -28,14 +45,14 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
       <section className="section">
         <div className="container editorialGrid">
           <div>
-            <div className="eyebrow lime">Warum hin?</div>
+            <div className="eyebrow lime">WHY GO</div>
             <h2 className="sectionTitle">Golf +<br/>Stadt.</h2>
             <p style={{fontSize:18,lineHeight:1.6,maxWidth:680}}>{destination.whyGo}</p>
           </div>
           <div className="featureCard dark">
-            <div className="eyebrow lime">AROUND POV</div>
+            <div className="eyebrow lime">AROUND TAKE</div>
             <p className="serif" style={{fontSize:40,lineHeight:1.08}}>
-              „Eine Destination ist dann gut, wenn die Runde nicht der einzige Grund war, hinzufahren.“
+              „{destination.aroundTake || "Eine Destination ist dann gut, wenn die Runde nicht der einzige Grund war, hinzufahren."}“
             </p>
           </div>
         </div>
