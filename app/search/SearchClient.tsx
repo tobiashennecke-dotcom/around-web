@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { ContentCard } from "@/components/ContentCard";
 import type { ContentCard as CardType } from "@/lib/types";
 
-export function SearchClient({initialQuery=""}:{initialQuery?:string}) {
+const allowedTypes = new Set(["all","destination","place","story","person","product","collection"]);
+
+export function SearchClient({initialQuery="",initialType="all"}:{initialQuery?:string;initialType?:string}) {
   const [query,setQuery] = useState(initialQuery);
-  const [type,setType] = useState("all");
+  const [type,setType] = useState(allowedTypes.has(initialType) ? initialType : "all");
   const [results,setResults] = useState<CardType[]>([]);
   const [loading,setLoading] = useState(true);
 
@@ -24,7 +26,7 @@ export function SearchClient({initialQuery=""}:{initialQuery?:string}) {
     return ()=>window.clearTimeout(timer);
   },[query,type]);
 
-  const filters = [["all","Alles"],["destination","Orte"],["place","Places"],["story","Stories"],["person","Menschen"],["product","Objects"],["collection","Collections"]];
+  const filters = [["all","Alles"],["destination","Reisen"],["place","Places"],["story","Stories"],["person","Menschen"],["product","Objects"],["collection","Collections"]];
 
   return (
     <>

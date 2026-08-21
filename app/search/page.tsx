@@ -1,6 +1,6 @@
 import { SearchClient } from "./SearchClient";
 
-export default async function SearchPage({searchParams}:{searchParams:Promise<{q?:string}>}) {
+export default async function SearchPage({searchParams}:{searchParams:Promise<{q?:string;type?:string}>}) {
   const params=await searchParams;
   return (
     <main className="searchShell">
@@ -10,7 +10,7 @@ export default async function SearchPage({searchParams}:{searchParams:Promise<{q
         <p className="serif" style={{fontSize:28,maxWidth:700}}>
           Nicht nur Namen eintippen. Nach Gefühl, Format und Relevanz entdecken.
         </p>
-        <SearchClient initialQuery={params.q || ""} />
+        <SearchClient initialQuery={params.q || ""} initialType={params.type || "all"} />
       </div>
     </main>
   );
