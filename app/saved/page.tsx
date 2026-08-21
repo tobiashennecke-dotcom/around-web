@@ -23,6 +23,7 @@ export default function SavedPage() {
           <div className="myAroundContinue">
             <Link className="primary" href="/discover">Weiter entdecken →</Link>
             <Link className="textLink" href="/search">Gezielt suchen →</Link>
+            <Link className="textLink" href="/my-around/collections">Collections öffnen →</Link>
           </div>
         </div>
       </section>

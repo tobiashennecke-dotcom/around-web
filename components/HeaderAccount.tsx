@@ -76,6 +76,7 @@ export function HeaderAccount() {
           <div className="accountMenuEyebrow">MY AROUND ACCOUNT</div>
           <div className="accountMenuEmail">{userEmail}</div>
           <Link href="/saved" role="menuitem" onClick={() => setOpen(false)}>MY AROUND öffnen →</Link>
+          <Link href="/my-around/collections" role="menuitem" onClick={() => setOpen(false)}>Collections →</Link>
           <Link href="/account" role="menuitem" onClick={() => setOpen(false)}>Account verwalten →</Link>
           <button type="button" role="menuitem" onClick={logout}>Abmelden</button>
         </div>
