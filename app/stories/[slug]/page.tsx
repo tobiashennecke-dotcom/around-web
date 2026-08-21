@@ -2,11 +2,31 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getStory } from "@/lib/content";
 import { SaveButton } from "@/components/SaveButton";
+import type { ContentCard } from "@/lib/types";
+
+function href(item: ContentCard) {
+  if (item.type === "destination") return `/destinations/${item.slug}`;
+  if (item.type === "place") return `/places/${item.slug}`;
+  if (item.type === "story") return `/stories/${item.slug}`;
+  if (item.type === "collection") return `/collections/${item.slug}`;
+  return "/discover";
+}
+
+function typeLabel(item: ContentCard) {
+  if (item.type === "destination") return "Destination";
+  if (item.type === "place") return "Place";
+  if (item.type === "person") return "Person";
+  if (item.type === "product") return "Object";
+  if (item.type === "collection") return "Collection";
+  return "Story";
+}
 
 export default async function StoryPage({ params }: { params: Promise<{slug:string}>}) {
   const { slug } = await params;
   const story = await getStory(slug);
   if (!story) notFound();
+  const related = story.related || [];
+  const [first, second, third, ...rest] = story.body;
 
   return (
     <main>
@@ -28,18 +48,25 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
           </div>
         </aside>
         <article className="articleBody">
-          <p>{story.body[0]}</p>
-          <p>{story.body[1]}</p>
+          {first && <p>{first}</p>}
+          {second && <p>{second}</p>}
           <div className="pull">Die Runde ist nicht das Ziel der Reise. Sie ist der Anfang von ihr.</div>
           <h2>Editorial wird Discovery.</h2>
-          <p>{story.body[2]}</p>
-          <div className="inStory">
-            <div className="eyebrow lime">IN THIS STORY</div>
-            <h3 style={{fontSize:32}}>Weiterentdecken</h3>
-            <p><Link href="/destinations/lisbon">Lisbon →</Link></p>
-            <p><Link href="/places/oitavos-dunes">Oitavos Dunes →</Link></p>
-            <p><Link href="/places/prado">Prado →</Link></p>
-          </div>
+          {third && <p>{third}</p>}
+
+          {related.length > 0 && (
+            <div className="inStory">
+              <div className="eyebrow lime">IN THIS STORY</div>
+              <h3 style={{fontSize:32}}>Weiterentdecken</h3>
+              {related.map(item => (
+                <p key={item.id}>
+                  <Link href={href(item)}>{item.title} <span>· {typeLabel(item)} →</span></Link>
+                </p>
+              ))}
+            </div>
+          )}
+
+          {rest.map((paragraph, index) => <p key={`${story.id}-rest-${index}`}>{paragraph}</p>)}
         </article>
       </div>
     </main>

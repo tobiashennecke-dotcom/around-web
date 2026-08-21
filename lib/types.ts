@@ -3,7 +3,7 @@ export type ContentType =
   | "place"
   | "story"
   | "person"
-  | "object"
+  | "product"
   | "collection";
 
 export type ContentCard = {
@@ -25,11 +25,14 @@ export type Destination = ContentCard & {
   whyGo: string;
   placeIds: string[];
   storyIds: string[];
+  places?: ContentCard[];
+  stories?: ContentCard[];
 };
 
 export type Place = ContentCard & {
   type: "place";
   destinationId: string;
+  destination?: ContentCard;
   placeType: "course" | "stay" | "eat" | "do";
   whyWeLikeIt: string;
 };
@@ -39,9 +42,11 @@ export type Story = ContentCard & {
   deck: string;
   body: string[];
   relatedIds: string[];
+  related?: ContentCard[];
 };
 
 export type AroundCollection = ContentCard & {
   type: "collection";
   itemIds: string[];
+  items?: ContentCard[];
 };

@@ -17,7 +17,11 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
           <p className="heroIntro">{place.description}</p>
           <div className="heroActions">
             <SaveButton sourceId={place.id} sourceType={place.type} title={place.title} slug={place.slug} label="Place merken" />
-            <Link className="primary" href="/destinations/lisbon">Lisbon →</Link>
+            {place.destination && (
+              <Link className="primary" href={`/destinations/${place.destination.slug}`}>
+                {place.destination.title} →
+              </Link>
+            )}
           </div>
         </div>
       </section>
