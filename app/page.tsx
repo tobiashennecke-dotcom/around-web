@@ -11,6 +11,14 @@ function typeCount(items: CardType[], type: ContentType) {
   return items.filter(item => item.type === type).length;
 }
 
+function AdaptiveCards({ items, className = "" }: { items: CardType[]; className?: string }) {
+  return (
+    <div className={`cardGrid adaptiveGrid adaptiveGrid--${Math.min(items.length, 3)} ${className}`.trim()}>
+      {items.map(item => <ContentCard item={item} key={item.id} />)}
+    </div>
+  );
+}
+
 export default async function HomePage() {
   const { featured, latest } = await getHomepageContent();
   const all = unique([...featured, ...latest]);
@@ -31,7 +39,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      <section className="hero homeHero">
+      <section className="hero homeHero homeHeroV13">
         <div className="container homeHeroGrid">
           <div>
             <div className="eyebrow lime">THIS IS AROUND</div>
@@ -61,7 +69,7 @@ export default async function HomePage() {
               <p className="sectionNote serif">Ein Einstieg. Danach weitersehen.</p>
             </div>
 
-            <div className="leadGrid">
+            <div className={`leadGrid leadGrid--support-${supporting.length}`}>
               <Link
                 href={contentHref(lead)}
                 className={`leadFeature leadFeature--${lead.accent}`}
@@ -76,9 +84,11 @@ export default async function HomePage() {
                 </div>
               </Link>
 
-              <div className="leadSupport">
-                {supporting.map(item => <ContentCard item={item} key={item.id} />)}
-              </div>
+              {supporting.length > 0 && (
+                <div className={`leadSupport leadSupport--${supporting.length}`}>
+                  {supporting.map(item => <ContentCard item={item} key={item.id} />)}
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -109,7 +119,7 @@ export default async function HomePage() {
       </section>
 
       {travel.length > 0 && (
-        <section className="section">
+        <section className="section travelSectionV13">
           <div className="container">
             <div className="sectionHead">
               <div>
@@ -118,7 +128,7 @@ export default async function HomePage() {
               </div>
               <Link className="textLink" href="/search?type=destination">Alle Orte →</Link>
             </div>
-            <div className="cardGrid">{travel.map(item => <ContentCard item={item} key={item.id} />)}</div>
+            <AdaptiveCards items={travel} className="travelGrid" />
           </div>
         </section>
       )}
@@ -133,31 +143,32 @@ export default async function HomePage() {
               </div>
               <Link className="textLink" href="/search?type=story">Alle Stories →</Link>
             </div>
-            <div className="cardGrid">{stories.map(item => <ContentCard item={item} key={item.id} />)}</div>
+            <AdaptiveCards items={stories} className="storyGridV13" />
           </div>
         </section>
       )}
 
       {selected.length > 0 && (
-        <section className="selectedSection">
+        <section className="selectedSection selectedSectionV13">
           <div className="container selectedSectionGrid">
-            <div>
+            <div className="selectedManifesto">
               <div className="eyebrow">AROUND SELECTED</div>
               <h2>Handverlesen.<br />Nicht gekauft.</h2>
               <p className="serif">Unser redaktionelles Siegel für Dinge und Orte, die wir wirklich weitergeben würden.</p>
             </div>
-            <div className="selectedCards">{selected.map(item => <ContentCard item={item} key={item.id} />)}</div>
+            <AdaptiveCards items={selected} className="selectedCards selectedCardsV13" />
           </div>
         </section>
       )}
 
-      <section className="dropCta">
+      <section className="dropCta dropCtaV13">
         <div className="container dropCtaGrid">
-          <div>
+          <div className="dropCtaTitle">
             <div className="eyebrow lime">THE DROP / MY AROUND</div>
             <h2>Merken ist der<br />Anfang vom Planen.</h2>
           </div>
-          <div>
+          <div className="dropCtaAside">
+            <span className="drop drop--hero" aria-hidden="true" />
             <p className="serif">Speichere Orte, Stories und Ideen. Kein Login-Zwang beim Entdecken.</p>
             <Link className="primary" href="/saved">MY AROUND öffnen →</Link>
           </div>

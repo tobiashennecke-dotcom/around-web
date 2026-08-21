@@ -7,6 +7,14 @@ function unique(items: CardType[]) {
   return Array.from(new Map(items.map(item => [item.id, item])).values());
 }
 
+function AdaptiveCards({ items, className = "" }: { items: CardType[]; className?: string }) {
+  return (
+    <div className={`cardGrid adaptiveGrid adaptiveGrid--${Math.min(items.length, 3)} ${className}`.trim()}>
+      {items.map(item => <ContentCard item={item} key={item.id} />)}
+    </div>
+  );
+}
+
 export default async function DiscoverPage() {
   const content = unique(await getDiscoverContent());
   const lead = content.find(item => item.featured) || content[0];
@@ -24,7 +32,7 @@ export default async function DiscoverPage() {
 
   return (
     <main>
-      <section className="discoverHero">
+      <section className="discoverHero discoverHeroV13">
         <div className="container discoverHeroGrid">
           <div>
             <div className="eyebrow lime">ENTDECKEN</div>
@@ -40,7 +48,7 @@ export default async function DiscoverPage() {
         </div>
       </section>
 
-      <section className="discoveryPaths">
+      <section className="discoveryPaths discoveryPathsV13">
         <div className="container">
           <div className="sectionHead compactHead">
             <div>
@@ -49,7 +57,7 @@ export default async function DiscoverPage() {
             </div>
             <Link className="textLink" href="/search">Oder direkt suchen →</Link>
           </div>
-          <div className="pathGrid">
+          <div className="pathGrid pathGridV13">
             {paths.map(path => (
               <Link href={path.href} key={path.label} className={`pathCard pathCard--${path.accent}`}>
                 <span className="pathIndex">{path.index}</span>
@@ -65,7 +73,7 @@ export default async function DiscoverPage() {
       </section>
 
       {lead && (
-        <section className="section discoverLeadSection">
+        <section className="section discoverLeadSection discoverLeadSectionV13">
           <div className="container discoverLeadGrid">
             <div className="discoverLeadLabel">
               <div className="eyebrow blue">START SOMEWHERE</div>
@@ -89,7 +97,7 @@ export default async function DiscoverPage() {
       )}
 
       {selected.length > 0 && (
-        <section className="section selectedRailSection">
+        <section className="section selectedRailSection selectedRailSectionV13">
           <div className="container">
             <div className="sectionHead compactHead">
               <div>
@@ -98,12 +106,12 @@ export default async function DiscoverPage() {
               </div>
               <p className="sectionNote serif">Redaktionell ausgewählt. Nicht bezahlt.</p>
             </div>
-            <div className="cardGrid">{selected.slice(0,3).map(item => <ContentCard item={item} key={item.id} />)}</div>
+            <AdaptiveCards items={selected.slice(0,3)} className="selectedDiscoverGrid" />
           </div>
         </section>
       )}
 
-      <section className="section discoverFeedSection">
+      <section className="section discoverFeedSection discoverFeedSectionV13">
         <div className="container">
           <div className="sectionHead compactHead">
             <div>
@@ -112,7 +120,7 @@ export default async function DiscoverPage() {
             </div>
             <p className="sectionNote serif">Destination neben Story. Person neben Place. So soll Discovery funktionieren.</p>
           </div>
-          <div className="cardGrid">{feed.map(item => <ContentCard item={item} key={item.id} />)}</div>
+          <AdaptiveCards items={feed} className="discoverMixGrid" />
         </div>
       </section>
     </main>

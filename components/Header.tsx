@@ -9,15 +9,18 @@ export function Header() {
         </Link>
         <nav className="desktopNav" aria-label="Hauptnavigation">
           <Link href="/discover">Entdecken</Link>
-          <Link href="/destinations/lisbon">Reisen</Link>
-          <Link href="/stories/warum-lissabon-mehr-ist-als-golf">Stories</Link>
-          <Link href="/collections/city-golf">Collections</Link>
-          <Link href="/search">Suche</Link>
+          <Link href="/search?type=destination">Reisen</Link>
+          <Link href="/search?type=story">Stories</Link>
+          <Link href="/search?type=person">Menschen</Link>
+          <Link href="/search?type=product">Ideen</Link>
         </nav>
         <div className="headerActions">
-          <Link className="headerAction" href="/search">⌕</Link>
-          <Link className="headerAction" href="/saved"><span className="savedLabel">MY AROUND</span></Link>
-          <Link className="headerAction" href="/account">Account</Link>
+          <Link className="headerSearch" href="/search" aria-label="Suche">⌕</Link>
+          <Link className="headerMyAround" href="/saved">
+            <span className="drop drop--mini" aria-hidden="true" />
+            <span className="savedLabel">MY AROUND</span>
+          </Link>
+          <Link className="headerAccount" href="/account">Account</Link>
         </div>
       </div>
     </header>
