@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { notifySaveChange } from "@/lib/supabase/saves";
 
 export function AccountClient() {
   const [email,setEmail] = useState("");
@@ -30,12 +31,13 @@ export function AccountClient() {
       }
     });
     setBusy(false);
-    setMessage(error ? error.message : "Magic Link ist unterwegs. Bitte E-Mail prüfen.");
+    setMessage(error ? error.message : "Magic Link ist unterwegs. Danach landen deine Gast-Saves automatisch in MY AROUND.");
   }
 
   async function logout() {
     if (!supabase) return;
     await supabase.auth.signOut();
+    notifySaveChange();
     setUserEmail(null);
     setMessage("Abgemeldet.");
   }
@@ -45,8 +47,9 @@ export function AccountClient() {
       <div className="featureCard" style={{minHeight:320}}>
         <div>
           <div className="eyebrow lime">MY AROUND ACCOUNT</div>
-          <h2 style={{fontSize:48}}>Angemeldet.</h2>
+          <h2 style={{fontSize:48}}>Synchronisiert.</h2>
           <p>{userEmail}</p>
+          <p className="serif" style={{fontSize:20}}>Deine Saves werden jetzt geräteübergreifend in MY AROUND gespeichert.</p>
         </div>
         <button className="secondary" onClick={logout}>Abmelden</button>
       </div>
@@ -59,7 +62,7 @@ export function AccountClient() {
         <div className="eyebrow lime">MY AROUND ACCOUNT</div>
         <h2 style={{fontSize:48}}>Merken.<br/>Überall.</h2>
         <p className="serif" style={{fontSize:22}}>
-          Ein Magic Link genügt. Kein Passwort, kein Signup-Funnel.
+          Speichern funktioniert sofort ohne Login. Der Magic Link synchronisiert deine Auswahl über Geräte hinweg.
         </p>
       </div>
 

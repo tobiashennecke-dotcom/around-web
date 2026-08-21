@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SaveCount } from "./SaveCount";
 
 export function Header() {
   return (
@@ -19,6 +20,7 @@ export function Header() {
           <Link className="headerMyAround" href="/saved">
             <span className="drop drop--mini" aria-hidden="true" />
             <span className="savedLabel">MY AROUND</span>
+            <SaveCount className="saveCount--header" />
           </Link>
           <Link className="headerAccount" href="/account">Account</Link>
         </div>

@@ -1,12 +1,40 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { SaveCount } from "./SaveCount";
+
+function active(pathname: string, href: string) {
+  if (href === "/discover") return pathname === "/" || pathname.startsWith("/discover");
+  if (href === "/search") return pathname.startsWith("/search");
+  if (href === "/saved") return pathname.startsWith("/saved");
+  return pathname.startsWith("/collections");
+}
 
 export function MobileNav() {
+  const pathname = usePathname();
+
   return (
-    <nav className="mobileBottom" aria-label="Mobile Navigation">
-      <Link href="/discover"><b>○</b><span>Entdecken</span></Link>
-      <Link href="/search"><b>⌕</b><span>Suche</span></Link>
-      <Link href="/saved"><b>●</b><span>Gespeichert</span></Link>
-      <Link href="/collections/city-golf"><b>+</b><span>Collections</span></Link>
+    <nav className="mobileBottom mobileBottomV14" aria-label="Mobile Navigation">
+      <Link href="/discover" className={active(pathname, "/discover") ? "active" : ""}>
+        <span className="mobileNavIcon mobileNavIcon--discover" aria-hidden="true" />
+        <span>Entdecken</span>
+      </Link>
+      <Link href="/search" className={active(pathname, "/search") ? "active" : ""}>
+        <span className="mobileNavIcon mobileNavIcon--search" aria-hidden="true" />
+        <span>Suche</span>
+      </Link>
+      <Link href="/saved" className={active(pathname, "/saved") ? "active" : ""}>
+        <span className="mobileNavSavedIcon" aria-hidden="true">
+          <span className="drop drop--nav" />
+          <SaveCount className="saveCount--nav" />
+        </span>
+        <span>Gespeichert</span>
+      </Link>
+      <Link href="/collections/city-golf" className={active(pathname, "/collections") ? "active" : ""}>
+        <span className="mobileNavIcon mobileNavIcon--collections" aria-hidden="true" />
+        <span>Collections</span>
+      </Link>
     </nav>
   );
 }
