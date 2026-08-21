@@ -38,7 +38,7 @@ export const story = defineType({
     defineField({
       name:"heroImage",title:"Hero image",type:"image",group:"basics",options:{hotspot:true},
       fields:[
-        defineField({name:"alt",title:"Alt text",type:"string",description:"Important for accessibility and SEO.",options:{isHighlighted:true}}),
+        defineField({name:"alt",title:"Alt text",type:"string",description:"Important for accessibility and SEO."}),
         defineField({name:"caption",title:"Caption",type:"string"}),
         defineField({name:"credit",title:"Credit",type:"string"})
       ]
@@ -72,7 +72,7 @@ export const story = defineType({
         {
           type:"image",title:"Editorial image",options:{hotspot:true},
           fields:[
-            {name:"alt",title:"Alt text",type:"string",description:"Important for accessibility and SEO.",options:{isHighlighted:true}},
+            {name:"alt",title:"Alt text",type:"string",description:"Important for accessibility and SEO."},
             {name:"caption",title:"Caption",type:"string"},
             {name:"credit",title:"Credit",type:"string"},
             {name:"layout",title:"Layout",type:"string",options:{list:[

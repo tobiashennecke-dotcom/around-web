@@ -20,7 +20,7 @@ export const objectType = defineType({
     defineField({name:"summary",title:"Teaser",type:"text",rows:3,group:"basics"}),
     defineField({
       name:"image",title:"Image",type:"image",group:"basics",options:{hotspot:true},fields:[
-        defineField({name:"alt",title:"Alt text",type:"string",options:{isHighlighted:true}}),
+        defineField({name:"alt",title:"Alt text",type:"string"}),
         defineField({name:"credit",title:"Credit",type:"string"})
       ]
     }),

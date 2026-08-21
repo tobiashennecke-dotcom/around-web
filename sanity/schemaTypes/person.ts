@@ -17,7 +17,7 @@ export const person = defineType({
     defineField({
       name:"portrait",title:"Portrait",type:"image",group:"basics",options:{hotspot:true},
       fields:[
-        defineField({name:"alt",title:"Alt text",type:"string",options:{isHighlighted:true}}),
+        defineField({name:"alt",title:"Alt text",type:"string"}),
         defineField({name:"credit",title:"Credit",type:"string"})
       ]
     }),

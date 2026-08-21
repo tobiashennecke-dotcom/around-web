@@ -49,7 +49,7 @@ export const place = defineType({
     defineField({
       name:"heroImage",title:"Hero image",type:"image",group:"media",options:{hotspot:true},
       fields:[
-        defineField({name:"alt",title:"Alt text",type:"string",options:{isHighlighted:true}}),
+        defineField({name:"alt",title:"Alt text",type:"string"}),
         defineField({name:"caption",title:"Caption",type:"string"}),
         defineField({name:"credit",title:"Credit",type:"string"})
       ]
@@ -57,7 +57,7 @@ export const place = defineType({
     defineField({
       name:"gallery",title:"Gallery",type:"array",group:"media",
       of:[{type:"image",options:{hotspot:true},fields:[
-        {name:"alt",title:"Alt text",type:"string",options:{isHighlighted:true}},
+        {name:"alt",title:"Alt text",type:"string"},
         {name:"caption",title:"Caption",type:"string"},
         {name:"credit",title:"Credit",type:"string"}
       ]}]

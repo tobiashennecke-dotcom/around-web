@@ -15,7 +15,7 @@ export const collection = defineType({
     defineField({name:"summary",title:"Teaser",type:"text",rows:3,group:"basics"}),
     defineField({
       name:"heroImage",title:"Hero image",type:"image",group:"basics",options:{hotspot:true},fields:[
-        defineField({name:"alt",title:"Alt text",type:"string",options:{isHighlighted:true}}),
+        defineField({name:"alt",title:"Alt text",type:"string"}),
         defineField({name:"credit",title:"Credit",type:"string"})
       ]
     }),
