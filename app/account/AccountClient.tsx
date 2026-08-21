@@ -10,15 +10,19 @@ export function AccountClient() {
   const [userEmail,setUserEmail] = useState<string | null>(null);
   const [busy,setBusy] = useState(false);
 
-  const supabase = createClient();
-
   useEffect(()=>{
+    const supabase = createClient();
     if (!supabase) return;
     supabase.auth.getUser().then(({data})=>setUserEmail(data.user?.email ?? null));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session)=>{
+      setUserEmail(session?.user?.email ?? null);
+    });
+    return () => listener.subscription.unsubscribe();
   },[]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    const supabase = createClient();
     if (!supabase) {
       setMessage("Supabase ist noch nicht verbunden.");
       return;
@@ -35,41 +39,56 @@ export function AccountClient() {
   }
 
   async function logout() {
+    const supabase = createClient();
     if (!supabase) return;
-    await supabase.auth.signOut();
+    setBusy(true);
+    const { error } = await supabase.auth.signOut();
+    setBusy(false);
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
     notifySaveChange();
     setUserEmail(null);
-    setMessage("Abgemeldet.");
+    setMessage("Du bist jetzt abgemeldet.");
   }
 
   if (userEmail) {
     return (
-      <div className="featureCard" style={{minHeight:320}}>
+      <div className="featureCard accountSignedInCard">
         <div>
           <div className="eyebrow lime">MY AROUND ACCOUNT</div>
-          <h2 style={{fontSize:48}}>Synchronisiert.</h2>
-          <p>{userEmail}</p>
-          <p className="serif" style={{fontSize:20}}>Deine Saves werden jetzt geräteübergreifend in MY AROUND gespeichert.</p>
+          <h2>Synchronisiert.</h2>
+          <div className="accountIdentity">
+            <span>Eingeloggt als</span>
+            <strong>{userEmail}</strong>
+          </div>
+          <p className="serif accountSyncCopy">Deine Saves werden geräteübergreifend in MY AROUND gespeichert.</p>
         </div>
-        <button className="secondary" onClick={logout}>Abmelden</button>
+        <div className="accountActions">
+          <a className="primary" href="/saved">MY AROUND öffnen →</a>
+          <button className="secondary accountLogout" disabled={busy} onClick={logout}>
+            {busy ? "Abmelden …" : "Abmelden"}
+          </button>
+        </div>
+        {message && <p className="accountMessage">{message}</p>}
       </div>
     );
   }
 
   return (
-    <form className="featureCard dark" style={{minHeight:380}} onSubmit={submit}>
+    <form className="featureCard dark accountLoginCard" onSubmit={submit}>
       <div>
         <div className="eyebrow lime">MY AROUND ACCOUNT</div>
-        <h2 style={{fontSize:48}}>Merken.<br/>Überall.</h2>
-        <p className="serif" style={{fontSize:22}}>
+        <h2>Merken.<br/>Überall.</h2>
+        <p className="serif accountSyncCopy">
           Speichern funktioniert sofort ohne Login. Der Magic Link synchronisiert deine Auswahl über Geräte hinweg.
         </p>
       </div>
 
       <div>
         <input
-          className="searchInput"
-          style={{color:"#F5F3EE",borderColor:"#F5F3EE",fontSize:28}}
+          className="searchInput accountEmailInput"
           type="email"
           required
           placeholder="deine@email.de"
@@ -79,7 +98,7 @@ export function AccountClient() {
         <button className="primary" disabled={busy} style={{marginTop:18}}>
           {busy ? "Senden …" : "Magic Link senden →"}
         </button>
-        {message && <p style={{marginTop:15}}>{message}</p>}
+        {message && <p className="accountMessage">{message}</p>}
       </div>
     </form>
   );

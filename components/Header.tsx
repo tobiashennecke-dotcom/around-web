@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SaveCount } from "./SaveCount";
+import { HeaderAccount } from "./HeaderAccount";
 
 export function Header() {
   return (
@@ -22,7 +23,7 @@ export function Header() {
             <span className="savedLabel">MY AROUND</span>
             <SaveCount className="saveCount--header" />
           </Link>
-          <Link className="headerAccount" href="/account">Account</Link>
+          <HeaderAccount />
         </div>
       </div>
     </header>
