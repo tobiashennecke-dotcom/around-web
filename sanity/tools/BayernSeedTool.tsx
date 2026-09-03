@@ -184,7 +184,12 @@ export function BayernSeedTool() {
 
       const docs = [destination, stay, course, eat, spa, story];
       let tx = client.transaction();
-      docs.forEach(doc => { tx = tx.createOrReplace(doc); });
+      // The seed intentionally contains heterogeneous Sanity document types.
+      // createOrReplace() infers one generic shape from a union array and can
+      // collapse the remaining members to `never` during Next.js type-checking.
+      // Runtime validity is still enforced by Sanity; keep the cast local to
+      // this transaction boundary so the rest of the seed stays fully typed.
+      docs.forEach(doc => { tx = tx.createOrReplace(doc as any); });
       await tx.commit();
       addLog("✓ 6 Dokumente erstellt/aktualisiert.");
       setDone(true);
