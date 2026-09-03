@@ -20,6 +20,9 @@ export type ContentCard = {
   featured?: boolean;
   aroundSelected?: boolean;
   priority?: number;
+  /** Semantic role for place cards: course/stay/eat/do. */
+  placeType?: string;
+
 };
 
 export type SeoFields = {

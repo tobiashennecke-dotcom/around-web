@@ -12,14 +12,21 @@ export function contentHref(item: CardType) {
   return "/discover";
 }
 
-function typeLabel(type: CardType["type"]) {
-  if (type === "destination") return "Destination";
-  if (type === "place") return "Place";
-  if (type === "story") return "Story";
-  if (type === "person") return "People";
-  if (type === "product") return "Object";
-  if (type === "collection") return "Collection";
-  return type;
+function typeLabel(item: CardType) {
+  if (item.type === "destination") return "DESTINATION";
+  if (item.type === "place") {
+    const role = (item.placeType || "").toLowerCase();
+    if (role === "course" || role === "play") return "PLAY";
+    if (role === "stay") return "STAY";
+    if (role === "eat" || role === "drink") return "EAT";
+    if (role === "do" || role === "culture") return "DO";
+    return "PLACE";
+  }
+  if (item.type === "story") return "STORY";
+  if (item.type === "person") return "PEOPLE";
+  if (item.type === "product") return "OBJECT";
+  if (item.type === "collection") return "COLLECTION";
+  return item.type.toUpperCase();
 }
 
 export function ContentCard({ item }: { item: CardType }) {
@@ -33,14 +40,14 @@ export function ContentCard({ item }: { item: CardType }) {
           <div className="cardPlaceholder" aria-hidden="true" />
         )}
         {item.aroundSelected && <span className="selectedBadge">AROUND SELECTED</span>}
-        <span className="cardTypeStamp">{typeLabel(item.type)}</span>
+        <span className="cardTypeStamp">{typeLabel(item)}</span>
       </Link>
       <div className="cardBody">
-        <span className={tagClass}>{item.kicker || typeLabel(item.type)}</span>
+        <span className={tagClass}>{item.type === "place" ? typeLabel(item) : (item.kicker || typeLabel(item))}</span>
         <h3><Link href={contentHref(item)}>{item.title}</Link></h3>
         {item.description && <p>{item.description}</p>}
         <div className="cardMeta">
-          <span>{item.featured ? "Featured" : typeLabel(item.type)}</span>
+          <span>{typeLabel(item)}{item.featured ? " · Featured" : ""}</span>
           <SaveButton
             sourceId={item.id}
             sourceType={item.type}

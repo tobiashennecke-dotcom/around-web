@@ -57,6 +57,7 @@ function toCard(doc: any): ContentCard | null {
     title: doc.title,
     kicker: doc.kicker || undefined,
     description: doc.summary || "",
+    placeType: type === "place" ? (doc.placeType || undefined) : undefined,
     accent: accentFor(type, doc.placeType),
     image: doc.image || undefined,
     featured: Boolean(doc.featured),
