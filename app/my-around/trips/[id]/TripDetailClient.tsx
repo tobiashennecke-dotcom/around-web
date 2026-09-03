@@ -289,15 +289,36 @@ export function TripDetailClient({ id }: { id: string }) {
         </div>
       </section>
 
-      <section className="section tripMetaSection tripMetaSection--v18">
+      <section className="section tripMetaSection tripMetaSection--v18 tripMetaSection--v181">
         <div className="container">
-          <div className="tripMetaEditor">
+          <div className="tripMetaEditor tripMetaEditor--desktop">
             <label><span>Trip</span><input value={title} onChange={event => setTitle(event.target.value)} /></label>
             <label><span>Von</span><input type="date" value={startDate} onChange={event => setStartDate(event.target.value)} /></label>
             <label><span>Bis</span><input type="date" value={endDate} min={startDate || undefined} onChange={event => setEndDate(event.target.value)} /></label>
             <label><span>Status</span><select value={status} onChange={event => setStatus(event.target.value as TripStatus)}><option value="idea">Idee</option><option value="planning">Planung</option><option value="booked">Gebucht</option><option value="completed">Erlebt</option></select></label>
             <button type="button" className="primary" onClick={saveMeta} disabled={savingMeta || !title.trim()}>{savingMeta ? "Speichert …" : "Plan speichern →"}</button>
           </div>
+
+          <details className="tripMetaMobile">
+            <summary>
+              <div>
+                <span className="tripMetaMobileKicker">Trip Setup</span>
+                <strong>{title || trip.title}</strong>
+                <small>{tripDateRange(startDate, endDate)} · {statusLabels[status]}</small>
+              </div>
+              <b>Bearbeiten +</b>
+            </summary>
+            <div className="tripMetaMobileFields">
+              <label><span>Trip</span><input value={title} onChange={event => setTitle(event.target.value)} /></label>
+              <div className="tripMetaMobileDates">
+                <label><span>Von</span><input type="date" value={startDate} onChange={event => setStartDate(event.target.value)} /></label>
+                <label><span>Bis</span><input type="date" value={endDate} min={startDate || undefined} onChange={event => setEndDate(event.target.value)} /></label>
+              </div>
+              <label><span>Status</span><select value={status} onChange={event => setStatus(event.target.value as TripStatus)}><option value="idea">Idee</option><option value="planning">Planung</option><option value="booked">Gebucht</option><option value="completed">Erlebt</option></select></label>
+              <button type="button" className="secondary tripMetaMobileSave" onClick={saveMeta} disabled={savingMeta || !title.trim()}>{savingMeta ? "Speichert …" : "Jetzt speichern"}</button>
+            </div>
+          </details>
+
           <div className={`tripSaveState ${saveError ? "tripSaveState--error" : ""}`} role="status" aria-live="polite">
             <span className="syncDot" />
             {saveError || saveMessage || (mode === "guest"
@@ -308,7 +329,7 @@ export function TripDetailClient({ id }: { id: string }) {
 
           <nav className="tripDayNav" aria-label="Trip-Tage">
             {unplanned.length ? <a href="#trip-open"><b>00</b><span>Offen</span><small>{unplanned.length}</small></a> : null}
-            {days.map(day => <a href={`#trip-day-${day.dayIndex + 1}`} key={day.dayIndex}><b>{String(day.dayIndex + 1).padStart(2, "0")}</b><span>Day {day.dayIndex + 1}</span><small>{day.items.length}</small></a>)}
+            {days.map(day => <a href={`#trip-day-${day.dayIndex + 1}`} key={day.dayIndex}><b>{String(day.dayIndex + 1).padStart(2, "0")}</b><span>Day {day.dayIndex + 1}{startDate ? <em>{dayDate(startDate, day.dayIndex)}</em> : null}</span><small>{day.items.length}</small></a>)}
           </nav>
         </div>
       </section>
