@@ -295,12 +295,11 @@ export async function updateUserTrip(
   const { supabase, user } = await getAuthenticatedUser();
 
   if (!supabase || !user) {
-    let expected: UserTrip | null = null;
-    await mutateLocal(trips => {
+    const updatedTrips = await mutateLocal(trips => {
       const current = trips.find(trip => trip.id === id);
       if (!current) throw new Error("Trip wurde lokal nicht gefunden.");
 
-      expected = {
+      const updated: UserTrip = {
         ...current,
         ...patch,
         title: patch.title !== undefined ? patch.title.trim() : current.title,
@@ -310,9 +309,10 @@ export async function updateUserTrip(
         updatedAt: now
       };
 
-      return trips.map(trip => trip.id === id ? expected! : trip);
+      return trips.map(trip => trip.id === id ? updated : trip);
     });
 
+    const expected = updatedTrips.find(trip => trip.id === id);
     const persisted = readLocal().find(trip => trip.id === id);
     if (!expected || !persisted || persisted.title !== expected.title || persisted.startDate !== expected.startDate || persisted.endDate !== expected.endDate || persisted.status !== expected.status) {
       throw new Error("Trip-Änderungen konnten lokal nicht bestätigt werden.");
