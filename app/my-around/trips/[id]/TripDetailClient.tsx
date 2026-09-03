@@ -54,6 +54,8 @@ export function TripDetailClient({ id }: { id: string }) {
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState<TripStatus>("idea");
   const [savingMeta, setSavingMeta] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+  const [saveError, setSaveError] = useState("");
 
   async function load() {
     setLoading(true);
@@ -77,10 +79,32 @@ export function TripDetailClient({ id }: { id: string }) {
 
   async function saveMeta() {
     if (!trip || !title.trim()) return;
+    if (startDate && endDate && endDate < startDate) {
+      setSaveMessage("");
+      setSaveError("Das Bis-Datum liegt vor dem Von-Datum.");
+      return;
+    }
+
     setSavingMeta(true);
+    setSaveMessage("");
+    setSaveError("");
     try {
-      await updateUserTrip(trip.id, { title, startDate, endDate, status });
-      await load();
+      const cleanTitle = title.trim();
+      await updateUserTrip(trip.id, { title: cleanTitle, startDate, endDate, status });
+      setTrip(current => current ? {
+        ...current,
+        title: cleanTitle,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        status,
+        updatedAt: new Date().toISOString()
+      } : current);
+      setTitle(cleanTitle);
+      setSaveMessage("Plan gespeichert.");
+      window.setTimeout(() => setSaveMessage(""), 2600);
+    } catch (error) {
+      console.error("AROUND trip save failed", error);
+      setSaveError("Speichern fehlgeschlagen. Bitte noch einmal versuchen.");
     } finally {
       setSavingMeta(false);
     }
@@ -88,8 +112,29 @@ export function TripDetailClient({ id }: { id: string }) {
 
   async function changeItem(sourceId: string, patch: { dayIndex?: number; slot?: TripSlot; note?: string }) {
     if (!trip) return;
-    await updateTripItem(trip.id, sourceId, patch);
-    await load();
+    setSaveError("");
+
+    const previous = trip;
+    setTrip(current => current ? {
+      ...current,
+      updatedAt: new Date().toISOString(),
+      items: current.items.map(item => item.sourceId === sourceId ? {
+        ...item,
+        dayIndex: "dayIndex" in patch ? patch.dayIndex : item.dayIndex,
+        slot: patch.slot ?? item.slot,
+        note: patch.note ?? item.note
+      } : item)
+    } : current);
+
+    try {
+      await updateTripItem(trip.id, sourceId, patch);
+      setSaveMessage("Änderung gespeichert.");
+      window.setTimeout(() => setSaveMessage(""), 1800);
+    } catch (error) {
+      console.error("AROUND trip item save failed", error);
+      setTrip(previous);
+      setSaveError("Änderung konnte nicht gespeichert werden.");
+    }
   }
 
   async function remove(sourceId: string) {
@@ -129,7 +174,10 @@ export function TripDetailClient({ id }: { id: string }) {
             <label><span>Von</span><input type="date" value={startDate} onChange={event => setStartDate(event.target.value)} /></label>
             <label><span>Bis</span><input type="date" value={endDate} min={startDate || undefined} onChange={event => setEndDate(event.target.value)} /></label>
             <label><span>Status</span><select value={status} onChange={event => setStatus(event.target.value as TripStatus)}><option value="idea">Idee</option><option value="planning">Planung</option><option value="booked">Gebucht</option><option value="completed">Erlebt</option></select></label>
-            <button type="button" className="primary" onClick={saveMeta} disabled={savingMeta}>{savingMeta ? "Speichert …" : "Plan speichern →"}</button>
+            <button type="button" className="primary" onClick={saveMeta} disabled={savingMeta || !title.trim()}>{savingMeta ? "Speichert …" : "Plan speichern →"}</button>
+          </div>
+          <div className="collectionPickerMessage" role="status" aria-live="polite">
+            {saveError || saveMessage || "Tag, Zeit und Notizen werden automatisch gespeichert."}
           </div>
           <div className="tripDetailToolbar"><Link href="/my-around/trips">← Alle Trips</Link><Link href="/saved">+ Aus MY AROUND hinzufügen</Link></div>
         </div>
@@ -172,6 +220,11 @@ function TripItemRow({
   onRemove: (sourceId: string) => Promise<void>;
 }) {
   const [note, setNote] = useState(item.note || "");
+
+  useEffect(() => {
+    setNote(item.note || "");
+  }, [item.note]);
+
   return (
     <article className="tripItemRow">
       <div className="tripItemIdentity"><span>{item.sourceType}</span><h3><Link href={hrefFor(item)}>{item.title}</Link></h3></div>

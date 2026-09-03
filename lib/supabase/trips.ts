@@ -52,7 +52,11 @@ function readLocal(): UserTrip[] {
 
 function writeLocal(trips: UserTrip[]) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(trips));
+  const serialized = JSON.stringify(trips);
+  localStorage.setItem(LOCAL_KEY, serialized);
+  if (localStorage.getItem(LOCAL_KEY) !== serialized) {
+    throw new Error("Trip konnte lokal nicht gespeichert werden.");
+  }
   notifyTripChange();
 }
 
@@ -273,7 +277,25 @@ export async function updateUserTrip(
   const { supabase, user } = await getAuthenticatedUser();
 
   if (!supabase || !user) {
-    writeLocal(readLocal().map(trip => trip.id === id ? { ...trip, ...patch, updatedAt: now } : trip));
+    const trips = readLocal();
+    const current = trips.find(trip => trip.id === id);
+    if (!current) throw new Error("Trip wurde lokal nicht gefunden.");
+
+    const next: UserTrip = {
+      ...current,
+      ...patch,
+      title: patch.title !== undefined ? patch.title.trim() : current.title,
+      startDate: patch.startDate !== undefined ? (patch.startDate || undefined) : current.startDate,
+      endDate: patch.endDate !== undefined ? (patch.endDate || undefined) : current.endDate,
+      destinationSourceId: patch.destinationSourceId !== undefined ? (patch.destinationSourceId || undefined) : current.destinationSourceId,
+      updatedAt: now
+    };
+
+    writeLocal(trips.map(trip => trip.id === id ? next : trip));
+    const persisted = readLocal().find(trip => trip.id === id);
+    if (!persisted || persisted.title !== next.title || persisted.startDate !== next.startDate || persisted.endDate !== next.endDate || persisted.status !== next.status) {
+      throw new Error("Trip-Änderungen konnten lokal nicht bestätigt werden.");
+    }
     return;
   }
 
@@ -284,8 +306,14 @@ export async function updateUserTrip(
   if (patch.status !== undefined) dbPatch.status = patch.status;
   if (patch.destinationSourceId !== undefined) dbPatch.destination_source_id = patch.destinationSourceId || null;
 
-  const { error } = await supabase.from("trips").update(dbPatch).eq("id", id).eq("user_id", user.id);
+  const { data, error } = await supabase.from("trips")
+    .update(dbPatch)
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select("id")
+    .maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error("Trip konnte im Account nicht gespeichert werden.");
   notifyTripChange();
 }
 
@@ -353,7 +381,12 @@ export async function updateTripItem(
   const { supabase, user } = await getAuthenticatedUser();
 
   if (!supabase || !user) {
-    writeLocal(readLocal().map(trip => trip.id === tripId ? {
+    const trips = readLocal();
+    const current = trips.find(trip => trip.id === tripId);
+    if (!current) throw new Error("Trip wurde lokal nicht gefunden.");
+    if (!current.items.some(item => item.sourceId === sourceId)) throw new Error("Trip-Inhalt wurde lokal nicht gefunden.");
+
+    writeLocal(trips.map(trip => trip.id === tripId ? {
       ...trip,
       updatedAt: now,
       items: trip.items.map(item => item.sourceId === sourceId ? {
