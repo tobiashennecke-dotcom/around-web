@@ -4,6 +4,7 @@ import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { presentationTool } from "sanity/presentation";
 import { schemaTypes } from "./sanity/schemaTypes";
+import { BayernSeedTool } from "./sanity/tools/BayernSeedTool";
 
 export default defineConfig({
   name: "around",
@@ -22,5 +23,6 @@ export default defineConfig({
       }
     })
   ],
+  tools: [{ name: "bayern-seed", title: "Bayern Seed", component: BayernSeedTool }],
   schema: { types: schemaTypes }
 });

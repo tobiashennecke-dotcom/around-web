@@ -45,7 +45,7 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
         <div className="container editorialGrid">
           <div>
             <div className="eyebrow lime">Warum wir ihn mögen</div>
-            <h2 className="sectionTitle">Nicht perfekt.<br/>Gut so.</h2>
+            <h2 className="sectionTitle">DER AROUND<br/>TAKE.</h2>
           </div>
           <div className="featureCard">
             <p className="serif" style={{fontSize:34,lineHeight:1.16}}>{place.whyWeLikeIt}</p>

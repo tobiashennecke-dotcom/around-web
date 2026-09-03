@@ -46,7 +46,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
         <div className="container editorialGrid">
           <div>
             <div className="eyebrow lime">WHY GO</div>
-            <h2 className="sectionTitle">Golf +<br/>Stadt.</h2>
+            <h2 className="sectionTitle">WARUM<br/>HIN?</h2>
             <p style={{fontSize:18,lineHeight:1.6,maxWidth:680}}>{destination.whyGo}</p>
           </div>
           <div className="featureCard dark">
