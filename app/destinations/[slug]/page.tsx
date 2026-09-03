@@ -87,3 +87,6 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
 
 // AROUND editorial freshness: refresh published Sanity content without a redeploy.
 export const revalidate = 30;
+
+// AROUND CMS routing: allow newly published Sanity slugs without a redeploy.
+export const dynamicParams = true;

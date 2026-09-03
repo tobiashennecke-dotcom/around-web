@@ -89,3 +89,6 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
 
 // AROUND editorial freshness: refresh published Sanity content without a redeploy.
 export const revalidate = 30;
+
+// AROUND CMS routing: allow newly published Sanity slugs without a redeploy.
+export const dynamicParams = true;
