@@ -4,12 +4,12 @@ import {useState} from "react";
 import {useClient} from "sanity";
 
 const IDS = {
-  destination: "around.destination.reit-im-winkl",
-  stay: "around.place.gut-steinbach",
-  course: "around.place.golfclub-reit-im-winkl-koessen",
-  eat: "around.place.restaurant-heimat",
-  spa: "around.place.heimat-natur-spa",
-  story: "around.story.heimatrefugium-zwei-laender-runde",
+  destination: "around-destination-reit-im-winkl",
+  stay: "around-place-gut-steinbach",
+  course: "around-place-golfclub-reit-im-winkl-koessen",
+  eat: "around-place-restaurant-heimat",
+  spa: "around-place-heimat-natur-spa",
+  story: "around-story-heimatrefugium-zwei-laender-runde",
 };
 
 const assetSpecs: Record<string, [string, string, string]> = {
@@ -207,7 +207,7 @@ export function BayernSeedTool() {
       <div style={{maxWidth:920,margin:"0 auto"}}>
         <div style={{fontSize:12,fontWeight:800,letterSpacing:".16em",textTransform:"uppercase",marginBottom:18}}>AROUND · CONTENT SEED</div>
         <h1 style={{fontSize:"clamp(40px,7vw,82px)",lineHeight:.94,letterSpacing:"-.055em",margin:"0 0 24px",maxWidth:800}}>BAYERN<br/>CONTENT WORLD.</h1>
-        <p style={{fontFamily:"Georgia, serif",fontSize:23,lineHeight:1.35,maxWidth:720,margin:"0 0 32px"}}>Ein Klick lädt die 11 Bilder hoch und erstellt Reit im Winkl, Gut Steinbach, Golfclub, Restaurant HEIMAT, Heimat & Natur SPA und die WORTH THE TRIP Story direkt im aktuellen Sanity-Dataset.</p>
+        <p style={{fontFamily:"Georgia, serif",fontSize:23,lineHeight:1.35,maxWidth:720,margin:"0 0 32px"}}>Ein Klick lädt die 11 Bilder hoch und erstellt Reit im Winkl, Gut Steinbach, Golfclub, Restaurant HEIMAT, Heimat & Natur SPA und die WORTH THE TRIP Story direkt im aktuellen Sanity-Dataset. Die Dokumente werden mit öffentlich lesbaren Root-IDs angelegt, damit die Website sie ohne Sanity-Login abrufen kann.</p>
         <div style={{borderTop:"1px solid #212322",borderBottom:"1px solid #212322",padding:"20px 0",display:"flex",gap:18,alignItems:"center",flexWrap:"wrap"}}>
           <button onClick={runSeed} disabled={running} style={{border:0,background:"#d6ea2a",color:"#212322",fontWeight:900,letterSpacing:".08em",textTransform:"uppercase",padding:"15px 20px",cursor:running?"wait":"pointer"}}>
             {running ? "IMPORT LÄUFT …" : done ? "NOCHMAL IMPORTIEREN" : "BAYERN IMPORTIEREN"}
