@@ -15,3 +15,6 @@ export default async function SearchPage({searchParams}:{searchParams:Promise<{q
     </main>
   );
 }
+
+// AROUND editorial freshness: refresh published Sanity content without a redeploy.
+export const revalidate = 30;

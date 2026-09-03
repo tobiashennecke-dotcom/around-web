@@ -86,3 +86,6 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
     </main>
   );
 }
+
+// AROUND editorial freshness: refresh published Sanity content without a redeploy.
+export const revalidate = 30;

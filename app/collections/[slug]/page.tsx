@@ -37,3 +37,6 @@ export default async function CollectionPage({params}:{params:Promise<{slug:stri
     </div></section>
   </main>;
 }
+
+// AROUND editorial freshness: refresh published Sanity content without a redeploy.
+export const revalidate = 30;

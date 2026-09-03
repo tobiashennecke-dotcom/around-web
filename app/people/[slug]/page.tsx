@@ -14,3 +14,6 @@ export default async function PersonPage({params}:{params:Promise<{slug:string}>
     <section className="section"><div className="container editorialGrid"><div><div className="eyebrow pink">{person.role || "Person"}</div><h2 className="sectionTitle">Perspektive<br/>zählt.</h2>{person.location&&<p>{person.location}</p>}</div><div className="articleBody"><StoryBody value={person.bio||[]} />{person.website&&<p><a href={person.website} target="_blank" rel="noreferrer">Website ↗</a></p>}{person.instagram&&<p><a href={person.instagram} target="_blank" rel="noreferrer">Instagram ↗</a></p>}</div></div></section>
   </main>;
 }
+
+// AROUND editorial freshness: refresh published Sanity content without a redeploy.
+export const revalidate = 30;

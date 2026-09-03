@@ -177,3 +177,6 @@ export default async function HomePage() {
     </main>
   );
 }
+
+// AROUND editorial freshness: refresh published Sanity content without a redeploy.
+export const revalidate = 30;

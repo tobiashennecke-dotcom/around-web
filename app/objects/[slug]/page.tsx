@@ -13,3 +13,6 @@ export default async function ProductPage({params}:{params:Promise<{slug:string}
     {product.whyItMatters&&<section className="section"><div className="container editorialGrid"><div><div className="eyebrow blue">WHY IT MATTERS</div><h2 className="sectionTitle">Nicht mehr.<br/>Besser.</h2></div><div className="featureCard"><p className="serif" style={{fontSize:34,lineHeight:1.16}}>{product.whyItMatters}</p></div></div></section>}
   </main>;
 }
+
+// AROUND editorial freshness: refresh published Sanity content without a redeploy.
+export const revalidate = 30;
