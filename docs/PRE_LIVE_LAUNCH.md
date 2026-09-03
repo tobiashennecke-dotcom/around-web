@@ -31,3 +31,10 @@ Diese Liste sammelt Punkte, die für den aktuellen Produktaufbau nicht blockiere
 - [ ] Login / Logout / Save / Collection vollständig testen
 - [ ] SEO Metadata / OpenGraph / Social Image prüfen
 - [ ] Impressum / Datenschutz / Consent / Analytics finalisieren
+
+## Trips / Planning
+
+- [ ] Gast-Trips nach finalem Auth-Fix auf Supabase-Account-Sync testen
+- [ ] Collection → Trip auf Desktop + iPhone Ende-zu-Ende testen
+- [ ] Trip-Daten nach Logout / Re-Login und auf zweitem Gerät prüfen
+- [ ] Optional: Public/Share Links für Trips erst nach Datenschutz-/Produktentscheidung aktivieren

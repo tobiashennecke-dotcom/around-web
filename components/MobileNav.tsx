@@ -8,7 +8,7 @@ function active(pathname: string, href: string) {
   if (href === "/discover") return pathname === "/" || pathname.startsWith("/discover");
   if (href === "/search") return pathname.startsWith("/search");
   if (href === "/saved") return pathname.startsWith("/saved");
-  return pathname.startsWith("/my-around/collections");
+  return pathname.startsWith("/my-around/");
 }
 
 export function MobileNav() {
@@ -31,9 +31,9 @@ export function MobileNav() {
         </span>
         <span>Gespeichert</span>
       </Link>
-      <Link href="/my-around/collections" className={active(pathname, "/my-around/collections") ? "active" : ""}>
-        <span className="mobileNavIcon mobileNavIcon--collections" aria-hidden="true" />
-        <span>Collections</span>
+      <Link href="/my-around/planen" className={active(pathname, "/my-around/planen") ? "active" : ""}>
+        <span className="mobileNavIcon mobileNavIcon--plan" aria-hidden="true" />
+        <span>Planen</span>
       </Link>
     </nav>
   );

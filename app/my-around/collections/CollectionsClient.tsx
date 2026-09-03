@@ -60,7 +60,7 @@ export function CollectionsClient() {
     <div className="collectionsWorkspace">
       <div className="collectionsStatusBar">
         <div><span className={`syncDot ${mode === "account" ? "syncDot--account" : ""}`} /><strong>{mode === "account" ? "Synchronisiert" : "Auf diesem Gerät"}</strong></div>
-        <Link href="/saved">← Zurück zu MY AROUND</Link>
+        <div className="tripWorkspaceLinks"><Link href="/my-around/trips">Trips →</Link><Link href="/saved">MY AROUND →</Link></div>
       </div>
 
       <div className="collectionCreateBar">

@@ -8,6 +8,7 @@ import {
   renameUserCollection,
   type UserCollection
 } from "@/lib/supabase/collections";
+import { addItemToTrip, createUserTrip } from "@/lib/supabase/trips";
 import type { SavePayload } from "@/lib/supabase/saves";
 
 function hrefFor(item: SavePayload) {
@@ -24,6 +25,7 @@ export function CollectionDetailClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState("");
+  const [planning, setPlanning] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -51,6 +53,19 @@ export function CollectionDetailClient({ id }: { id: string }) {
     await load();
   }
 
+  async function planTrip() {
+    if (!collection || planning) return;
+    setPlanning(true);
+    try {
+      const destination = collection.items.find(item => item.sourceType === "destination");
+      const trip = await createUserTrip(collection.title, { destinationSourceId: destination?.sourceId });
+      for (const item of collection.items) await addItemToTrip(trip.id, item);
+      window.location.href = `/my-around/trips/${trip.id}`;
+    } finally {
+      setPlanning(false);
+    }
+  }
+
   if (loading) return <section className="section"><div className="container savedLoading">Collection wird geladen …</div></section>;
   if (!collection) return <section className="section"><div className="container"><h1>Collection nicht gefunden.</h1><Link className="textLink" href="/my-around/collections">Zurück →</Link></div></section>;
 
@@ -71,11 +86,15 @@ export function CollectionDetailClient({ id }: { id: string }) {
             </div>
           )}
           <p className="serif">{collection.items.length} Fundstück{collection.items.length === 1 ? "" : "e"}. Noch keine Route – aber schon eine Richtung.</p>
+          <div className="collectionPlanCta">
+            <button type="button" className="primary" onClick={planTrip} disabled={planning || !collection.items.length}>{planning ? "Trip wird gebaut …" : "Als Trip planen →"}</button>
+            <span>Übernimmt alle Fundstücke in einen neuen Reiseplan.</span>
+          </div>
         </div>
       </section>
       <section className="section">
         <div className="container">
-          <div className="collectionDetailToolbar"><Link href="/my-around/collections">← Alle Collections</Link><Link href="/saved">+ Inhalte hinzufügen</Link></div>
+          <div className="collectionDetailToolbar"><Link href="/my-around/collections">← Alle Collections</Link><div className="tripWorkspaceLinks"><Link href="/my-around/trips">Trips →</Link><Link href="/saved">+ Inhalte hinzufügen</Link></div></div>
           {collection.items.length ? (
             <div className="collectionItemList">
               {collection.items.map((item, index) => (

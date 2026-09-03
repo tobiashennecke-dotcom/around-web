@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CollectionPicker } from "@/components/CollectionPicker";
+import { TripPicker } from "@/components/TripPicker";
 import type { SaveMode, SavePayload } from "@/lib/supabase/saves";
 import {
   listSaves,
@@ -115,7 +116,7 @@ export function SavedClient() {
           <strong>{mode === "account" ? "Synchronisiert" : "Auf diesem Gerät"}</strong>
           {mode === "account" && userEmail ? <span>{userEmail}</span> : <span>{items.length} gespeichert</span>}
         </div>
-        {mode === "guest" && <Link href="/account">Auf allen Geräten sichern →</Link>}
+        <div className="savedStatusLinks">{mode === "guest" && <Link href="/account">Auf allen Geräten sichern →</Link>}<Link href="/my-around/planen">Planen →</Link></div>
       </div>
 
       <div className="savedFilters" role="tablist" aria-label="Gespeicherte Inhalte filtern">
@@ -140,6 +141,7 @@ export function SavedClient() {
               <h3><Link href={hrefFor(item)}>{item.title}</Link></h3>
               <div className="savedRowActions">
                 <CollectionPicker item={item} compact />
+                <TripPicker item={item} compact />
                 <Link href={hrefFor(item)} className="savedOpen" aria-label={`${item.title} öffnen`}>Öffnen ↗</Link>
                 <button
                   type="button"
