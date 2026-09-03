@@ -671,3 +671,75 @@ img{display:block;max-width:100%}
 @media(max-width:640px){
   .myTripsHero,.planHubHero{padding:72px 0 62px}.myTripsHero h1,.planHubHero h1{font-size:clamp(62px,18vw,88px)}.myTripsHero p,.planHubHero p{font-size:23px}.myTripsContent,.planHubContent{padding-top:55px}.tripCreateBar{padding:26px 22px}.tripCard{min-height:330px;padding:22px}.tripCard h3{font-size:50px}.planHubCard{min-height:390px;padding:24px}.planHubCard h2{font-size:64px;margin-top:45px}.tripDetailHero{padding:72px 0 60px}.tripDetailHero h1{font-size:68px}.tripHeroAside{grid-template-columns:58px 1fr}.drop--trip{width:54px;height:54px;border-width:4px}.drop--trip:after{width:18px;height:18px}.tripMetaEditor{grid-template-columns:1fr}.tripMetaEditor label,.tripMetaEditor label:first-child,.tripMetaEditor .primary{grid-column:1}.tripDetailToolbar{flex-direction:column}.tripDayHead{padding:22px 18px 18px}.tripDayHead h2{font-size:47px}.tripItemRow{padding:18px;grid-template-columns:1fr}.tripItemControl,.tripItemNote,.tripItemIdentity,.tripItemRemove{grid-column:1}.tripItemRemove{grid-row:auto;justify-self:end}.savedRowActions{flex-wrap:wrap}.savedStatusLinks,.tripWorkspaceLinks{gap:12px}
 }
+
+/* AROUND Trip Planner Refinement v1.8 */
+.tripDetailHero--v18{padding-bottom:70px}
+.tripDetailHeroGrid--v18{align-items:end}
+.tripHeroMetaLine{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.tripHeroMetaLine span{border:1px solid rgba(255,255,255,.28);padding:8px 10px;font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.tripHeroAside--v18{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+.tripHeroAside--v18>div{border-top:1px solid rgba(255,255,255,.35);padding-top:12px}
+.tripHeroAside--v18 span{display:block;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--around-stone)}
+.tripHeroAside--v18 strong{display:block;font-size:26px;line-height:1;margin-top:8px;text-transform:uppercase}
+.tripHeroAside--v18 p{grid-column:1/-1;font-size:24px;margin-top:18px;max-width:520px}
+.tripHeroProgress>div{height:5px;background:rgba(255,255,255,.16);margin-top:12px;overflow:hidden}
+.tripHeroProgress i{display:block;height:100%;background:var(--around-lime)}
+.tripMetaSection--v18{padding-bottom:22px}
+.tripSaveState{min-height:29px;display:flex;align-items:center;gap:8px;margin-top:10px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--around-muted)}
+.tripSaveState .syncDot{width:7px;height:7px;border-radius:50%;background:var(--around-lime);display:inline-block;flex:0 0 auto}
+.tripSaveState--error{color:#9f2537}.tripSaveState--error .syncDot{background:var(--around-pink)}
+.tripDayNav{display:flex;gap:0;margin-top:30px;border-top:1px solid var(--around-ink);border-bottom:1px solid var(--around-ink);overflow-x:auto;scrollbar-width:none}
+.tripDayNav::-webkit-scrollbar{display:none}
+.tripDayNav a{min-width:112px;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:13px 14px;border-right:1px solid var(--around-line);font-size:8px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.tripDayNav a:hover{background:var(--around-lime)}
+.tripDayNav b{font-size:16px;letter-spacing:-.04em}.tripDayNav small{font-size:8px;color:var(--around-muted)}
+.tripBoardSection--v18{padding-top:34px;background:#e7e4dc}
+.tripBoard--v18{gap:28px}
+.tripDay--v18{scroll-margin-top:112px;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;overflow:hidden}
+.tripDay--dragTarget{border-top-color:var(--around-lime);box-shadow:0 0 0 3px var(--around-lime);transform:translateY(-2px)}
+.tripDayHead--v18{grid-template-columns:72px 1fr auto;align-items:center;padding:26px 30px}
+.tripDayNumber{font-size:28px;font-weight:900;letter-spacing:-.06em}
+.tripDayHead--v18 h2{font-size:clamp(42px,5vw,72px)}
+.tripDayHead--v18 p{font-family:Georgia,"Times New Roman",serif;font-size:17px;margin:7px 0 0;color:var(--around-muted);text-transform:none}
+.tripDayCount{display:flex;align-items:baseline;gap:7px}.tripDayCount strong{font-size:34px;line-height:1}.tripDayCount span{font-size:8px;text-transform:uppercase;letter-spacing:.08em}
+.tripDayItems--v18{border-top:1px solid var(--around-ink)}
+.tripItemRow--v18{position:relative;display:grid;grid-template-columns:22px 95px minmax(240px,1.2fr) 70px minmax(390px,1.3fr) 34px 38px;gap:16px;align-items:center;padding:18px 24px 18px 18px;background:var(--around-warm);transition:background .14s ease,transform .14s ease}
+.tripItemRow--v18:hover{background:#fff}
+.tripItemRow--v18:active{cursor:grabbing}
+.tripItemRow--v18:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--around-ink)}
+.tripItemRow--v18.tripType--place:before{background:var(--around-lime)}
+.tripItemRow--v18.tripType--destination:before,.tripItemRow--v18.tripType--object:before{background:var(--around-blue)}
+.tripItemRow--v18.tripType--story:before,.tripItemRow--v18.tripType--person:before{background:var(--around-pink)}
+.tripDragHandle{display:grid;gap:3px;cursor:grab;padding:6px 3px}.tripDragHandle i{height:2px;width:13px;background:var(--around-muted);display:block}
+.tripItemSlotPill span{display:inline-block;border:1px solid var(--around-ink);padding:6px 8px;font-size:8px;text-transform:uppercase;letter-spacing:.08em;font-weight:900}
+.tripItemIdentity--v18>span{font-weight:900}.tripItemIdentity--v18 h3{font-size:26px}.tripItemIdentity--v18 p{font-family:Georgia,"Times New Roman",serif;font-size:14px;color:var(--around-muted);margin:7px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:500px}
+.tripItemMove{display:flex;gap:4px}.tripItemMove button{width:30px;height:30px;border:1px solid var(--around-ink);background:transparent;cursor:pointer}.tripItemMove button:hover:not(:disabled){background:var(--around-lime)}.tripItemMove button:disabled{opacity:.25;cursor:default}
+.tripItemEditors{display:grid;grid-template-columns:90px 105px minmax(150px,1fr);gap:12px;align-items:end}
+.tripItemOpen{font-size:20px;text-align:center}.tripItemOpen:hover{color:var(--around-blue)}
+.tripItemRow--v18 .tripItemRemove{width:34px;height:34px;font-size:18px}
+.tripDayEmpty--v18{display:grid;grid-template-columns:56px 1fr;align-items:center;padding:28px 30px}
+.tripDayEmpty--v18>span{width:46px;height:46px;border:1px solid var(--around-ink);border-radius:50%;display:grid;place-items:center;font-family:Arial,sans-serif;font-size:24px}
+.tripDayEmpty--v18 strong{display:block;font-family:Arial,sans-serif;font-size:20px;text-transform:uppercase}.tripDayEmpty--v18 p{font-size:16px;margin:5px 0 0}
+@media(max-width:1100px){
+  .tripItemRow--v18{grid-template-columns:22px 84px minmax(220px,1fr) 70px minmax(280px,1fr) 34px 38px;gap:11px;padding-right:16px}
+  .tripItemEditors{grid-template-columns:80px 90px minmax(120px,1fr)}
+}
+@media(max-width:900px){
+  .tripHeroAside--v18{grid-template-columns:1fr 1fr}.tripDayNav{margin-inline:calc(var(--around-pad) * -1);padding-left:var(--around-pad)}
+  .tripDayHead--v18{grid-template-columns:52px 1fr auto}.tripDayHead--v18>small{grid-column:auto}
+  .tripItemRow--v18{grid-template-columns:18px 86px 1fr auto;gap:10px 12px;padding:17px 18px 17px 12px;align-items:start}
+  .tripDragHandle{grid-column:1;grid-row:1}.tripItemSlotPill{grid-column:2;grid-row:1}.tripItemIdentity--v18{grid-column:3;grid-row:1/3}.tripItemMove{grid-column:4;grid-row:1}
+  .tripItemEditors{grid-column:2/5;grid-row:3;grid-template-columns:100px 110px 1fr;margin-top:8px}.tripItemOpen{grid-column:2;grid-row:2;text-align:left}.tripItemRow--v18 .tripItemRemove{grid-column:4;grid-row:2;justify-self:end}
+}
+@media(max-width:620px){
+  .tripDetailHero--v18{padding-bottom:48px}.tripHeroMetaLine{margin-top:22px}.tripHeroMetaLine span{padding:7px 8px}
+  .tripHeroAside--v18{gap:12px}.tripHeroAside--v18 strong{font-size:21px}.tripHeroAside--v18 p{font-size:20px}
+  .tripMetaSection--v18{padding-top:30px}.tripSaveState{font-size:8px;line-height:1.4}
+  .tripDayNav a{min-width:96px;padding:11px 10px}.tripBoardSection--v18{padding-top:20px}.tripBoard--v18{gap:18px}
+  .tripDayHead--v18{grid-template-columns:42px 1fr auto;padding:20px 16px}.tripDayNumber{font-size:22px}.tripDayHead--v18 h2{font-size:40px}.tripDayHead--v18 p{font-size:14px}.tripDayCount strong{font-size:25px}.tripDayCount span{display:none}
+  .tripItemRow--v18{grid-template-columns:18px 1fr auto;gap:8px 10px;padding:15px 15px 15px 10px}
+  .tripDragHandle{display:none}.tripItemSlotPill{grid-column:1/3;grid-row:1}.tripItemIdentity--v18{grid-column:1/4;grid-row:2}.tripItemIdentity--v18 h3{font-size:25px}.tripItemIdentity--v18 p{white-space:normal;max-width:none}
+  .tripItemMove{grid-column:1/3;grid-row:3}.tripItemMove button{width:38px;height:34px}.tripItemOpen{grid-column:3;grid-row:1;text-align:right}.tripItemRow--v18 .tripItemRemove{grid-column:3;grid-row:3}
+  .tripItemEditors{grid-column:1/4;grid-row:4;grid-template-columns:1fr 1fr;gap:10px;margin-top:7px;padding-top:12px;border-top:1px solid var(--around-line)}.tripItemNote{grid-column:1/-1}
+  .tripDayEmpty--v18{grid-template-columns:42px 1fr;padding:22px 16px}.tripDayEmpty--v18>span{width:36px;height:36px}.tripDayEmpty--v18 p{font-size:14px}
+}
