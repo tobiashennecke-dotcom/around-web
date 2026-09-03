@@ -71,11 +71,29 @@ export function notifyTripChange() {
   }
 }
 
+let guestMutationQueue: Promise<void> = Promise.resolve();
+
+async function mutateLocal(mutator: (trips: UserTrip[]) => UserTrip[]) {
+  let result: UserTrip[] = [];
+  const task = guestMutationQueue.then(() => {
+    const current = readLocal();
+    result = mutator(current);
+    writeLocal(result);
+  });
+  guestMutationQueue = task.catch(() => undefined);
+  await task;
+  return result;
+}
+
 async function getAuthenticatedUser() {
   const supabase = createClient();
   if (!supabase) return { supabase: null, user: null };
-  const { data: { user } } = await supabase.auth.getUser();
-  return { supabase, user };
+
+  // Client-side product state does not need a network round-trip just to decide
+  // whether to use guest storage. getSession() reads the current browser session
+  // immediately; database writes remain protected by Supabase RLS.
+  const { data: { session } } = await supabase.auth.getSession();
+  return { supabase, user: session?.user || null };
 }
 
 async function mergeGuestTripsIntoAccount(
@@ -249,7 +267,7 @@ export async function createUserTrip(
 
   const { supabase, user } = await getAuthenticatedUser();
   if (!supabase || !user) {
-    writeLocal([trip, ...readLocal()]);
+    await mutateLocal(trips => [trip, ...trips.filter(existing => existing.id !== trip.id)]);
     return trip;
   }
 
@@ -277,23 +295,26 @@ export async function updateUserTrip(
   const { supabase, user } = await getAuthenticatedUser();
 
   if (!supabase || !user) {
-    const trips = readLocal();
-    const current = trips.find(trip => trip.id === id);
-    if (!current) throw new Error("Trip wurde lokal nicht gefunden.");
+    let expected: UserTrip | null = null;
+    await mutateLocal(trips => {
+      const current = trips.find(trip => trip.id === id);
+      if (!current) throw new Error("Trip wurde lokal nicht gefunden.");
 
-    const next: UserTrip = {
-      ...current,
-      ...patch,
-      title: patch.title !== undefined ? patch.title.trim() : current.title,
-      startDate: patch.startDate !== undefined ? (patch.startDate || undefined) : current.startDate,
-      endDate: patch.endDate !== undefined ? (patch.endDate || undefined) : current.endDate,
-      destinationSourceId: patch.destinationSourceId !== undefined ? (patch.destinationSourceId || undefined) : current.destinationSourceId,
-      updatedAt: now
-    };
+      expected = {
+        ...current,
+        ...patch,
+        title: patch.title !== undefined ? patch.title.trim() : current.title,
+        startDate: patch.startDate !== undefined ? (patch.startDate || undefined) : current.startDate,
+        endDate: patch.endDate !== undefined ? (patch.endDate || undefined) : current.endDate,
+        destinationSourceId: patch.destinationSourceId !== undefined ? (patch.destinationSourceId || undefined) : current.destinationSourceId,
+        updatedAt: now
+      };
 
-    writeLocal(trips.map(trip => trip.id === id ? next : trip));
+      return trips.map(trip => trip.id === id ? expected! : trip);
+    });
+
     const persisted = readLocal().find(trip => trip.id === id);
-    if (!persisted || persisted.title !== next.title || persisted.startDate !== next.startDate || persisted.endDate !== next.endDate || persisted.status !== next.status) {
+    if (!expected || !persisted || persisted.title !== expected.title || persisted.startDate !== expected.startDate || persisted.endDate !== expected.endDate || persisted.status !== expected.status) {
       throw new Error("Trip-Änderungen konnten lokal nicht bestätigt werden.");
     }
     return;
@@ -320,7 +341,7 @@ export async function updateUserTrip(
 export async function deleteUserTrip(id: string) {
   const { supabase, user } = await getAuthenticatedUser();
   if (!supabase || !user) {
-    writeLocal(readLocal().filter(trip => trip.id !== id));
+    await mutateLocal(trips => trips.filter(trip => trip.id !== id));
     return;
   }
 
@@ -334,8 +355,7 @@ export async function addItemToTrip(tripId: string, item: SavePayload) {
   const { supabase, user } = await getAuthenticatedUser();
 
   if (!supabase || !user) {
-    const trips = readLocal();
-    writeLocal(trips.map(trip => {
+    await mutateLocal(trips => trips.map(trip => {
       if (trip.id !== tripId || trip.items.some(existing => existing.sourceId === item.sourceId)) return trip;
       return {
         ...trip,
@@ -381,21 +401,22 @@ export async function updateTripItem(
   const { supabase, user } = await getAuthenticatedUser();
 
   if (!supabase || !user) {
-    const trips = readLocal();
-    const current = trips.find(trip => trip.id === tripId);
-    if (!current) throw new Error("Trip wurde lokal nicht gefunden.");
-    if (!current.items.some(item => item.sourceId === sourceId)) throw new Error("Trip-Inhalt wurde lokal nicht gefunden.");
+    await mutateLocal(trips => {
+      const current = trips.find(trip => trip.id === tripId);
+      if (!current) throw new Error("Trip wurde lokal nicht gefunden.");
+      if (!current.items.some(item => item.sourceId === sourceId)) throw new Error("Trip-Inhalt wurde lokal nicht gefunden.");
 
-    writeLocal(trips.map(trip => trip.id === tripId ? {
-      ...trip,
-      updatedAt: now,
-      items: trip.items.map(item => item.sourceId === sourceId ? {
-        ...item,
-        dayIndex: "dayIndex" in patch ? patch.dayIndex : item.dayIndex,
-        slot: patch.slot ?? item.slot,
-        note: patch.note ?? item.note
-      } : item)
-    } : trip));
+      return trips.map(trip => trip.id === tripId ? {
+        ...trip,
+        updatedAt: now,
+        items: trip.items.map(item => item.sourceId === sourceId ? {
+          ...item,
+          dayIndex: "dayIndex" in patch ? patch.dayIndex : item.dayIndex,
+          slot: patch.slot ?? item.slot,
+          note: patch.note ?? item.note
+        } : item)
+      } : trip);
+    });
     return;
   }
 
@@ -419,7 +440,7 @@ export async function removeItemFromTrip(tripId: string, sourceId: string) {
   const { supabase, user } = await getAuthenticatedUser();
 
   if (!supabase || !user) {
-    writeLocal(readLocal().map(trip => trip.id === tripId ? {
+    await mutateLocal(trips => trips.map(trip => trip.id === tripId ? {
       ...trip,
       updatedAt: now,
       items: trip.items.filter(item => item.sourceId !== sourceId)

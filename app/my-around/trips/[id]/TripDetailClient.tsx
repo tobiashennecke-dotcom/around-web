@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { SavePayload } from "@/lib/supabase/saves";
 import {
   getUserTrip,
@@ -56,12 +56,15 @@ export function TripDetailClient({ id }: { id: string }) {
   const [savingMeta, setSavingMeta] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [saveError, setSaveError] = useState("");
+  const [mode, setMode] = useState<"guest" | "account">("guest");
+  const autosaveReady = useRef(false);
 
   async function load() {
     setLoading(true);
     try {
       const result = await getUserTrip(id);
       setTrip(result.trip);
+      setMode(result.mode);
       if (result.trip) {
         setTitle(result.trip.title);
         setStartDate(result.trip.startDate || "");
@@ -73,9 +76,48 @@ export function TripDetailClient({ id }: { id: string }) {
     }
   }
 
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => {
+    autosaveReady.current = false;
+    load().finally(() => {
+      window.setTimeout(() => { autosaveReady.current = true; }, 0);
+    });
+  }, [id]);
 
   const dayCount = useMemo(() => daysBetween(startDate, endDate), [startDate, endDate]);
+
+  useEffect(() => {
+    if (!autosaveReady.current || !trip || loading || savingMeta || !title.trim()) return;
+    if (startDate && endDate && endDate < startDate) return;
+
+    const cleanTitle = title.trim();
+    const same = cleanTitle === trip.title
+      && (startDate || undefined) === trip.startDate
+      && (endDate || undefined) === trip.endDate
+      && status === trip.status;
+    if (same) return;
+
+    const timer = window.setTimeout(async () => {
+      setSaveError("");
+      try {
+        await updateUserTrip(trip.id, { title: cleanTitle, startDate, endDate, status });
+        setTrip(current => current ? {
+          ...current,
+          title: cleanTitle,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+          status,
+          updatedAt: new Date().toISOString()
+        } : current);
+        setSaveMessage(mode === "guest" ? "Automatisch auf diesem Gerät gespeichert." : "Automatisch synchronisiert.");
+        window.setTimeout(() => setSaveMessage(""), 2200);
+      } catch (error) {
+        console.error("AROUND trip autosave failed", error);
+        setSaveError("Autosave fehlgeschlagen. Bitte 'Plan speichern' verwenden.");
+      }
+    }, 550);
+
+    return () => window.clearTimeout(timer);
+  }, [title, startDate, endDate, status, trip, loading, savingMeta, mode]);
 
   async function saveMeta() {
     if (!trip || !title.trim()) return;
@@ -177,7 +219,9 @@ export function TripDetailClient({ id }: { id: string }) {
             <button type="button" className="primary" onClick={saveMeta} disabled={savingMeta || !title.trim()}>{savingMeta ? "Speichert …" : "Plan speichern →"}</button>
           </div>
           <div className="collectionPickerMessage" role="status" aria-live="polite">
-            {saveError || saveMessage || "Tag, Zeit und Notizen werden automatisch gespeichert."}
+            {saveError || saveMessage || (mode === "guest"
+              ? "Autosave aktiv · dieser Plan bleibt auf diesem Gerät gespeichert."
+              : "Autosave aktiv · dieser Plan wird mit deinem Account synchronisiert.")}
           </div>
           <div className="tripDetailToolbar"><Link href="/my-around/trips">← Alle Trips</Link><Link href="/saved">+ Aus MY AROUND hinzufügen</Link></div>
         </div>
