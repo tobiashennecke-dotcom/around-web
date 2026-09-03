@@ -26,7 +26,7 @@ function typeLabel(item: CardType) {
   if (item.type === "person") return "PEOPLE";
   if (item.type === "product") return "OBJECT";
   if (item.type === "collection") return "COLLECTION";
-  return item.type.toUpperCase();
+  return "CONTENT";
 }
 
 export function ContentCard({ item }: { item: CardType }) {
