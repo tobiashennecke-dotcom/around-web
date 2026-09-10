@@ -58,7 +58,8 @@ export const STORY_QUERY = defineQuery(`
       ...,
       _type == "image" => {
         ...,
-        "url": asset->url
+        "url": asset->url,
+        "dimensions": asset->metadata.dimensions
       }
     },
     "author": author->{_id,title,slug,role,"image":portrait.asset->url},

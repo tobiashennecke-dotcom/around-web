@@ -5,15 +5,20 @@ const components: any = {
     image: ({value}: any) => {
       if (!value?.url) return null;
       const layout = value.layout || "wide";
+      const width = Number(value?.dimensions?.width || 0);
+      const height = Number(value?.dimensions?.height || 0);
+      const ratio = width > 0 && height > 0 ? width / height : 1.5;
       return (
         <figure className={`storyImage storyImage--${layout}`}>
-          <img src={value.url} alt={value.alt || ""} loading="lazy" />
-          {(value.caption || value.credit) && (
-            <figcaption>
-              {value.caption && <span>{value.caption}</span>}
-              {value.credit && <small>{value.credit}</small>}
-            </figcaption>
-          )}
+          <div className="storyImageFrame" style={{ "--around-story-image-ratio": ratio } as any}>
+            <img src={value.url} alt={value.alt || ""} loading="lazy" />
+            {(value.caption || value.credit) && (
+              <figcaption>
+                {value.caption && <span>{value.caption}</span>}
+                {value.credit && <small>{value.credit}</small>}
+              </figcaption>
+            )}
+          </div>
         </figure>
       );
     }

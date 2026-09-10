@@ -1349,3 +1349,85 @@ img{display:block;max-width:100%}
   }
 }
 
+/* AROUND Story Image Frame v1.11.3 */
+/* Keep the visual, caption and credit in one measured frame so the credit starts at the image edge. */
+
+@media (min-width: 901px) {
+  .storyImage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .storyImageFrame {
+    width: min(100%, calc(82svh * var(--around-story-image-ratio, 1.5)));
+    max-width: 100%;
+  }
+
+  .storyImageFrame > img {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 82svh !important;
+    object-fit: contain !important;
+    object-position: center;
+  }
+
+  .storyImageFrame > figcaption {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 10px 0 0 !important;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 4px 18px;
+    text-align: left !important;
+  }
+}
+
+/* v1.11.2 moved the image, not the figure. Continue that motion on the new measured frame. */
+@media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .storyImageFrame > img {
+      animation-name: around-story-image-drift-v113;
+      animation-duration: 1ms;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 10% exit 90%;
+      will-change: transform;
+    }
+
+    @keyframes around-story-image-drift-v113 {
+      from { transform: translateY(clamp(4px, .45vw, 8px)); }
+      to { transform: translateY(clamp(-8px, -.45vw, -4px)); }
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .storyImageFrame { width: 100%; }
+  .storyImageFrame > img {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    object-fit: contain !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  .storyImageFrame > figcaption {
+    width: 100%;
+    margin-top: 10px;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .storyImageFrame > img {
+    animation: none !important;
+    transform: none !important;
+  }
+}
