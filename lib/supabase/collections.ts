@@ -1,5 +1,6 @@
 import { createClient } from "./client";
 import type { SavePayload } from "./saves";
+import { normalizeContentRole } from "@/lib/content-role";
 
 export type UserCollection = {
   id: string;
@@ -87,12 +88,13 @@ async function mergeGuestCollectionsIntoAccount(
         collection_id: collection.id,
         source_id: item.sourceId,
         source_type: dbType(item.sourceType),
+        source_role: item.sourceRole || null,
         sort_order: index
       }));
 
       const { error: itemError } = await supabase
         .from("user_collection_items")
-        .upsert(rows, { onConflict: "collection_id,source_id", ignoreDuplicates: true });
+        .upsert(rows, { onConflict: "collection_id,source_id", ignoreDuplicates: false });
 
       if (itemError) return;
     }
@@ -118,13 +120,14 @@ async function fetchAccountCollections(
     collection_id: string;
     source_id: string;
     source_type: string;
+    source_role: string | null;
     sort_order: number;
   }> = [];
 
   if (ids.length) {
     const { data } = await supabase
       .from("user_collection_items")
-      .select("collection_id,source_id,source_type,sort_order")
+      .select("collection_id,source_id,source_type,source_role,sort_order")
       .in("collection_id", ids)
       .order("sort_order", { ascending: true });
     itemRows = data || [];
@@ -136,7 +139,7 @@ async function fetchAccountCollections(
   if (sourceIds.length) {
     const { data } = await supabase
       .from("saved_items")
-      .select("source_id,source_type,title_snapshot,slug_snapshot")
+      .select("source_id,source_type,source_role,title_snapshot,slug_snapshot")
       .eq("user_id", userId)
       .in("source_id", sourceIds);
 
@@ -144,6 +147,7 @@ async function fetchAccountCollections(
       snapshots.set(row.source_id, {
         sourceId: row.source_id,
         sourceType: uiType(row.source_type),
+        sourceRole: normalizeContentRole(row.source_role),
         title: row.title_snapshot || "Gespeicherter Inhalt",
         slug: row.slug_snapshot || ""
       });
@@ -162,6 +166,7 @@ async function fetchAccountCollections(
       .map(item => snapshots.get(item.source_id) || {
         sourceId: item.source_id,
         sourceType: uiType(item.source_type),
+        sourceRole: normalizeContentRole(item.source_role),
         title: "Gespeicherter Inhalt",
         slug: ""
       })
@@ -276,8 +281,9 @@ export async function addItemToCollection(collectionId: string, item: SavePayloa
     collection_id: collectionId,
     source_id: item.sourceId,
     source_type: dbType(item.sourceType),
+    source_role: item.sourceRole || null,
     sort_order: count || 0
-  }, { onConflict: "collection_id,source_id", ignoreDuplicates: true });
+  }, { onConflict: "collection_id,source_id", ignoreDuplicates: false });
   if (error) throw error;
 
   await supabase

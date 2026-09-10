@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { SavePayload } from "@/lib/supabase/saves";
+import { contentTypeLabel, normalizeContentRole } from "@/lib/content-role";
 import {
   getUserTrip,
   removeItemFromTrip,
@@ -47,13 +48,17 @@ function hrefFor(item: SavePayload) {
   return "/discover";
 }
 
-function plannerType(type: string) {
-  if (type === "destination") return { label: "Destination", className: "tripType--destination" };
-  if (type === "place") return { label: "Place", className: "tripType--place" };
-  if (type === "story") return { label: "Story", className: "tripType--story" };
-  if (type === "person") return { label: "People", className: "tripType--person" };
-  if (type === "product" || type === "object") return { label: "Object", className: "tripType--object" };
-  return { label: type, className: "tripType--default" };
+function plannerType(item: SavePayload) {
+  const role = item.sourceType === "place" ? normalizeContentRole(item.sourceRole) : undefined;
+  if (item.sourceType === "place" && role) {
+    return { label: contentTypeLabel("place", role), className: `tripType--${role}` };
+  }
+  if (item.sourceType === "destination") return { label: "DESTINATION", className: "tripType--destination" };
+  if (item.sourceType === "place") return { label: "PLACE", className: "tripType--place" };
+  if (item.sourceType === "story") return { label: "STORY", className: "tripType--story" };
+  if (item.sourceType === "person") return { label: "PEOPLE", className: "tripType--person" };
+  if (item.sourceType === "product" || item.sourceType === "object") return { label: "OBJECT", className: "tripType--object" };
+  return { label: contentTypeLabel(item.sourceType), className: "tripType--default" };
 }
 
 function daysBetween(start?: string, end?: string) {
@@ -476,7 +481,7 @@ function TripItemRow({
   onDragEnd: () => void;
 }) {
   const [note, setNote] = useState(item.note || "");
-  const type = plannerType(item.sourceType);
+  const type = plannerType(item);
   const itemSlot = (item.slot || "flex") as TripSlot;
   const canMoveBack = dayIndex !== undefined;
   const canMoveForward = dayIndex === undefined || dayIndex < dayCount - 1;

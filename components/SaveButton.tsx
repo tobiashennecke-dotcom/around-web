@@ -3,19 +3,22 @@
 import { useEffect, useState } from "react";
 import {
   isSaved,
+  refreshSaveMetadata,
   SAVES_CHANGED_EVENT,
   toggleSave
 } from "@/lib/supabase/saves";
+import { normalizeContentRole } from "@/lib/content-role";
 
 type Props = {
   sourceId: string;
   sourceType: string;
   title: string;
   slug: string;
+  placeType?: string;
   label?: string;
 };
 
-export function SaveButton({ sourceId, sourceType, title, slug, label }: Props) {
+export function SaveButton({ sourceId, sourceType, title, slug, placeType, label }: Props) {
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -26,6 +29,15 @@ export function SaveButton({ sourceId, sourceType, title, slug, label }: Props) 
       try {
         const result = await isSaved(sourceId);
         if (active) setSaved(result);
+        if (result && sourceType === "place" && placeType) {
+          await refreshSaveMetadata({
+            sourceId,
+            sourceType,
+            sourceRole: normalizeContentRole(placeType),
+            title,
+            slug
+          });
+        }
       } catch {
         // Save state is a progressive enhancement; keep the control usable.
       }
@@ -40,13 +52,19 @@ export function SaveButton({ sourceId, sourceType, title, slug, label }: Props) 
       window.removeEventListener(SAVES_CHANGED_EVENT, syncState);
       window.removeEventListener("storage", syncState);
     };
-  }, [sourceId]);
+  }, [sourceId, sourceType, title, slug, placeType]);
 
   async function handleSave() {
     if (busy) return;
     setBusy(true);
     try {
-      const result = await toggleSave({ sourceId, sourceType, title, slug });
+      const result = await toggleSave({
+        sourceId,
+        sourceType,
+        sourceRole: sourceType === "place" ? normalizeContentRole(placeType) : undefined,
+        title,
+        slug
+      });
       setSaved(result.saved);
     } finally {
       setBusy(false);

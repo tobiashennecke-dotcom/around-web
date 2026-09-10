@@ -6,14 +6,10 @@ import { SaveButton } from "@/components/SaveButton";
 import { StoryBody } from "@/components/StoryBody";
 import { contentHref } from "@/components/ContentCard";
 import type { ContentCard } from "@/lib/types";
+import { contentTypeLabel } from "@/lib/content-role";
 
 function typeLabel(item: ContentCard) {
-  if (item.type === "destination") return "Destination";
-  if (item.type === "place") return "Place";
-  if (item.type === "person") return "Person";
-  if (item.type === "product") return "Object";
-  if (item.type === "collection") return "Collection";
-  return "Story";
+  return contentTypeLabel(item.type, item.placeType);
 }
 
 function formatDate(value?:string){

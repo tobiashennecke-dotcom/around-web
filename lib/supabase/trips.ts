@@ -1,5 +1,6 @@
 import { createClient } from "./client";
 import type { SavePayload } from "./saves";
+import { normalizeContentRole } from "@/lib/content-role";
 
 export type TripStatus = "idea" | "planning" | "booked" | "completed";
 export type TripSlot = "flex" | "morning" | "midday" | "afternoon" | "evening" | "stay";
@@ -130,6 +131,7 @@ async function mergeGuestTripsIntoAccount(
         trip_id: trip.id,
         source_id: item.sourceId,
         source_type: dbType(item.sourceType),
+        source_role: item.sourceRole || null,
         day_index: item.dayIndex ?? null,
         slot: item.slot || "flex",
         note: item.note || null,
@@ -164,6 +166,7 @@ async function fetchAccountTrips(
     trip_id: string;
     source_id: string;
     source_type: string;
+    source_role: string | null;
     day_index: number | null;
     slot: string | null;
     note: string | null;
@@ -173,7 +176,7 @@ async function fetchAccountTrips(
   if (tripIds.length) {
     const { data } = await supabase
       .from("trip_items")
-      .select("trip_id,source_id,source_type,day_index,slot,note,sort_order")
+      .select("trip_id,source_id,source_type,source_role,day_index,slot,note,sort_order")
       .in("trip_id", tripIds)
       .order("sort_order", { ascending: true });
     itemRows = data || [];
@@ -185,7 +188,7 @@ async function fetchAccountTrips(
   if (sourceIds.length) {
     const { data } = await supabase
       .from("saved_items")
-      .select("source_id,source_type,title_snapshot,slug_snapshot")
+      .select("source_id,source_type,source_role,title_snapshot,slug_snapshot")
       .eq("user_id", userId)
       .in("source_id", sourceIds);
 
@@ -193,6 +196,7 @@ async function fetchAccountTrips(
       snapshots.set(row.source_id, {
         sourceId: row.source_id,
         sourceType: uiType(row.source_type),
+        sourceRole: normalizeContentRole(row.source_role),
         title: row.title_snapshot || "Gespeicherter Inhalt",
         slug: row.slug_snapshot || ""
       });
@@ -214,6 +218,7 @@ async function fetchAccountTrips(
         const snapshot = snapshots.get(item.source_id) || {
           sourceId: item.source_id,
           sourceType: uiType(item.source_type),
+          sourceRole: normalizeContentRole(item.source_role),
           title: "Gespeicherter Inhalt",
           slug: ""
         };
@@ -372,7 +377,12 @@ export async function addItemToTrip(tripId: string, item: SavePayload) {
     .eq("trip_id", tripId)
     .eq("source_id", item.sourceId)
     .maybeSingle();
-  if (existing) return;
+  if (existing) {
+    if (item.sourceRole) {
+      await supabase.from("trip_items").update({ source_role: item.sourceRole }).eq("id", existing.id);
+    }
+    return;
+  }
 
   const { count } = await supabase
     .from("trip_items")
@@ -383,6 +393,7 @@ export async function addItemToTrip(tripId: string, item: SavePayload) {
     trip_id: tripId,
     source_id: item.sourceId,
     source_type: dbType(item.sourceType),
+    source_role: item.sourceRole || null,
     slot: "flex",
     sort_order: count || 0
   });

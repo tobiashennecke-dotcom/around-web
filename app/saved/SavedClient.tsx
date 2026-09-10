@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CollectionPicker } from "@/components/CollectionPicker";
 import { TripPicker } from "@/components/TripPicker";
 import type { SaveMode, SavePayload } from "@/lib/supabase/saves";
+import { contentTypeLabel } from "@/lib/content-role";
 import {
   listSaves,
   removeSave,
@@ -23,14 +24,8 @@ function hrefFor(item: SavePayload) {
   return "/discover";
 }
 
-function labelFor(type: string) {
-  if (type === "destination") return "Destination";
-  if (type === "place") return "Place";
-  if (type === "story") return "Story";
-  if (type === "person") return "Person";
-  if (type === "product" || type === "object") return "Object";
-  if (type === "collection") return "Collection";
-  return type;
+function labelFor(item: SavePayload) {
+  return contentTypeLabel(item.sourceType, item.sourceRole);
 }
 
 const filters: { value: Filter; label: string }[] = [
@@ -137,7 +132,7 @@ export function SavedClient() {
           {visible.map((item, index) => (
             <article className="savedRowV14" key={item.sourceId}>
               <div className="savedRowIndex">{String(index + 1).padStart(2, "0")}</div>
-              <div className="savedRowType">{labelFor(item.sourceType)}</div>
+              <div className="savedRowType">{labelFor(item)}</div>
               <h3><Link href={hrefFor(item)}>{item.title}</Link></h3>
               <div className="savedRowActions">
                 <CollectionPicker item={item} compact />

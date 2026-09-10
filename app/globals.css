@@ -1431,3 +1431,11 @@ img{display:block;max-width:100%}
     transform: none !important;
   }
 }
+
+
+/* AROUND Product Semantics v1.12 */
+.tripItemRow--v18.tripType--play:before,
+.tripItemRow--v18.tripType--stay:before,
+.tripItemRow--v18.tripType--do:before{background:var(--around-lime)}
+.tripItemRow--v18.tripType--eat:before{background:var(--around-pink)}
+

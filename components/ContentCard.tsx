@@ -53,6 +53,7 @@ export function ContentCard({ item }: { item: CardType }) {
             sourceType={item.type}
             title={item.title}
             slug={item.slug}
+            placeType={item.placeType}
           />
         </div>
       </div>

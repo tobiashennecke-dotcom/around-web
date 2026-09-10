@@ -1,8 +1,10 @@
 import { createClient } from "./client";
+import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
 
 export type SavePayload = {
   sourceId: string;
   sourceType: string;
+  sourceRole?: ContentRole;
   title: string;
   slug: string;
 };
@@ -24,7 +26,11 @@ function readLocal(): SavePayload[] {
   if (typeof window === "undefined") return [];
   try {
     const parsed = JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map(item => ({
+      ...item,
+      sourceRole: normalizeContentRole(item?.sourceRole)
+    }));
   } catch {
     return [];
   }
@@ -77,13 +83,14 @@ async function mergeGuestSavesIntoAccount(
     user_id: userId,
     source_id: item.sourceId,
     source_type: dbType(item.sourceType),
+    source_role: item.sourceRole || null,
     title_snapshot: item.title,
     slug_snapshot: item.slug
   }));
 
   const { error } = await supabase
     .from("saved_items")
-    .upsert(rows, { onConflict: "user_id,source_id", ignoreDuplicates: true });
+    .upsert(rows, { onConflict: "user_id,source_id", ignoreDuplicates: false });
 
   if (!error) {
     clearLocal();
@@ -97,7 +104,7 @@ async function fetchAccountItems(
 ): Promise<SavePayload[]> {
   const { data, error } = await supabase
     .from("saved_items")
-    .select("source_id,source_type,title_snapshot,slug_snapshot,created_at")
+    .select("source_id,source_type,source_role,title_snapshot,slug_snapshot,created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
@@ -106,6 +113,7 @@ async function fetchAccountItems(
   return data.map(row => ({
     sourceId: row.source_id,
     sourceType: uiType(row.source_type),
+    sourceRole: normalizeContentRole(row.source_role),
     title: row.title_snapshot || "Gespeicherter Inhalt",
     slug: row.slug_snapshot || ""
   }));
@@ -144,7 +152,43 @@ export async function getSaveCount() {
   return ids.size;
 }
 
+export async function refreshSaveMetadata(payload: SavePayload) {
+  const normalized: SavePayload = {
+    ...payload,
+    sourceRole: payload.sourceType === "place" ? normalizeContentRole(payload.sourceRole) : undefined
+  };
+  const { supabase, user } = await getAuthenticatedUser();
+
+  if (!supabase || !user) {
+    const current = readLocal();
+    let changed = false;
+    const next = current.map(item => {
+      if (item.sourceId !== normalized.sourceId) return item;
+      const updated = { ...item, ...normalized };
+      if (JSON.stringify(updated) !== JSON.stringify(item)) changed = true;
+      return updated;
+    });
+    if (changed) writeLocal(next);
+    return;
+  }
+
+  await supabase
+    .from("saved_items")
+    .update({
+      source_type: dbType(normalized.sourceType),
+      source_role: normalized.sourceRole || null,
+      title_snapshot: normalized.title,
+      slug_snapshot: normalized.slug
+    })
+    .eq("user_id", user.id)
+    .eq("source_id", normalized.sourceId);
+}
+
 export async function toggleSave(payload: SavePayload) {
+  payload = {
+    ...payload,
+    sourceRole: payload.sourceType === "place" ? normalizeContentRole(payload.sourceRole) : undefined
+  };
   const { supabase, user } = await getAuthenticatedUser();
 
   if (!supabase || !user) {
@@ -178,6 +222,7 @@ export async function toggleSave(payload: SavePayload) {
     user_id: user.id,
     source_id: payload.sourceId,
     source_type: dbType(payload.sourceType),
+    source_role: payload.sourceRole || null,
     title_snapshot: payload.title,
     slug_snapshot: payload.slug
   });

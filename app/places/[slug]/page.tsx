@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getPlace } from "@/lib/content";
 import { SaveButton } from "@/components/SaveButton";
+import { contentTypeLabel } from "@/lib/content-role";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
@@ -18,6 +19,7 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
   const { slug } = await params;
   const place = await getPlace(slug);
   if (!place) notFound();
+  const roleLabel = contentTypeLabel("place", place.placeType);
 
   return (
     <main>
@@ -30,7 +32,7 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
           <h1>{place.title.toUpperCase()}</h1>
           <p className="heroIntro">{place.description}</p>
           <div className="heroActions">
-            <SaveButton sourceId={place.id} sourceType={place.type} title={place.title} slug={place.slug} label="Place merken" />
+            <SaveButton sourceId={place.id} sourceType={place.type} title={place.title} slug={place.slug} placeType={place.placeType} label={`${roleLabel} merken`} />
             {place.destination && (
               <Link className="primary" href={`/destinations/${place.destination.slug}`}>
                 {place.destination.title} →

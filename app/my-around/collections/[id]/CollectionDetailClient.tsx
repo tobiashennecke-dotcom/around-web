@@ -10,6 +10,7 @@ import {
 } from "@/lib/supabase/collections";
 import { addItemToTrip, createUserTrip } from "@/lib/supabase/trips";
 import type { SavePayload } from "@/lib/supabase/saves";
+import { contentTypeLabel } from "@/lib/content-role";
 
 function hrefFor(item: SavePayload) {
   if (item.sourceType === "destination") return `/destinations/${item.slug}`;
@@ -100,7 +101,7 @@ export function CollectionDetailClient({ id }: { id: string }) {
               {collection.items.map((item, index) => (
                 <article key={item.sourceId} className="collectionItemRow">
                   <div>{String(index + 1).padStart(2, "0")}</div>
-                  <div className="collectionItemType">{item.sourceType}</div>
+                  <div className="collectionItemType">{contentTypeLabel(item.sourceType, item.sourceRole)}</div>
                   <h2><Link href={hrefFor(item)}>{item.title}</Link></h2>
                   <div className="collectionItemActions"><Link href={hrefFor(item)}>Öffnen ↗</Link><button type="button" onClick={() => remove(item.sourceId)}>×</button></div>
                 </article>
