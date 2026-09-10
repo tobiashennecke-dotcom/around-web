@@ -1295,3 +1295,57 @@ img{display:block;max-width:100%}
   }
 }
 
+
+
+/* AROUND Story Image Motion Repair v1.11.2 */
+/*
+ * Repairs the transform collision introduced in v1.11.1:
+ * .storyImage--wide / --full use translateX(-50%) for centering.
+ * Animating transform on the figure replaced that translateX and pushed visuals out of frame.
+ * Keep the figure's layout transform untouched and animate only the image itself.
+ */
+
+@media (min-width: 901px) {
+  .storyImage {
+    animation: none !important;
+    will-change: auto !important;
+  }
+}
+
+@media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .storyImage > img {
+      animation-name: around-story-image-drift-v112;
+      animation-duration: 1ms;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 10% exit 90%;
+      will-change: transform;
+    }
+
+    @keyframes around-story-image-drift-v112 {
+      from {
+        transform: translateY(clamp(4px, 0.45vw, 8px));
+      }
+      to {
+        transform: translateY(clamp(-8px, -0.45vw, -4px));
+      }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .storyImage > img {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 1099px) {
+  .storyImage > img {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
