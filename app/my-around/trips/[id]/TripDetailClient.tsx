@@ -244,7 +244,10 @@ export function TripDetailClient({ id }: { id: string }) {
         ...item,
         dayIndex: "dayIndex" in patch ? patch.dayIndex : item.dayIndex,
         slot: patch.slot ?? item.slot,
-        note: patch.note ?? item.note
+        note: patch.note ?? item.note,
+        stayStartDay: "stayStartDay" in patch ? patch.stayStartDay : item.stayStartDay,
+        stayEndDay: "stayEndDay" in patch ? patch.stayEndDay : item.stayEndDay,
+        stayFullTrip: "stayFullTrip" in patch ? Boolean(patch.stayFullTrip) : item.stayFullTrip
       } : item)
     } : current);
 
