@@ -59,7 +59,17 @@ export const place = defineType({
       of:[{type:"image",options:{hotspot:true},fields:[
         {name:"alt",title:"Alt text",type:"string"},
         {name:"caption",title:"Caption",type:"string"},
-        {name:"credit",title:"Credit",type:"string"}
+        {name:"credit",title:"Credit",type:"string"},
+        {
+          name:"layout",title:"Editorial layout",type:"string",initialValue:"auto",
+          options:{list:[
+            {title:"Auto",value:"auto"},
+            {title:"Wide",value:"wide"},
+            {title:"Portrait",value:"portrait"},
+            {title:"Full bleed",value:"full"},
+            {title:"Detail",value:"detail"}
+          ],layout:"radio"}
+        }
       ]}]
     }),
 

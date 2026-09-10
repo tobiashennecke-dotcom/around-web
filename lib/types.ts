@@ -22,7 +22,6 @@ export type ContentCard = {
   priority?: number;
   /** Semantic role for place cards: course/stay/eat/do. */
   placeType?: string;
-
 };
 
 export type SeoFields = {
@@ -52,6 +51,19 @@ export type GoodToKnow = {
   value: string;
 };
 
+export type PlaceMediaLayout = "auto" | "wide" | "portrait" | "full" | "detail";
+
+export type PlaceMediaItem = {
+  url: string;
+  alt?: string;
+  caption?: string;
+  credit?: string;
+  layout?: PlaceMediaLayout;
+  width?: number;
+  height?: number;
+  aspectRatio?: number;
+};
+
 export type Place = ContentCard & SeoFields & {
   type: "place";
   destinationId: string;
@@ -60,6 +72,7 @@ export type Place = ContentCard & SeoFields & {
   whyWeLikeIt: string;
   aroundTake?: string;
   goodToKnow?: GoodToKnow[];
+  gallery?: PlaceMediaItem[];
   address?: string;
   website?: string;
   instagram?: string;

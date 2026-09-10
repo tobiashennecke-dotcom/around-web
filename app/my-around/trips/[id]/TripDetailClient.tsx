@@ -9,6 +9,7 @@ import {
   removeItemFromTrip,
   updateTripItem,
   updateUserTrip,
+  type TripItemPatch,
   type TripSlot,
   type TripStatus,
   type UserTrip
@@ -97,6 +98,30 @@ function sortItems(items: UserTrip["items"]) {
     if (aSlot !== bSlot) return aSlot - bSlot;
     return a.sortOrder - b.sortOrder;
   });
+}
+
+function isStayItem(item: UserTrip["items"][number]) {
+  return item.sourceType === "place" && normalizeContentRole(item.sourceRole) === "stay";
+}
+
+function effectiveStayRange(item: UserTrip["items"][number], dayCount: number) {
+  if (item.stayFullTrip) return { start: 0, end: Math.max(0, dayCount - 1) };
+  return { start: item.stayStartDay, end: item.stayEndDay };
+}
+
+function stayCoverage(items: UserTrip["items"], dayCount: number) {
+  const nights = Math.max(0, dayCount - 1);
+  const coverage = Array.from({ length: nights }, () => 0);
+  for (const item of items) {
+    const range = effectiveStayRange(item, dayCount);
+    if (range.start === undefined || range.end === undefined || range.end <= range.start) continue;
+    for (let night = Math.max(0, range.start); night < Math.min(nights, range.end); night += 1) coverage[night] += 1;
+  }
+  return {
+    nights,
+    uncovered: coverage.filter(value => value === 0).length,
+    overlaps: coverage.filter(value => value > 1).length
+  };
 }
 
 export function TripDetailClient({ id }: { id: string }) {
@@ -207,7 +232,7 @@ export function TripDetailClient({ id }: { id: string }) {
     }
   }
 
-  async function changeItem(sourceId: string, patch: { dayIndex?: number; slot?: TripSlot; note?: string }) {
+  async function changeItem(sourceId: string, patch: TripItemPatch) {
     if (!trip) return;
     setSaveError("");
 
@@ -266,12 +291,18 @@ export function TripDetailClient({ id }: { id: string }) {
   if (loading) return <section className="section"><div className="container savedLoading">Trip wird geladen …</div></section>;
   if (!trip) return <section className="section"><div className="container"><h1>Trip nicht gefunden.</h1><Link className="textLink" href="/my-around/trips">Zurück →</Link></div></section>;
 
-  const unplanned = sortItems(trip.items.filter(item => item.dayIndex === undefined));
+  const stays = trip.items.filter(isStayItem);
+  const regularItems = trip.items.filter(item => !isStayItem(item));
+  const unplanned = sortItems(regularItems.filter(item => item.dayIndex === undefined));
   const days = Array.from({ length: dayCount }, (_, dayIndex) => ({
     dayIndex,
-    items: sortItems(trip.items.filter(item => item.dayIndex === dayIndex))
+    items: sortItems(regularItems.filter(item => item.dayIndex === dayIndex))
   }));
-  const plannedCount = trip.items.length - unplanned.length;
+  const stayPlannedCount = stays.filter(item => {
+    const range = effectiveStayRange(item, dayCount);
+    return item.stayFullTrip || (range.start !== undefined && range.end !== undefined && range.end > range.start);
+  }).length;
+  const plannedCount = (regularItems.length - unplanned.length) + stayPlannedCount;
 
   return (
     <>
@@ -332,6 +363,16 @@ export function TripDetailClient({ id }: { id: string }) {
           </div>
           <div className="tripDetailToolbar"><Link href="/my-around/trips">← Alle Trips</Link><Link href="/saved">+ Aus MY AROUND hinzufügen</Link></div>
 
+          {stays.length ? (
+            <StayLane
+              items={stays}
+              dayCount={dayCount}
+              startDate={startDate}
+              onChange={changeItem}
+              onRemove={remove}
+            />
+          ) : null}
+
           <nav className="tripDayNav" aria-label="Trip-Tage">
             {unplanned.length ? <a href="#trip-open"><b>00</b><span>Offen</span><small>{unplanned.length}</small></a> : null}
             {days.map(day => <a href={`#trip-day-${day.dayIndex + 1}`} key={day.dayIndex}><b>{String(day.dayIndex + 1).padStart(2, "0")}</b><span>Day {day.dayIndex + 1}{startDate ? <em>{dayDate(startDate, day.dayIndex)}</em> : null}</span><small>{day.items.length}</small></a>)}
@@ -388,6 +429,110 @@ export function TripDetailClient({ id }: { id: string }) {
   );
 }
 
+function StayLane({
+  items,
+  dayCount,
+  startDate,
+  onChange,
+  onRemove
+}: {
+  items: UserTrip["items"];
+  dayCount: number;
+  startDate: string;
+  onChange: (sourceId: string, patch: TripItemPatch) => Promise<void>;
+  onRemove: (sourceId: string) => Promise<void>;
+}) {
+  const coverage = stayCoverage(items, dayCount);
+  const coverageLabel = coverage.nights === 0
+    ? "Noch keine Übernachtung im gewählten Zeitraum."
+    : coverage.overlaps > 0
+      ? `${coverage.overlaps} ${coverage.overlaps === 1 ? "Nacht überschneidet sich" : "Nächte überschneiden sich"}.`
+      : coverage.uncovered > 0
+        ? `${coverage.uncovered} ${coverage.uncovered === 1 ? "Nacht noch offen" : "Nächte noch offen"}.`
+        : "Alle Nächte sind abgedeckt.";
+
+  return (
+    <section className="tripStayLane" aria-label="Unterkünfte">
+      <div className="tripStayLaneHead">
+        <div>
+          <div className="eyebrow lime">STAY / ÜBERNACHTEN</div>
+          <h2>WO DU BLEIBST.</h2>
+        </div>
+        <div className={`tripStayCoverage ${coverage.overlaps || coverage.uncovered ? "tripStayCoverage--open" : "tripStayCoverage--complete"}`}>
+          <strong>{items.length}</strong>
+          <span>{items.length === 1 ? "Stay" : "Stays"}</span>
+          <small>{coverageLabel}</small>
+        </div>
+      </div>
+
+      <div className="tripStaySegments">
+        {items.map(item => {
+          const range = effectiveStayRange(item, dayCount);
+          const nights = range.start !== undefined && range.end !== undefined && range.end > range.start
+            ? range.end - range.start
+            : undefined;
+          return (
+            <article className={`tripStaySegment ${item.stayFullTrip ? "tripStaySegment--full" : ""}`} key={item.sourceId}>
+              <div className="tripStaySegmentTop">
+                <div>
+                  <span className="tripStayRole">STAY</span>
+                  <h3><Link href={hrefFor(item)}>{item.title}</Link></h3>
+                  <p>{item.stayFullTrip ? "Für die ganze Reise" : nights !== undefined ? `${nights} ${nights === 1 ? "Nacht" : "Nächte"}` : "Zeitraum noch offen"}</p>
+                </div>
+                <div className="tripStaySegmentActions">
+                  <Link href={hrefFor(item)} aria-label={`${item.title} öffnen`}>↗</Link>
+                  <button type="button" onClick={() => onRemove(item.sourceId)} aria-label={`${item.title} aus Trip entfernen`}>×</button>
+                </div>
+              </div>
+
+              <div className="tripStayControls">
+                <label>
+                  <span>Check-in</span>
+                  <select
+                    value={range.start === undefined ? "" : String(range.start)}
+                    disabled={item.stayFullTrip}
+                    onChange={event => {
+                      const nextStart = event.target.value === "" ? undefined : Number(event.target.value);
+                      let nextEnd = item.stayEndDay;
+                      if (nextStart !== undefined && (nextEnd === undefined || nextEnd <= nextStart)) {
+                        nextEnd = nextStart < dayCount - 1 ? nextStart + 1 : undefined;
+                      }
+                      void onChange(item.sourceId, { stayFullTrip: false, stayStartDay: nextStart, stayEndDay: nextEnd });
+                    }}
+                  >
+                    <option value="">Offen</option>
+                    {Array.from({ length: dayCount }, (_, index) => <option value={index} key={index}>Day {index + 1}{startDate ? ` · ${dayDate(startDate,index)}` : ""}</option>)}
+                  </select>
+                </label>
+                <label>
+                  <span>Check-out</span>
+                  <select
+                    value={range.end === undefined ? "" : String(range.end)}
+                    disabled={item.stayFullTrip || dayCount < 2}
+                    onChange={event => void onChange(item.sourceId, { stayFullTrip: false, stayEndDay: event.target.value === "" ? undefined : Number(event.target.value) })}
+                  >
+                    <option value="">Offen</option>
+                    {Array.from({ length: Math.max(0,dayCount - 1) }, (_, offset) => offset + 1)
+                      .filter(index => range.start === undefined || index > range.start)
+                      .map(index => <option value={index} key={index}>Day {index + 1}{startDate ? ` · ${dayDate(startDate,index)}` : ""}</option>)}
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  className={`tripStayWholeTrip ${item.stayFullTrip ? "tripStayWholeTrip--active" : ""}`}
+                  onClick={() => void onChange(item.sourceId, { stayFullTrip: true, stayStartDay: undefined, stayEndDay: undefined })}
+                >
+                  {item.stayFullTrip ? "✓ Ganze Reise" : "Für ganze Reise"}
+                </button>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function TripDayBlock({
   id,
   dayIndex,
@@ -415,7 +560,7 @@ function TripDayBlock({
   dayCount: number;
   isOpen?: boolean;
   isDragTarget: boolean;
-  onChange: (sourceId: string, patch: { dayIndex?: number; slot?: TripSlot; note?: string }) => Promise<void>;
+  onChange: (sourceId: string, patch: TripItemPatch) => Promise<void>;
   onRemove: (sourceId: string) => Promise<void>;
   onMove: (sourceId: string, currentDay: number | undefined, direction: -1 | 1) => Promise<void>;
   onDragStart: (sourceId: string) => void;
@@ -474,7 +619,7 @@ function TripItemRow({
   item: UserTrip["items"][number];
   dayIndex: number | undefined;
   dayCount: number;
-  onChange: (sourceId: string, patch: { dayIndex?: number; slot?: TripSlot; note?: string }) => Promise<void>;
+  onChange: (sourceId: string, patch: TripItemPatch) => Promise<void>;
   onRemove: (sourceId: string) => Promise<void>;
   onMove: (sourceId: string, currentDay: number | undefined, direction: -1 | 1) => Promise<void>;
   onDragStart: (sourceId: string) => void;

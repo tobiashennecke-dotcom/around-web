@@ -44,6 +44,13 @@ export const PLACE_QUERY = defineQuery(`
     seoTitle,seoDescription,
     "image": heroImage.asset->url,
     "socialImage": socialImage.asset->url,
+    gallery[]{
+      alt,caption,credit,layout,
+      "url": asset->url,
+      "width": asset->metadata.dimensions.width,
+      "height": asset->metadata.dimensions.height,
+      "aspectRatio": asset->metadata.dimensions.aspectRatio
+    },
     "destination": destination->{${CARD_FIELDS}}
   }
 `);

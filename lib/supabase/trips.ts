@@ -5,11 +5,26 @@ import { normalizeContentRole } from "@/lib/content-role";
 export type TripStatus = "idea" | "planning" | "booked" | "completed";
 export type TripSlot = "flex" | "morning" | "midday" | "afternoon" | "evening" | "stay";
 
+export type TripItemPatch = {
+  dayIndex?: number;
+  slot?: TripSlot;
+  note?: string;
+  stayStartDay?: number;
+  stayEndDay?: number;
+  stayFullTrip?: boolean;
+};
+
 export type TripItem = SavePayload & {
   dayIndex?: number;
   slot?: TripSlot;
   note?: string;
   sortOrder: number;
+  /** STAY-only: check-in day index within the trip. */
+  stayStartDay?: number;
+  /** STAY-only: checkout day index within the trip (exclusive night boundary). */
+  stayEndDay?: number;
+  /** STAY-only: automatically span from trip start to trip end. */
+  stayFullTrip?: boolean;
 };
 
 export type UserTrip = {
@@ -135,6 +150,9 @@ async function mergeGuestTripsIntoAccount(
         day_index: item.dayIndex ?? null,
         slot: item.slot || "flex",
         note: item.note || null,
+        stay_start_day: item.stayStartDay ?? null,
+        stay_end_day: item.stayEndDay ?? null,
+        stay_full_trip: Boolean(item.stayFullTrip),
         sort_order: item.sortOrder
       };
 
@@ -170,13 +188,16 @@ async function fetchAccountTrips(
     day_index: number | null;
     slot: string | null;
     note: string | null;
+    stay_start_day: number | null;
+    stay_end_day: number | null;
+    stay_full_trip: boolean | null;
     sort_order: number;
   }> = [];
 
   if (tripIds.length) {
     const { data } = await supabase
       .from("trip_items")
-      .select("trip_id,source_id,source_type,source_role,day_index,slot,note,sort_order")
+      .select("trip_id,source_id,source_type,source_role,day_index,slot,note,stay_start_day,stay_end_day,stay_full_trip,sort_order")
       .in("trip_id", tripIds)
       .order("sort_order", { ascending: true });
     itemRows = data || [];
@@ -227,6 +248,9 @@ async function fetchAccountTrips(
           dayIndex: item.day_index ?? undefined,
           slot: (item.slot || "flex") as TripSlot,
           note: item.note || undefined,
+          stayStartDay: item.stay_start_day ?? undefined,
+          stayEndDay: item.stay_end_day ?? undefined,
+          stayFullTrip: Boolean(item.stay_full_trip),
           sortOrder: item.sort_order
         };
       })
@@ -355,7 +379,11 @@ export async function deleteUserTrip(id: string) {
   notifyTripChange();
 }
 
-export async function addItemToTrip(tripId: string, item: SavePayload) {
+export async function addItemToTrip(
+  tripId: string,
+  item: SavePayload,
+  options: { stayStartDay?: number; stayEndDay?: number; stayFullTrip?: boolean } = {}
+) {
   const now = new Date().toISOString();
   const { supabase, user } = await getAuthenticatedUser();
 
@@ -365,7 +393,14 @@ export async function addItemToTrip(tripId: string, item: SavePayload) {
       return {
         ...trip,
         updatedAt: now,
-        items: [...trip.items, { ...item, slot: "flex", sortOrder: trip.items.length }]
+        items: [...trip.items, {
+          ...item,
+          slot: item.sourceRole === "stay" ? "stay" : "flex",
+          stayStartDay: item.sourceRole === "stay" ? options.stayStartDay : undefined,
+          stayEndDay: item.sourceRole === "stay" ? options.stayEndDay : undefined,
+          stayFullTrip: item.sourceRole === "stay" ? Boolean(options.stayFullTrip) : false,
+          sortOrder: trip.items.length
+        }]
       };
     }));
     return;
@@ -378,8 +413,16 @@ export async function addItemToTrip(tripId: string, item: SavePayload) {
     .eq("source_id", item.sourceId)
     .maybeSingle();
   if (existing) {
-    if (item.sourceRole) {
-      await supabase.from("trip_items").update({ source_role: item.sourceRole }).eq("id", existing.id);
+    const updatePayload: Record<string, string | number | boolean | null> = {};
+    if (item.sourceRole) updatePayload.source_role = item.sourceRole;
+    if (item.sourceRole === "stay") {
+      if ("stayStartDay" in options) updatePayload.stay_start_day = options.stayStartDay ?? null;
+      if ("stayEndDay" in options) updatePayload.stay_end_day = options.stayEndDay ?? null;
+      if ("stayFullTrip" in options) updatePayload.stay_full_trip = Boolean(options.stayFullTrip);
+      updatePayload.slot = "stay";
+    }
+    if (Object.keys(updatePayload).length) {
+      await supabase.from("trip_items").update(updatePayload).eq("id", existing.id);
     }
     return;
   }
@@ -394,7 +437,10 @@ export async function addItemToTrip(tripId: string, item: SavePayload) {
     source_id: item.sourceId,
     source_type: dbType(item.sourceType),
     source_role: item.sourceRole || null,
-    slot: "flex",
+    slot: item.sourceRole === "stay" ? "stay" : "flex",
+    stay_start_day: item.sourceRole === "stay" ? (options.stayStartDay ?? null) : null,
+    stay_end_day: item.sourceRole === "stay" ? (options.stayEndDay ?? null) : null,
+    stay_full_trip: item.sourceRole === "stay" ? Boolean(options.stayFullTrip) : false,
     sort_order: count || 0
   });
   if (error) throw error;
@@ -406,7 +452,7 @@ export async function addItemToTrip(tripId: string, item: SavePayload) {
 export async function updateTripItem(
   tripId: string,
   sourceId: string,
-  patch: { dayIndex?: number; slot?: TripSlot; note?: string }
+  patch: TripItemPatch
 ) {
   const now = new Date().toISOString();
   const { supabase, user } = await getAuthenticatedUser();
@@ -424,17 +470,23 @@ export async function updateTripItem(
           ...item,
           dayIndex: "dayIndex" in patch ? patch.dayIndex : item.dayIndex,
           slot: patch.slot ?? item.slot,
-          note: patch.note ?? item.note
+          note: patch.note ?? item.note,
+          stayStartDay: "stayStartDay" in patch ? patch.stayStartDay : item.stayStartDay,
+          stayEndDay: "stayEndDay" in patch ? patch.stayEndDay : item.stayEndDay,
+          stayFullTrip: "stayFullTrip" in patch ? Boolean(patch.stayFullTrip) : item.stayFullTrip
         } : item)
       } : trip);
     });
     return;
   }
 
-  const dbPatch: Record<string, string | number | null> = {};
+  const dbPatch: Record<string, string | number | boolean | null> = {};
   if ("dayIndex" in patch) dbPatch.day_index = patch.dayIndex ?? null;
   if (patch.slot !== undefined) dbPatch.slot = patch.slot;
   if (patch.note !== undefined) dbPatch.note = patch.note || null;
+  if ("stayStartDay" in patch) dbPatch.stay_start_day = patch.stayStartDay ?? null;
+  if ("stayEndDay" in patch) dbPatch.stay_end_day = patch.stayEndDay ?? null;
+  if ("stayFullTrip" in patch) dbPatch.stay_full_trip = Boolean(patch.stayFullTrip);
 
   const { error } = await supabase.from("trip_items")
     .update(dbPatch)

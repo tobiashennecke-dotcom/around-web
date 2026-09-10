@@ -156,6 +156,16 @@ export async function getPlace(slug: string): Promise<Place | null> {
         whyWeLikeIt: doc.whyWeLikeIt || "",
         aroundTake: doc.aroundTake || undefined,
         goodToKnow: Array.isArray(doc.goodToKnow) ? doc.goodToKnow.filter((x:any)=>x?.label && x?.value) : [],
+        gallery: Array.isArray(doc.gallery) ? doc.gallery.filter((x:any)=>x?.url).map((x:any)=>({
+          url:x.url,
+          alt:x.alt || undefined,
+          caption:x.caption || undefined,
+          credit:x.credit || undefined,
+          layout:x.layout || "auto",
+          width:typeof x.width === "number" ? x.width : undefined,
+          height:typeof x.height === "number" ? x.height : undefined,
+          aspectRatio:typeof x.aspectRatio === "number" ? x.aspectRatio : undefined
+        })) : [],
         address: doc.address || undefined,
         website: doc.website || undefined,
         instagram: doc.instagram || undefined,
