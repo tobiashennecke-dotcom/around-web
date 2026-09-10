@@ -34,6 +34,10 @@ export type UserTrip = {
   startDate?: string;
   endDate?: string;
   status: TripStatus;
+  /** Planning completion is separate from the travel lifecycle status. */
+  planReady?: boolean;
+  /** Night indexes intentionally marked as not requiring a STAY. */
+  stayExemptNights?: number[];
   createdAt: string;
   updatedAt: string;
   items: TripItem[];
@@ -128,6 +132,8 @@ async function mergeGuestTripsIntoAccount(
       start_date: trip.startDate || null,
       end_date: trip.endDate || null,
       status: trip.status,
+      plan_ready: Boolean(trip.planReady),
+      stay_exempt_nights: trip.stayExemptNights || [],
       created_at: trip.createdAt,
       updated_at: trip.updatedAt
     }, { onConflict: "id" });
@@ -173,7 +179,7 @@ async function fetchAccountTrips(
 ): Promise<UserTrip[]> {
   const { data: trips, error } = await supabase
     .from("trips")
-    .select("id,title,destination_source_id,start_date,end_date,status,created_at,updated_at")
+    .select("id,title,destination_source_id,start_date,end_date,status,plan_ready,stay_exempt_nights,created_at,updated_at")
     .eq("user_id", userId)
     .order("updated_at", { ascending: false });
 
@@ -231,6 +237,8 @@ async function fetchAccountTrips(
     startDate: trip.start_date || undefined,
     endDate: trip.end_date || undefined,
     status: trip.status as TripStatus,
+    planReady: Boolean(trip.plan_ready),
+    stayExemptNights: Array.isArray(trip.stay_exempt_nights) ? trip.stay_exempt_nights.filter((value: unknown): value is number => typeof value === "number") : [],
     createdAt: trip.created_at,
     updatedAt: trip.updated_at,
     items: itemRows
@@ -289,6 +297,8 @@ export async function createUserTrip(
     startDate: options.startDate,
     endDate: options.endDate,
     status: "idea",
+    planReady: false,
+    stayExemptNights: [],
     createdAt: now,
     updatedAt: now,
     items: []
@@ -308,6 +318,8 @@ export async function createUserTrip(
     start_date: trip.startDate || null,
     end_date: trip.endDate || null,
     status: trip.status,
+    plan_ready: false,
+    stay_exempt_nights: [],
     created_at: now,
     updated_at: now
   });
@@ -318,7 +330,7 @@ export async function createUserTrip(
 
 export async function updateUserTrip(
   id: string,
-  patch: Partial<Pick<UserTrip, "title" | "startDate" | "endDate" | "status" | "destinationSourceId">>
+  patch: Partial<Pick<UserTrip, "title" | "startDate" | "endDate" | "status" | "destinationSourceId" | "planReady" | "stayExemptNights">>
 ) {
   const now = new Date().toISOString();
   const { supabase, user } = await getAuthenticatedUser();
@@ -335,6 +347,8 @@ export async function updateUserTrip(
         startDate: patch.startDate !== undefined ? (patch.startDate || undefined) : current.startDate,
         endDate: patch.endDate !== undefined ? (patch.endDate || undefined) : current.endDate,
         destinationSourceId: patch.destinationSourceId !== undefined ? (patch.destinationSourceId || undefined) : current.destinationSourceId,
+        planReady: patch.planReady !== undefined ? patch.planReady : current.planReady,
+        stayExemptNights: patch.stayExemptNights !== undefined ? patch.stayExemptNights : current.stayExemptNights,
         updatedAt: now
       };
 
@@ -343,18 +357,20 @@ export async function updateUserTrip(
 
     const expected = updatedTrips.find(trip => trip.id === id);
     const persisted = readLocal().find(trip => trip.id === id);
-    if (!expected || !persisted || persisted.title !== expected.title || persisted.startDate !== expected.startDate || persisted.endDate !== expected.endDate || persisted.status !== expected.status) {
+    if (!expected || !persisted || persisted.title !== expected.title || persisted.startDate !== expected.startDate || persisted.endDate !== expected.endDate || persisted.status !== expected.status || Boolean(persisted.planReady) !== Boolean(expected.planReady)) {
       throw new Error("Trip-Änderungen konnten lokal nicht bestätigt werden.");
     }
     return;
   }
 
-  const dbPatch: Record<string, string | null> = { updated_at: now };
+  const dbPatch: Record<string, string | boolean | number[] | null> = { updated_at: now };
   if (patch.title !== undefined) dbPatch.title = patch.title.trim();
   if (patch.startDate !== undefined) dbPatch.start_date = patch.startDate || null;
   if (patch.endDate !== undefined) dbPatch.end_date = patch.endDate || null;
   if (patch.status !== undefined) dbPatch.status = patch.status;
   if (patch.destinationSourceId !== undefined) dbPatch.destination_source_id = patch.destinationSourceId || null;
+  if (patch.planReady !== undefined) dbPatch.plan_ready = patch.planReady;
+  if (patch.stayExemptNights !== undefined) dbPatch.stay_exempt_nights = patch.stayExemptNights;
 
   const { data, error } = await supabase.from("trips")
     .update(dbPatch)
@@ -392,6 +408,7 @@ export async function addItemToTrip(
       if (trip.id !== tripId || trip.items.some(existing => existing.sourceId === item.sourceId)) return trip;
       return {
         ...trip,
+        planReady: false,
         updatedAt: now,
         items: [...trip.items, {
           ...item,
@@ -424,6 +441,8 @@ export async function addItemToTrip(
     if (Object.keys(updatePayload).length) {
       await supabase.from("trip_items").update(updatePayload).eq("id", existing.id);
     }
+    await supabase.from("trips").update({ updated_at: now, plan_ready: false }).eq("id", tripId).eq("user_id", user.id);
+    notifyTripChange();
     return;
   }
 
@@ -445,7 +464,7 @@ export async function addItemToTrip(
   });
   if (error) throw error;
 
-  await supabase.from("trips").update({ updated_at: now }).eq("id", tripId).eq("user_id", user.id);
+  await supabase.from("trips").update({ updated_at: now, plan_ready: false }).eq("id", tripId).eq("user_id", user.id);
   notifyTripChange();
 }
 
@@ -465,6 +484,7 @@ export async function updateTripItem(
 
       return trips.map(trip => trip.id === tripId ? {
         ...trip,
+        planReady: false,
         updatedAt: now,
         items: trip.items.map(item => item.sourceId === sourceId ? {
           ...item,
@@ -494,7 +514,7 @@ export async function updateTripItem(
     .eq("source_id", sourceId);
   if (error) throw error;
 
-  await supabase.from("trips").update({ updated_at: now }).eq("id", tripId).eq("user_id", user.id);
+  await supabase.from("trips").update({ updated_at: now, plan_ready: false }).eq("id", tripId).eq("user_id", user.id);
   notifyTripChange();
 }
 
@@ -505,6 +525,7 @@ export async function removeItemFromTrip(tripId: string, sourceId: string) {
   if (!supabase || !user) {
     await mutateLocal(trips => trips.map(trip => trip.id === tripId ? {
       ...trip,
+      planReady: false,
       updatedAt: now,
       items: trip.items.filter(item => item.sourceId !== sourceId)
     } : trip));
@@ -516,6 +537,6 @@ export async function removeItemFromTrip(tripId: string, sourceId: string) {
     .eq("trip_id", tripId)
     .eq("source_id", sourceId);
   if (error) throw error;
-  await supabase.from("trips").update({ updated_at: now }).eq("id", tripId).eq("user_id", user.id);
+  await supabase.from("trips").update({ updated_at: now, plan_ready: false }).eq("id", tripId).eq("user_id", user.id);
   notifyTripChange();
 }

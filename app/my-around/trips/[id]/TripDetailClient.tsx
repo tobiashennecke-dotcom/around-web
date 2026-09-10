@@ -109,7 +109,7 @@ function effectiveStayRange(item: UserTrip["items"][number], dayCount: number) {
   return { start: item.stayStartDay, end: item.stayEndDay };
 }
 
-function stayCoverage(items: UserTrip["items"], dayCount: number) {
+function stayCoverage(items: UserTrip["items"], dayCount: number, exemptNights: number[] = []) {
   const nights = Math.max(0, dayCount - 1);
   const coverage = Array.from({ length: nights }, () => 0);
   for (const item of items) {
@@ -117,11 +117,42 @@ function stayCoverage(items: UserTrip["items"], dayCount: number) {
     if (range.start === undefined || range.end === undefined || range.end <= range.start) continue;
     for (let night = Math.max(0, range.start); night < Math.min(nights, range.end); night += 1) coverage[night] += 1;
   }
+  const exemptions = new Set(exemptNights.filter(index => index >= 0 && index < nights));
+  const uncoveredNightIndexes = coverage
+    .map((value, index) => ({ value, index }))
+    .filter(entry => entry.value === 0 && !exemptions.has(entry.index))
+    .map(entry => entry.index);
+  const overlapNightIndexes = coverage
+    .map((value, index) => ({ value, index }))
+    .filter(entry => entry.value > 1)
+    .map(entry => entry.index);
   return {
     nights,
-    uncovered: coverage.filter(value => value === 0).length,
-    overlaps: coverage.filter(value => value > 1).length
+    uncovered: uncoveredNightIndexes.length,
+    overlaps: overlapNightIndexes.length,
+    uncoveredNightIndexes,
+    overlapNightIndexes,
+    exempt: exemptions.size,
+    coverage
   };
+}
+
+function nightLabel(start: string | undefined, nightIndex: number) {
+  if (!start) return `Nacht ${nightIndex + 1}`;
+  const from = new Date(`${start}T12:00:00`);
+  const to = new Date(`${start}T12:00:00`);
+  from.setDate(from.getDate() + nightIndex);
+  to.setDate(to.getDate() + nightIndex + 1);
+  const fmt = (date: Date) => new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit" }).format(date);
+  return `${fmt(from)} → ${fmt(to)}`;
+}
+
+function firstGapSpan(indexes: number[]) {
+  if (!indexes.length) return null;
+  const sorted = [...indexes].sort((a,b) => a-b);
+  let end = sorted[0] + 1;
+  for (let i = 1; i < sorted.length && sorted[i] === end; i += 1) end += 1;
+  return { start: sorted[0], end };
 }
 
 export function TripDetailClient({ id }: { id: string }) {
@@ -137,6 +168,7 @@ export function TripDetailClient({ id }: { id: string }) {
   const [mode, setMode] = useState<"guest" | "account">("guest");
   const [dragSourceId, setDragSourceId] = useState<string | null>(null);
   const [dragTargetDay, setDragTargetDay] = useState<number | "open" | null>(null);
+  const [showReadiness, setShowReadiness] = useState(false);
   const autosaveReady = useRef(false);
 
   async function load() {
@@ -179,13 +211,15 @@ export function TripDetailClient({ id }: { id: string }) {
     const timer = window.setTimeout(async () => {
       setSaveError("");
       try {
-        await updateUserTrip(trip.id, { title: cleanTitle, startDate, endDate, status });
+        const datesChanged = (startDate || undefined) !== trip.startDate || (endDate || undefined) !== trip.endDate;
+        await updateUserTrip(trip.id, { title: cleanTitle, startDate, endDate, status, ...(datesChanged ? { planReady: false, stayExemptNights: [] } : {}) });
         setTrip(current => current ? {
           ...current,
           title: cleanTitle,
           startDate: startDate || undefined,
           endDate: endDate || undefined,
           status,
+          ...(datesChanged ? { planReady: false, stayExemptNights: [] } : {}),
           updatedAt: new Date().toISOString()
         } : current);
         setSaveMessage(mode === "guest" ? "Automatisch auf diesem Gerät gespeichert." : "Automatisch synchronisiert.");
@@ -212,13 +246,15 @@ export function TripDetailClient({ id }: { id: string }) {
     setSaveError("");
     try {
       const cleanTitle = title.trim();
-      await updateUserTrip(trip.id, { title: cleanTitle, startDate, endDate, status });
+      const datesChanged = (startDate || undefined) !== trip.startDate || (endDate || undefined) !== trip.endDate;
+      await updateUserTrip(trip.id, { title: cleanTitle, startDate, endDate, status, ...(datesChanged ? { planReady: false, stayExemptNights: [] } : {}) });
       setTrip(current => current ? {
         ...current,
         title: cleanTitle,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
         status,
+        ...(datesChanged ? { planReady: false, stayExemptNights: [] } : {}),
         updatedAt: new Date().toISOString()
       } : current);
       setTitle(cleanTitle);
@@ -239,6 +275,7 @@ export function TripDetailClient({ id }: { id: string }) {
     const previous = trip;
     setTrip(current => current ? {
       ...current,
+      planReady: false,
       updatedAt: new Date().toISOString(),
       items: current.items.map(item => item.sourceId === sourceId ? {
         ...item,
@@ -291,6 +328,64 @@ export function TripDetailClient({ id }: { id: string }) {
     await changeItem(sourceId, { dayIndex });
   }
 
+  async function finalizePlan() {
+    if (!trip) return;
+    if (!startDate || !endDate) {
+      setSaveError("Lege zuerst Von- und Bis-Datum fest, damit AROUND die Nächte prüfen kann.");
+      return;
+    }
+    const staysNow = trip.items.filter(isStayItem);
+    const coverage = stayCoverage(staysNow, dayCount, trip.stayExemptNights || []);
+    if (coverage.uncovered > 0 || coverage.overlaps > 0) {
+      setShowReadiness(true);
+      return;
+    }
+    await updateUserTrip(trip.id, { planReady: true });
+    setTrip(current => current ? { ...current, planReady: true, updatedAt: new Date().toISOString() } : current);
+    setSaveMessage("Plan abgeschlossen · alle Übernachtungen sind geklärt.");
+  }
+
+  async function reopenPlan() {
+    if (!trip) return;
+    await updateUserTrip(trip.id, { planReady: false });
+    setTrip(current => current ? { ...current, planReady: false, updatedAt: new Date().toISOString() } : current);
+    setSaveMessage("Plan wieder geöffnet.");
+  }
+
+  async function markOpenNightsAsNoStay() {
+    if (!trip) return;
+    const staysNow = trip.items.filter(isStayItem);
+    const coverage = stayCoverage(staysNow, dayCount, trip.stayExemptNights || []);
+    const next = [...new Set([...(trip.stayExemptNights || []), ...coverage.uncoveredNightIndexes])].sort((a,b) => a-b);
+    await updateUserTrip(trip.id, { stayExemptNights: next, planReady: coverage.overlaps === 0 });
+    setTrip(current => current ? { ...current, stayExemptNights: next, planReady: coverage.overlaps === 0, updatedAt: new Date().toISOString() } : current);
+    setShowReadiness(coverage.overlaps > 0);
+    setSaveMessage(coverage.overlaps === 0 ? "Plan abgeschlossen · offene Nächte bewusst ohne Unterkunft markiert." : "Offene Nächte markiert. Bitte noch die STAY-Überschneidung prüfen.");
+  }
+
+  async function clearStayExemptions() {
+    if (!trip) return;
+    await updateUserTrip(trip.id, { stayExemptNights: [], planReady: false });
+    setTrip(current => current ? { ...current, stayExemptNights: [], planReady: false, updatedAt: new Date().toISOString() } : current);
+    setSaveMessage("Ohne-Unterkunft-Markierungen zurückgesetzt.");
+  }
+
+  async function extendStayAcrossFirstGap() {
+    if (!trip) return;
+    const staysNow = trip.items.filter(isStayItem);
+    const coverage = stayCoverage(staysNow, dayCount, trip.stayExemptNights || []);
+    const gap = firstGapSpan(coverage.uncoveredNightIndexes);
+    if (!gap) return;
+    const candidate = staysNow.find(item => {
+      const range = effectiveStayRange(item, dayCount);
+      return !item.stayFullTrip && range.end === gap.start;
+    });
+    if (!candidate) return;
+    await changeItem(candidate.sourceId, { stayFullTrip: false, stayEndDay: gap.end });
+    setShowReadiness(false);
+    setSaveMessage(`${candidate.title} wurde bis Day ${gap.end + 1} verlängert.`);
+  }
+
   if (loading) return <section className="section"><div className="container savedLoading">Trip wird geladen …</div></section>;
   if (!trip) return <section className="section"><div className="container"><h1>Trip nicht gefunden.</h1><Link className="textLink" href="/my-around/trips">Zurück →</Link></div></section>;
 
@@ -306,6 +401,12 @@ export function TripDetailClient({ id }: { id: string }) {
     return item.stayFullTrip || (range.start !== undefined && range.end !== undefined && range.end > range.start);
   }).length;
   const plannedCount = (regularItems.length - unplanned.length) + stayPlannedCount;
+  const coverage = stayCoverage(stays, dayCount, trip.stayExemptNights || []);
+  const gap = firstGapSpan(coverage.uncoveredNightIndexes);
+  const extendCandidate = gap ? stays.find(item => {
+    const range = effectiveStayRange(item, dayCount);
+    return !item.stayFullTrip && range.end === gap.start;
+  }) : undefined;
 
   return (
     <>
@@ -366,13 +467,28 @@ export function TripDetailClient({ id }: { id: string }) {
           </div>
           <div className="tripDetailToolbar"><Link href="/my-around/trips">← Alle Trips</Link><Link href="/saved">+ Aus MY AROUND hinzufügen</Link></div>
 
-          {stays.length ? (
+          <div className={`tripReadinessBar ${trip.planReady ? "tripReadinessBar--ready" : ""}`}>
+            <div>
+              <span>PLANSTATUS</span>
+              <strong>{trip.planReady ? "BEREIT." : "IN ARBEIT."}</strong>
+              <small>{coverage.nights === 0 ? "Keine Übernachtung nötig." : coverage.overlaps ? `${coverage.overlaps} ${coverage.overlaps === 1 ? "Nacht überschneidet sich" : "Nächte überschneiden sich"}.` : coverage.uncovered ? `${coverage.uncovered} ${coverage.uncovered === 1 ? "Nacht noch offen" : "Nächte noch offen"}.` : coverage.exempt ? `Alle Nächte geklärt · ${coverage.exempt} bewusst ohne Unterkunft.` : "Alle Nächte sind mit STAY abgedeckt."}</small>
+            </div>
+            {trip.planReady ? (
+              <button type="button" className="secondary" onClick={() => void reopenPlan()}>Plan wieder öffnen</button>
+            ) : (
+              <button type="button" className="primary" onClick={() => void finalizePlan()}>Plan abschließen →</button>
+            )}
+          </div>
+
+          {(dayCount > 1 || stays.length > 0) ? (
             <StayLane
               items={stays}
               dayCount={dayCount}
               startDate={startDate}
+              exemptNights={trip.stayExemptNights || []}
               onChange={changeItem}
               onRemove={remove}
+              onClearExemptions={clearStayExemptions}
             />
           ) : null}
 
@@ -428,6 +544,31 @@ export function TripDetailClient({ id }: { id: string }) {
           ))}
         </div>
       </section>
+
+      {showReadiness ? (
+        <div className="tripReadinessOverlay" role="presentation" onMouseDown={event => { if (event.currentTarget === event.target) setShowReadiness(false); }}>
+          <section className="tripReadinessDialog" role="dialog" aria-modal="true" aria-labelledby="trip-readiness-title">
+            <button className="tripReadinessClose" type="button" onClick={() => setShowReadiness(false)} aria-label="Schließen">×</button>
+            <div className="eyebrow lime">AROUND / PLAN CHECK</div>
+            <h2 id="trip-readiness-title">{coverage.overlaps ? "STAYS PRÜFEN." : `${coverage.uncovered} ${coverage.uncovered === 1 ? "NACHT IST" : "NÄCHTE SIND"} NOCH OFFEN.`}</h2>
+            {coverage.overlaps ? (
+              <p>{coverage.overlaps} {coverage.overlaps === 1 ? "Nacht ist" : "Nächte sind"} aktuell durch mehrere STAYs gleichzeitig belegt. Das kann Absicht sein – für einen abgeschlossenen Plan sollte aber klar sein, wo du tatsächlich bleibst.</p>
+            ) : (
+              <>
+                <p>Für {coverage.uncoveredNightIndexes.map(index => nightLabel(startDate,index)).join(", ")} ist noch keine Unterkunft hinterlegt.</p>
+                <div className="tripReadinessNightList">{coverage.uncoveredNightIndexes.map(index => <span key={index}>{nightLabel(startDate,index)}</span>)}</div>
+              </>
+            )}
+            <div className="tripReadinessActions">
+              {!coverage.overlaps ? <Link className="primary" href="/saved">STAY HINZUFÜGEN →</Link> : null}
+              {!coverage.overlaps && extendCandidate ? <button type="button" className="secondary" onClick={() => void extendStayAcrossFirstGap()}>{extendCandidate.title} verlängern</button> : null}
+              {!coverage.overlaps ? <button type="button" className="secondary" onClick={() => void markOpenNightsAsNoStay()}>Keine Unterkunft nötig</button> : null}
+              {coverage.overlaps ? <a className="primary" href="#trip-stays" onClick={() => setShowReadiness(false)}>STAYS PRÜFEN →</a> : null}
+              <button type="button" className="textLink tripReadinessLater" onClick={() => setShowReadiness(false)}>{coverage.overlaps ? "Als Optionen behalten & weiter planen" : "Später entscheiden"}</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </>
   );
 }
@@ -436,26 +577,32 @@ function StayLane({
   items,
   dayCount,
   startDate,
+  exemptNights,
   onChange,
-  onRemove
+  onRemove,
+  onClearExemptions
 }: {
   items: UserTrip["items"];
   dayCount: number;
   startDate: string;
+  exemptNights: number[];
   onChange: (sourceId: string, patch: TripItemPatch) => Promise<void>;
   onRemove: (sourceId: string) => Promise<void>;
+  onClearExemptions: () => Promise<void>;
 }) {
-  const coverage = stayCoverage(items, dayCount);
+  const coverage = stayCoverage(items, dayCount, exemptNights);
   const coverageLabel = coverage.nights === 0
     ? "Noch keine Übernachtung im gewählten Zeitraum."
     : coverage.overlaps > 0
       ? `${coverage.overlaps} ${coverage.overlaps === 1 ? "Nacht überschneidet sich" : "Nächte überschneiden sich"}.`
       : coverage.uncovered > 0
         ? `${coverage.uncovered} ${coverage.uncovered === 1 ? "Nacht noch offen" : "Nächte noch offen"}.`
-        : "Alle Nächte sind abgedeckt.";
+        : coverage.exempt > 0
+          ? `Alle Nächte geklärt · ${coverage.exempt} bewusst ohne Unterkunft.`
+          : "Alle Nächte sind abgedeckt.";
 
   return (
-    <section className="tripStayLane" aria-label="Unterkünfte">
+    <section className="tripStayLane" id="trip-stays" aria-label="Unterkünfte">
       <div className="tripStayLaneHead">
         <div>
           <div className="eyebrow lime">STAY / ÜBERNACHTEN</div>
@@ -467,6 +614,20 @@ function StayLane({
           <small>{coverageLabel}</small>
         </div>
       </div>
+
+      {coverage.exempt > 0 ? (
+        <div className="tripStayExemptNote">
+          <span>{coverage.exempt} {coverage.exempt === 1 ? "Nacht" : "Nächte"} ohne Unterkunft markiert.</span>
+          <button type="button" onClick={() => void onClearExemptions()}>Zurücksetzen</button>
+        </div>
+      ) : null}
+
+      {!items.length ? (
+        <div className="tripStayEmpty">
+          <div><strong>Noch kein STAY im Trip.</strong><p>Füge eine Unterkunft aus MY AROUND hinzu oder markiere offene Nächte beim Plan-Check bewusst als ohne Unterkunft.</p></div>
+          <Link className="secondary" href="/saved">+ STAY HINZUFÜGEN</Link>
+        </div>
+      ) : null}
 
       <div className="tripStaySegments">
         {items.map(item => {
@@ -520,13 +681,27 @@ function StayLane({
                       .map(index => <option value={index} key={index}>Day {index + 1}{startDate ? ` · ${dayDate(startDate,index)}` : ""}</option>)}
                   </select>
                 </label>
-                <button
-                  type="button"
-                  className={`tripStayWholeTrip ${item.stayFullTrip ? "tripStayWholeTrip--active" : ""}`}
-                  onClick={() => void onChange(item.sourceId, { stayFullTrip: true, stayStartDay: undefined, stayEndDay: undefined })}
-                >
-                  {item.stayFullTrip ? "✓ Ganze Reise" : "Für ganze Reise"}
-                </button>
+                <div className="tripStayModeRow">
+                  <button
+                    type="button"
+                    className={`tripStayWholeTrip ${item.stayFullTrip ? "tripStayWholeTrip--active" : ""}`}
+                    onClick={() => void onChange(item.sourceId, item.stayFullTrip
+                      ? { stayFullTrip: false, stayStartDay: 0, stayEndDay: Math.max(1, dayCount - 1) }
+                      : { stayFullTrip: true, stayStartDay: undefined, stayEndDay: undefined })}
+                  >
+                    {item.stayFullTrip ? "✓ Ganze Reise" : "Ganze Reise"}
+                  </button>
+                  <button
+                    type="button"
+                    className={!item.stayFullTrip && range.start !== undefined && range.end !== undefined ? "tripStayModeActive" : ""}
+                    onClick={() => void onChange(item.sourceId, { stayFullTrip: false, stayStartDay: range.start ?? 0, stayEndDay: range.end ?? Math.max(1, dayCount - 1) })}
+                  >Zeitraum</button>
+                  <button
+                    type="button"
+                    className={!item.stayFullTrip && range.start === undefined && range.end === undefined ? "tripStayModeActive" : ""}
+                    onClick={() => void onChange(item.sourceId, { stayFullTrip: false, stayStartDay: undefined, stayEndDay: undefined })}
+                  >Noch offen</button>
+                </div>
               </div>
             </article>
           );
