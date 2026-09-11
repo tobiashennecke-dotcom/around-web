@@ -76,6 +76,11 @@ export type PlaceMediaItem = {
   aspectRatio?: number;
 };
 
+export type OperatorStatus = {
+  source?: "around" | "operator";
+  lastVerifiedAt?: string;
+};
+
 export type Place = ContentCard & SeoFields & {
   type: "place";
   destinationId: string;
@@ -92,6 +97,33 @@ export type Place = ContentCard & SeoFields & {
   longitude?: number;
   /** Geographically + editorially relevant places, computed by lib/relevance.ts. */
   aroundIt?: ContentCard[];
+
+  /** WHY PLAY IT - independent AROUND editorial judgement, never operator-controlled. */
+  theFeel?: string[];
+  bestFor?: string[];
+  aroundMoment?: string;
+  knowBeforeYouGo?: string;
+
+  /** PLAY utility / planning facts. Stable information only, never live pricing/availability. */
+  holes?: number;
+  par?: number;
+  courseCharacter?: string;
+  walkability?: string;
+  cartAvailability?: string;
+  practiceFacilities?: string[];
+  guestPlay?: string;
+  season?: string;
+
+  /** Official operator info, structurally separate from editorial content. */
+  bookingUrl?: string;
+  bookingLabel?: string;
+  operatorStatus?: OperatorStatus;
+
+  /**
+   * Commerce foundation only. Must never influence aroundSelected, priority,
+   * WHY PLAY IT, or AROUND IT relevance - see sanity/schemaTypes/place.ts.
+   */
+  commercialPartner?: boolean;
 };
 
 export type Person = ContentCard & {

@@ -43,7 +43,10 @@ export const DESTINATION_QUERY = defineQuery(`
 export const PLACE_QUERY = defineQuery(`
   *[_type == "place" && slug.current == $slug][0]{
     _id,title,slug,kicker,summary,placeType,defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,whyWeLikeIt,aroundTake,goodToKnow,
+    theFeel,bestFor,aroundMoment,knowBeforeYouGo,
+    holes,par,courseCharacter,walkability,cartAvailability,practiceFacilities,guestPlay,season,
     address,website,instagram,coordinates,featured,aroundSelected,priority,
+    bookingUrl,bookingLabel,operatorStatus,commercialPartner,
     seoTitle,seoDescription,
     "image": heroImage.asset->url,
     "socialImage": socialImage.asset->url,

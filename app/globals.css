@@ -1524,6 +1524,36 @@ img{display:block;max-width:100%}
 }
 
 
+/* AROUND PLAY Detail V2 v1.22 */
+.playUtilityStrip{background:var(--around-ink);color:var(--around-warm-white,#f5f3ee);border-top:1px solid rgba(245,243,238,.18);border-bottom:1px solid rgba(245,243,238,.18)}
+.playUtilityRow{padding:16px var(--around-pad,24px);font:800 12px/1.3 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase;overflow-x:auto;white-space:nowrap}
+.playWhyLead{margin:22px 0 0;max-width:760px;font-size:26px;line-height:1.32}
+.playWhyTake{margin:16px 0 0;max-width:680px;font:400 16px/1.5 Arial,Helvetica,sans-serif;color:var(--around-muted)}
+.playWhyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 56px;margin-top:44px;padding-top:36px;border-top:1px solid var(--around-line)}
+.playWhyBlock{display:grid;gap:12px;align-content:start}
+.playWhyLabel{font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-muted)}
+.playWhyBlock p{margin:0;font:400 16px/1.5 Arial,Helvetica,sans-serif}
+.playTagList{display:flex;flex-wrap:wrap;gap:8px}
+.playTagList span{border:1px solid var(--around-ink);padding:7px 10px;font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.playOfficialPanel{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;margin-top:24px;padding:26px 28px;border:1px solid var(--around-line)}
+.playOfficialStatus{display:grid;gap:6px}
+.playOfficialStatus strong{font:800 15px/1.2 Arial,Helvetica,sans-serif}
+.playOfficialStatus small{font:500 11px/1.3 Arial,Helvetica,sans-serif;color:var(--around-muted)}
+.playOfficialActions{display:flex;flex-wrap:wrap;gap:10px}
+.playTripGroup{margin-top:40px}
+.playTripGroup:first-of-type{margin-top:20px}
+.playTripGroupLabel{margin-bottom:16px;font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-muted)}
+
+@media(max-width:760px){
+  .playUtilityRow{font-size:10px;padding:13px var(--around-pad,18px)}
+  .playWhyLead{font-size:22px}
+  .playWhyGrid{grid-template-columns:1fr;gap:26px;margin-top:32px;padding-top:26px}
+  .playOfficialPanel{flex-direction:column;align-items:stretch;padding:20px}
+  .playOfficialActions{flex-direction:column}
+  .playOfficialActions a{text-align:center}
+}
+
+
 /* AROUND Trip Readiness + STAY states v1.14 */
 .tripReadinessBar{display:flex;align-items:center;justify-content:space-between;gap:28px;margin:28px 0 0;padding:22px 24px;border:1px solid rgba(33,35,34,.28);border-left:6px solid var(--around-pink);background:rgba(245,243,238,.72)}
 .tripReadinessBar--ready{border-left-color:var(--around-lime);background:color-mix(in srgb,var(--around-lime) 9%,var(--around-warm-white,#f5f3ee))}
