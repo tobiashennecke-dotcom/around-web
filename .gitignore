@@ -8,6 +8,9 @@
 # typescript incremental build info
 *.tsbuildinfo
 
+# next.js auto-generated, machine/version-specific
+next-env.d.ts
+
 # local env files (keep .env.local out of version control going forward)
 .env*.local
 
