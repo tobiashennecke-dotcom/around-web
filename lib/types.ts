@@ -8,6 +8,9 @@ export type ContentType =
 
 export type Accent = "lime" | "blue" | "pink";
 
+export type PlanningMode = "flexible" | "fixed";
+export type PlanningDaypart = "morning" | "midday" | "afternoon" | "evening" | "all_day";
+
 export type ContentCard = {
   id: string;
   type: ContentType;
@@ -22,6 +25,11 @@ export type ContentCard = {
   priority?: number;
   /** Semantic role for place cards: course/stay/eat/do. */
   placeType?: string;
+  /** Editorial planning intelligence used by Trip Quick Add. */
+  defaultPlanningMode?: PlanningMode;
+  suggestedDurationMinutes?: number;
+  suggestedDaypart?: PlanningDaypart;
+  suggestedTime?: string;
 };
 
 export type SeoFields = {

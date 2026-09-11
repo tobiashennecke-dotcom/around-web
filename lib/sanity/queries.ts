@@ -2,6 +2,7 @@ import { defineQuery } from "next-sanity";
 
 const CARD_FIELDS = `
   _id,_type,title,slug,kicker,placeType,featured,aroundSelected,priority,
+  defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,
   "summary": coalesce(summary, deck, ""),
   "image": coalesce(heroImage.asset->url, portrait.asset->url, image.asset->url)
 `;
@@ -39,7 +40,7 @@ export const DESTINATION_QUERY = defineQuery(`
 
 export const PLACE_QUERY = defineQuery(`
   *[_type == "place" && slug.current == $slug][0]{
-    _id,title,slug,kicker,summary,placeType,whyWeLikeIt,aroundTake,goodToKnow,
+    _id,title,slug,kicker,summary,placeType,defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,whyWeLikeIt,aroundTake,goodToKnow,
     address,website,instagram,coordinates,featured,aroundSelected,priority,
     seoTitle,seoDescription,
     "image": heroImage.asset->url,

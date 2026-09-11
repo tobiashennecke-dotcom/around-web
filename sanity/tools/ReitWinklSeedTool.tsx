@@ -244,6 +244,22 @@ const places = [
   }
 ];
 
+const planningProfiles: Record<string, {
+  defaultPlanningMode: "flexible" | "fixed";
+  suggestedDurationMinutes: number;
+  suggestedDaypart: "morning" | "midday" | "afternoon" | "evening" | "all_day";
+  suggestedTime?: string;
+}> = {
+  [PLACE_IDS.schmiede]: {defaultPlanningMode:"fixed",suggestedDurationMinutes:120,suggestedDaypart:"evening",suggestedTime:"19:30"},
+  [PLACE_IDS.sonneck]: {defaultPlanningMode:"fixed",suggestedDurationMinutes:90,suggestedDaypart:"evening",suggestedTime:"18:30"},
+  [PLACE_IDS.seegatterl]: {defaultPlanningMode:"flexible",suggestedDurationMinutes:90,suggestedDaypart:"midday"},
+  [PLACE_IDS.winklmoos]: {defaultPlanningMode:"flexible",suggestedDurationMinutes:240,suggestedDaypart:"afternoon"},
+  [PLACE_IDS.nostalgiebahn]: {defaultPlanningMode:"fixed",suggestedDurationMinutes:120,suggestedDaypart:"morning",suggestedTime:"10:30"},
+  [PLACE_IDS.sternenpark]: {defaultPlanningMode:"flexible",suggestedDurationMinutes:90,suggestedDaypart:"evening"},
+  [PLACE_IDS.taubensee]: {defaultPlanningMode:"flexible",suggestedDurationMinutes:405,suggestedDaypart:"all_day"},
+  [PLACE_IDS.triassic]: {defaultPlanningMode:"flexible",suggestedDurationMinutes:240,suggestedDaypart:"morning"}
+};
+
 export function ReitWinklSeedTool() {
   const client = useClient({apiVersion:"2026-03-01"}).withConfig({useCdn:false});
   const [running,setRunning] = useState(false);
@@ -261,7 +277,7 @@ export function ReitWinklSeedTool() {
       addLog("✓ Destination Reit im Winkl gefunden.");
 
       let tx = client.transaction();
-      for (const doc of places) tx = tx.createOrReplace(doc as any);
+      for (const doc of places) tx = tx.createOrReplace({...doc,...(planningProfiles[doc._id] || {})} as any);
       await tx.commit();
       addLog(`✓ ${places.length} Places erstellt/aktualisiert.`);
 

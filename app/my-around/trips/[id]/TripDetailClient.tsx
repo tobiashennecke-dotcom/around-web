@@ -633,6 +633,7 @@ export function TripDetailClient({ id }: { id: string }) {
         dayCount={dayCount}
         startDate={startDate || undefined}
         existingIds={trip.items.map(item => item.sourceId)}
+        scheduledItems={trip.items}
         defaultDayIndex={quickAdd?.kind === "stop" ? quickAdd.dayIndex : undefined}
         defaultStayStartDay={quickAdd?.kind === "stay" ? quickAdd.stayStartDay : undefined}
         defaultStayEndDay={quickAdd?.kind === "stay" ? quickAdd.stayEndDay : undefined}
