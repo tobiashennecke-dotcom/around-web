@@ -296,11 +296,42 @@ export async function getCollection(slug: string): Promise<AroundCollection | nu
 export async function getSearchContent(query:string,type?:string,role?:string):Promise<ContentCard[]> {
   const cards=await getDiscoverContent();
   const q=query.trim().toLowerCase();
+  const terms=q.split(/\s+/).filter(Boolean);
   const normalizedRole=normalizeContentRole(role);
-  return cards.filter(item=>{
-    const typeOk=!type || type === "all" || item.type === type;
-    const roleOk=!normalizedRole || (item.type === "place" && normalizeContentRole(item.placeType) === normalizedRole);
-    const haystack=`${item.title} ${item.kicker || ""} ${item.description} ${item.placeType || ""}`.toLowerCase();
-    return typeOk && roleOk && (!q || haystack.includes(q));
-  });
+
+  function relevance(item: ContentCard) {
+    const title=item.title.toLowerCase();
+    const kicker=(item.kicker || "").toLowerCase();
+    const description=(item.description || "").toLowerCase();
+    const placeType=(item.placeType || "").toLowerCase();
+    const haystack=`${title} ${kicker} ${description} ${placeType}`;
+    let score=0;
+
+    if (q) {
+      if (title === q) score+=180;
+      else if (title.startsWith(q)) score+=120;
+      else if (title.includes(q)) score+=90;
+      if (kicker.includes(q)) score+=42;
+      if (description.includes(q)) score+=24;
+      for (const term of terms) {
+        if (title.includes(term)) score+=24;
+        else if (kicker.includes(term)) score+=12;
+        else if (description.includes(term)) score+=6;
+      }
+      if (!terms.every(term=>haystack.includes(term))) return -1;
+    }
+
+    if (item.aroundSelected) score+=22;
+    if (item.featured) score+=12;
+    if (typeof item.priority === "number") score+=Math.max(-10,Math.min(20,item.priority));
+    return score;
+  }
+
+  return cards
+    .filter(item=>{
+      const typeOk=!type || type === "all" || item.type === type;
+      const roleOk=!normalizedRole || (item.type === "place" && normalizeContentRole(item.placeType) === normalizedRole);
+      return typeOk && roleOk && relevance(item) >= 0;
+    })
+    .sort((a,b)=>relevance(b)-relevance(a));
 }

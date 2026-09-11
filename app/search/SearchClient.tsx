@@ -11,6 +11,7 @@ import type { ContentCard as CardType } from "@/lib/types";
 
 const allowedTypes = new Set(["all","destination","place","story","person","product","collection"]);
 const allowedRoles = new Set(["play","stay","eat","do"]);
+const emptyRoleCounts: Record<ContentRole, number> = { play:0, stay:0, eat:0, do:0 };
 
 function toSavePayload(item: CardType): SavePayload {
   return {
@@ -28,6 +29,14 @@ function roleLabel(role?: ContentRole) {
   if (role === "eat") return "EAT";
   if (role === "do") return "DO";
   return "INHALT";
+}
+
+function roleHint(role?: string) {
+  if (role === "play") return "Runden, für die du hinfährst.";
+  if (role === "stay") return "Unterkünfte, die deine Reise tragen.";
+  if (role === "eat") return "Essen, für das sich ein Termin lohnt.";
+  if (role === "do") return "Alles, was nach der Runde beginnt.";
+  return "Curated, not complete.";
 }
 
 export function SearchClient({
@@ -48,17 +57,35 @@ export function SearchClient({
   const [loading,setLoading] = useState(true);
   const [tripTitle,setTripTitle] = useState("");
   const [tripItemIds,setTripItemIds] = useState<Set<string>>(new Set());
+  const [tripRoleCounts,setTripRoleCounts] = useState<Record<ContentRole, number>>(emptyRoleCounts);
   const [addingId,setAddingId] = useState("");
   const [actionMessage,setActionMessage] = useState("");
+  const [onlyNew,setOnlyNew] = useState(false);
 
   useEffect(()=>{
-    if (!tripId) { setTripTitle(""); setTripItemIds(new Set()); return; }
+    if (!tripId) {
+      setTripTitle("");
+      setTripItemIds(new Set());
+      setTripRoleCounts(emptyRoleCounts);
+      return;
+    }
     let cancelled=false;
     getUserTrip(tripId).then(result=>{
       if (cancelled) return;
-      if (!result.trip) { setTripTitle(""); setTripItemIds(new Set()); return; }
+      if (!result.trip) {
+        setTripTitle("");
+        setTripItemIds(new Set());
+        setTripRoleCounts(emptyRoleCounts);
+        return;
+      }
       setTripTitle(result.trip.title);
       setTripItemIds(new Set(result.trip.items.map(item=>item.sourceId)));
+      const counts: Record<ContentRole, number> = { play:0, stay:0, eat:0, do:0 };
+      for (const item of result.trip.items) {
+        const itemRole=normalizeContentRole(item.sourceRole);
+        if (itemRole) counts[itemRole]+=1;
+      }
+      setTripRoleCounts(counts);
     });
     return ()=>{cancelled=true;};
   },[tripId]);
@@ -103,6 +130,11 @@ export function SearchClient({
     {key:"product",label:"OBJECTS",type:"product",role:""}
   ],[]);
 
+  const visibleResults=useMemo(
+    ()=>tripId && onlyNew ? results.filter(item=>!tripItemIds.has(item.id)) : results,
+    [results,tripId,onlyNew,tripItemIds]
+  );
+
   async function addDirect(item: CardType, wholeTrip=false) {
     if (!tripId || tripItemIds.has(item.id)) return;
     setAddingId(item.id);
@@ -112,10 +144,16 @@ export function SearchClient({
       const itemRole=item.type === "place" ? normalizeContentRole(item.placeType) : undefined;
       await addItemToTrip(tripId,payload,itemRole === "stay" ? {stayFullTrip:wholeTrip} : {});
       setTripItemIds(current=>new Set([...current,item.id]));
+      if (itemRole) setTripRoleCounts(current=>({...current,[itemRole]:current[itemRole]+1}));
       setActionMessage(`${item.title} wurde zu ${tripTitle || "deinem Trip"} hinzugefügt.`);
     } finally {
       setAddingId("");
     }
+  }
+
+  function chooseRole(nextRole: ContentRole) {
+    setType("all");
+    setRole(nextRole);
   }
 
   return (
@@ -128,6 +166,26 @@ export function SearchClient({
             <p>Finde den nächsten Baustein und füge ihn ohne Umweg direkt zum Plan hinzu.</p>
           </div>
           <Link href={`/my-around/trips/${tripId}`}>Zurück zum Trip →</Link>
+        </div>
+      ) : null}
+
+      {tripId ? (
+        <div className="tripSearchNeeds" aria-label="Trip Bausteine">
+          {(["play","stay","eat","do"] as ContentRole[]).map(itemRole=>{
+            const count=tripRoleCounts[itemRole];
+            return (
+              <button
+                type="button"
+                key={itemRole}
+                className={`tripSearchNeed ${role===itemRole?"tripSearchNeed--active":""} ${count===0?"tripSearchNeed--missing":""}`}
+                onClick={()=>chooseRole(itemRole)}
+              >
+                <span>{roleLabel(itemRole)}</span>
+                <b>{count}</b>
+                <small>{count===0?"noch keiner":"im Trip"}</small>
+              </button>
+            );
+          })}
         </div>
       ) : null}
 
@@ -148,22 +206,35 @@ export function SearchClient({
       </div>
 
       <div className="searchResultMeta">
-        <div className="eyebrow">{loading?"SUCHE …":`${results.length} ERGEBNISSE · CURATED, NOT COMPLETE.`}</div>
-        {actionMessage ? <span>{actionMessage}</span> : null}
+        <div>
+          <div className="eyebrow">{loading?"SUCHE …":`${visibleResults.length} ERGEBNISSE`}</div>
+          {!loading ? <small>{roleHint(role)}</small> : null}
+        </div>
+        <div className="searchResultTools">
+          {tripId ? (
+            <button type="button" className={`searchOnlyNew ${onlyNew?"searchOnlyNew--active":""}`} onClick={()=>setOnlyNew(value=>!value)}>
+              {onlyNew?"✓ ":""}NUR NEUE
+            </button>
+          ) : null}
+          {actionMessage ? <span>{actionMessage}</span> : null}
+        </div>
       </div>
 
       <div className="cardGrid searchPlanningGrid">
-        {results.map(item=>{
+        {visibleResults.map(item=>{
           const payload=toSavePayload(item);
           const itemRole=item.type === "place" ? normalizeContentRole(item.placeType) : undefined;
           const contained=tripItemIds.has(item.id);
           return (
-            <div className="searchPlanningCard" key={item.id}>
+            <div className={`searchPlanningCard ${contained?"searchPlanningCard--contained":""}`} key={item.id}>
               <ContentCard item={item}/>
               <div className="searchPlanningActions">
                 {tripId ? (
                   contained ? (
-                    <span className="searchTripContained">IM TRIP ✓</span>
+                    <>
+                      <span className="searchTripContained">IM TRIP ✓</span>
+                      <Link className="searchTripOpen" href={`/my-around/trips/${tripId}`}>PLAN ÖFFNEN →</Link>
+                    </>
                   ) : itemRole === "stay" ? (
                     <>
                       <button type="button" disabled={addingId===item.id} onClick={()=>void addDirect(item,true)}>GANZE REISE</button>
@@ -181,10 +252,10 @@ export function SearchClient({
         })}
       </div>
 
-      {!loading && !results.length ? (
+      {!loading && !visibleResults.length ? (
         <div className="searchEmptyState">
-          <strong>NOCH NICHTS DABEI.</strong>
-          <p>AROUND bleibt kuratiert. Versuch einen anderen Begriff oder wechsle den Bereich.</p>
+          <strong>{tripId && onlyNew ? "ALLES SCHON IM TRIP." : "NOCH NICHTS DABEI."}</strong>
+          <p>{tripId && onlyNew ? "Blende bestehende Trip-Inhalte wieder ein oder wechsle den Bereich." : "AROUND bleibt kuratiert. Versuch einen anderen Begriff oder wechsle den Bereich."}</p>
         </div>
       ) : null}
     </>

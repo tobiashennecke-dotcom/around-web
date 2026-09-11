@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ContentCard, contentHref } from "@/components/ContentCard";
 import { getDiscoverContent } from "@/lib/content";
+import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
 import type { ContentCard as CardType } from "@/lib/types";
 
 function unique(items: CardType[]) {
@@ -20,6 +21,12 @@ export default async function DiscoverPage() {
   const lead = content.find(item => item.featured) || content[0];
   const selected = content.filter(item => item.aroundSelected).slice(0, 6);
   const feed = content.filter(item => item.id !== lead?.id);
+  const roleCounts: Record<ContentRole, number> = { play:0, stay:0, eat:0, do:0 };
+  for (const item of content) {
+    if (item.type !== "place") continue;
+    const role=normalizeContentRole(item.placeType);
+    if (role) roleCounts[role]+=1;
+  }
 
   const paths = [
     { index: "01", label: "Worth the Trip", sub: "Golf + Destination", href: "/search?type=destination", accent: "lime" },
@@ -58,10 +65,10 @@ export default async function DiscoverPage() {
             <p>Golf ist der Start. Eine Reise entsteht aus den richtigen Bausteinen davor, danach und dazwischen.</p>
           </div>
           <div className="tripDiscoveryRoles">
-            <Link href="/search?role=play"><b>01</b><span>PLAY</span><small>Runden, für die du hinfährst.</small><i>→</i></Link>
-            <Link href="/search?role=stay"><b>02</b><span>STAY</span><small>Orte, an denen du bleiben willst.</small><i>→</i></Link>
-            <Link href="/search?role=eat"><b>03</b><span>EAT</span><small>Der nächste wichtige Termin nach der Runde.</small><i>→</i></Link>
-            <Link href="/search?role=do"><b>04</b><span>DO</span><small>Der Grund, nicht direkt wieder abzureisen.</small><i>→</i></Link>
+            <Link href="/search?role=play"><b>01 · {roleCounts.play}</b><span>PLAY</span><small>Runden, für die du hinfährst.</small><i>→</i></Link>
+            <Link href="/search?role=stay"><b>02 · {roleCounts.stay}</b><span>STAY</span><small>Orte, an denen du bleiben willst.</small><i>→</i></Link>
+            <Link href="/search?role=eat"><b>03 · {roleCounts.eat}</b><span>EAT</span><small>Der nächste wichtige Termin nach der Runde.</small><i>→</i></Link>
+            <Link href="/search?role=do"><b>04 · {roleCounts.do}</b><span>DO</span><small>Der Grund, nicht direkt wieder abzureisen.</small><i>→</i></Link>
           </div>
           <div className="tripDiscoveryFoot"><Link href="/my-around/trips">Meine Trips →</Link><Link href="/search">AROUND durchsuchen →</Link></div>
         </div>
