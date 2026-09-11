@@ -4,6 +4,7 @@ import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { presentationTool } from "sanity/presentation";
 import { schemaTypes } from "./sanity/schemaTypes";
+import { ReitWinklSeedTool } from "./sanity/tools/ReitWinklSeedTool";
 import { BayernSeedTool } from "./sanity/tools/BayernSeedTool";
 
 export default defineConfig({
@@ -23,6 +24,9 @@ export default defineConfig({
       }
     })
   ],
-  tools: [{ name: "bayern-seed", title: "Bayern Seed", component: BayernSeedTool }],
+  tools: [
+    { name: "bayern-seed", title: "Bayern Seed", component: BayernSeedTool },
+    { name: "reit-winkl-seed", title: "Reit im Winkl Seed 02", component: ReitWinklSeedTool }
+  ],
   schema: { types: schemaTypes }
 });
