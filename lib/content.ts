@@ -7,9 +7,11 @@ import {
   HOME_QUERY,
   PERSON_QUERY,
   PLACE_QUERY,
+  PLACE_RELEVANCE_CANDIDATES_QUERY,
   PRODUCT_QUERY,
   STORY_QUERY
 } from "@/lib/sanity/queries";
+import { getAroundItRecommendations, type AroundItCandidate, type AroundItSubject } from "@/lib/relevance";
 import {
   cityGolf,
   content,
@@ -73,6 +75,43 @@ function toCard(doc: any): ContentCard | null {
 
 function compactCards(items: any[] | null | undefined): ContentCard[] {
   return (items || []).map(toCard).filter((item): item is ContentCard => Boolean(item));
+}
+
+type RelevanceCandidateDoc = AroundItCandidate & { doc: any };
+
+function toRelevanceCandidate(doc: any): RelevanceCandidateDoc | null {
+  if (!doc?._id || !doc?.title || !doc?.slug?.current) return null;
+  return {
+    id: doc._id,
+    placeType: doc.placeType || undefined,
+    destinationId: doc.destinationId || undefined,
+    latitude: doc.coordinates?.lat,
+    longitude: doc.coordinates?.lng,
+    priority: typeof doc.priority === "number" ? doc.priority : undefined,
+    featured: Boolean(doc.featured),
+    aroundSelected: Boolean(doc.aroundSelected),
+    doc
+  };
+}
+
+async function getAroundItForPlace(doc: any, destinationId: string | undefined): Promise<ContentCard[]> {
+  if (!sanity) return [];
+  const candidateDocs = await sanity.fetch(PLACE_RELEVANCE_CANDIDATES_QUERY, { excludeId: doc._id });
+  const candidates = (candidateDocs as any[] | undefined || [])
+    .map(toRelevanceCandidate)
+    .filter((item): item is RelevanceCandidateDoc => Boolean(item));
+
+  const subject: AroundItSubject = {
+    id: doc._id,
+    placeType: doc.placeType || undefined,
+    destinationId,
+    latitude: doc.coordinates?.lat,
+    longitude: doc.coordinates?.lng
+  };
+
+  return getAroundItRecommendations(subject, candidates)
+    .map(item => toCard(item.doc))
+    .filter((item): item is ContentCard => Boolean(item));
 }
 
 export async function getHomepageContent(): Promise<{featured:ContentCard[];latest:ContentCard[]}> {
@@ -143,6 +182,7 @@ export async function getPlace(slug: string): Promise<Place | null> {
     const doc = await sanity.fetch(PLACE_QUERY, { slug });
     if (doc) {
       const destination = toCard(doc.destination);
+      const aroundIt = await getAroundItForPlace(doc, destination?.id);
       return {
         id: doc._id,
         type: "place",
@@ -180,6 +220,7 @@ export async function getPlace(slug: string): Promise<Place | null> {
         instagram: doc.instagram || undefined,
         latitude: doc.coordinates?.lat,
         longitude: doc.coordinates?.lng,
+        aroundIt,
         seoTitle: doc.seoTitle || undefined,
         seoDescription: doc.seoDescription || undefined,
         socialImage: doc.socialImage || undefined
@@ -191,7 +232,8 @@ export async function getPlace(slug: string): Promise<Place | null> {
   if (!place) return null;
   return {
     ...place,
-    destination: place.destinationId === lisbon.id ? lisbon : undefined
+    destination: place.destinationId === lisbon.id ? lisbon : undefined,
+    aroundIt: []
   };
 }
 

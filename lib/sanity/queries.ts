@@ -56,6 +56,14 @@ export const PLACE_QUERY = defineQuery(`
   }
 `);
 
+export const PLACE_RELEVANCE_CANDIDATES_QUERY = defineQuery(`
+  *[_type == "place" && defined(slug.current) && _id != $excludeId]{
+    ${CARD_FIELDS},
+    coordinates,
+    "destinationId": destination->_id
+  }
+`);
+
 export const STORY_QUERY = defineQuery(`
   *[_type == "story" && slug.current == $slug][0]{
     _id,title,slug,kicker,deck,format,publishedAt,readingTime,featured,aroundSelected,priority,

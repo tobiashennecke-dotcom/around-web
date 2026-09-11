@@ -86,6 +86,8 @@ export type Place = ContentCard & SeoFields & {
   instagram?: string;
   latitude?: number;
   longitude?: number;
+  /** Geographically + editorially relevant places, computed by lib/relevance.ts. */
+  aroundIt?: ContentCard[];
 };
 
 export type Person = ContentCard & {

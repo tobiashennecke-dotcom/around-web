@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getPlace } from "@/lib/content";
 import { SaveButton } from "@/components/SaveButton";
+import { ContentCard } from "@/components/ContentCard";
 import { contentTypeLabel } from "@/lib/content-role";
 import type { PlaceMediaItem, PlaceMediaLayout } from "@/lib/types";
 
@@ -112,6 +113,18 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
           </div>
         </section>
       )}
+
+      <section className="section">
+        <div className="container">
+          <div className="eyebrow lime">PLAY / STAY / EAT / DO</div>
+          <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>AROUND IT.</h2>
+          {place.aroundIt && place.aroundIt.length > 0 ? (
+            <div className="cardGrid">{place.aroundIt.map(item => <ContentCard key={item.id} item={item}/>)}</div>
+          ) : (
+            <p>Noch keine passenden Empfehlungen in der Nähe.</p>
+          )}
+        </div>
+      </section>
     </main>
   );
 }
