@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { TripQuickAddDrawer } from "@/components/TripQuickAddDrawer";
 import type { SavePayload } from "@/lib/supabase/saves";
 import { contentTypeLabel, normalizeContentRole } from "@/lib/content-role";
 import {
@@ -234,6 +235,11 @@ export function TripDetailClient({ id }: { id: string }) {
   const [dragSourceId, setDragSourceId] = useState<string | null>(null);
   const [dragTargetDay, setDragTargetDay] = useState<number | "open" | null>(null);
   const [showReadiness, setShowReadiness] = useState(false);
+  const [quickAdd, setQuickAdd] = useState<
+    | { kind: "stay"; stayStartDay?: number; stayEndDay?: number }
+    | { kind: "stop"; dayIndex?: number }
+    | null
+  >(null);
   const autosaveReady = useRef(false);
 
   async function load() {
@@ -561,6 +567,7 @@ export function TripDetailClient({ id }: { id: string }) {
               onChange={changeItem}
               onRemove={remove}
               onClearExemptions={clearStayExemptions}
+              onQuickAddStay={(stayStartDay, stayEndDay) => setQuickAdd({ kind: "stay", stayStartDay, stayEndDay })}
             />
           ) : null}
 
@@ -591,6 +598,7 @@ export function TripDetailClient({ id }: { id: string }) {
               onDragEnd={() => { setDragSourceId(null); setDragTargetDay(null); }}
               onDragEnter={() => setDragTargetDay("open")}
               onDrop={() => dropOnDay(undefined)}
+              onQuickAdd={() => setQuickAdd({ kind: "stop", dayIndex: undefined })}
             />
           ) : null}
 
@@ -612,10 +620,25 @@ export function TripDetailClient({ id }: { id: string }) {
               onDragEnd={() => { setDragSourceId(null); setDragTargetDay(null); }}
               onDragEnter={() => setDragTargetDay(day.dayIndex)}
               onDrop={() => dropOnDay(day.dayIndex)}
+              onQuickAdd={() => setQuickAdd({ kind: "stop", dayIndex: day.dayIndex })}
             />
           ))}
         </div>
       </section>
+
+      <TripQuickAddDrawer
+        open={Boolean(quickAdd)}
+        tripId={trip.id}
+        kind={quickAdd?.kind || "stop"}
+        dayCount={dayCount}
+        startDate={startDate || undefined}
+        existingIds={trip.items.map(item => item.sourceId)}
+        defaultDayIndex={quickAdd?.kind === "stop" ? quickAdd.dayIndex : undefined}
+        defaultStayStartDay={quickAdd?.kind === "stay" ? quickAdd.stayStartDay : undefined}
+        defaultStayEndDay={quickAdd?.kind === "stay" ? quickAdd.stayEndDay : undefined}
+        onClose={() => setQuickAdd(null)}
+        onAdded={load}
+      />
 
       {showReadiness ? (
         <div className="tripReadinessOverlay" role="presentation" onMouseDown={event => { if (event.currentTarget === event.target) setShowReadiness(false); }}>
@@ -632,7 +655,7 @@ export function TripDetailClient({ id }: { id: string }) {
               </>
             )}
             <div className="tripReadinessActions">
-              {!coverage.overlaps ? <Link className="primary" href="/saved">STAY HINZUFÜGEN →</Link> : null}
+              {!coverage.overlaps ? <button className="primary" type="button" onClick={() => { setShowReadiness(false); setQuickAdd({ kind: "stay", stayStartDay: gap?.start, stayEndDay: gap?.end }); }}>STAY HINZUFÜGEN →</button> : null}
               {!coverage.overlaps && extendCandidate ? <button type="button" className="secondary" onClick={() => void extendStayAcrossFirstGap()}>{extendCandidate.title} verlängern</button> : null}
               {!coverage.overlaps ? <button type="button" className="secondary" onClick={() => void markOpenNightsAsNoStay()}>Keine Unterkunft nötig</button> : null}
               {coverage.overlaps ? <a className="primary" href="#trip-stays" onClick={() => setShowReadiness(false)}>STAYS PRÜFEN →</a> : null}
@@ -653,7 +676,8 @@ function StayLane({
   exemptNights,
   onChange,
   onRemove,
-  onClearExemptions
+  onClearExemptions,
+  onQuickAddStay
 }: {
   tripId: string;
   items: UserTrip["items"];
@@ -663,8 +687,10 @@ function StayLane({
   onChange: (sourceId: string, patch: TripItemPatch) => Promise<void>;
   onRemove: (sourceId: string) => Promise<void>;
   onClearExemptions: () => Promise<void>;
+  onQuickAddStay: (stayStartDay?: number, stayEndDay?: number) => void;
 }) {
   const coverage = stayCoverage(items, dayCount, exemptNights);
+  const openGap = firstGapSpan(coverage.uncoveredNightIndexes);
   const coverageLabel = coverage.nights === 0
     ? "Noch keine Übernachtung im gewählten Zeitraum."
     : coverage.overlaps > 0
@@ -682,10 +708,14 @@ function StayLane({
           <div className="eyebrow lime">STAY / ÜBERNACHTEN</div>
           <h2>WO DU BLEIBST.</h2>
         </div>
-        <div className={`tripStayCoverage ${coverage.overlaps || coverage.uncovered ? "tripStayCoverage--open" : "tripStayCoverage--complete"}`}>
-          <strong>{items.length}</strong>
-          <span>{items.length === 1 ? "Stay" : "Stays"}</span>
-          <small>{coverageLabel}</small>
+        <div className="tripStayHeadActions">
+          <div className={`tripStayCoverage ${coverage.overlaps || coverage.uncovered ? "tripStayCoverage--open" : "tripStayCoverage--complete"}`}>
+            <strong>{items.length}</strong>
+            <span>{items.length === 1 ? "Stay" : "Stays"}</span>
+            <small>{coverageLabel}</small>
+          </div>
+          <button type="button" className="tripStayQuickAdd" onClick={() => onQuickAddStay()}>+ STAY</button>
+          {coverage.uncovered > 0 && openGap ? <button type="button" className="tripStayGapAction" onClick={() => onQuickAddStay(openGap.start, openGap.end)}>OFFENE NÄCHTE FÜLLEN →</button> : null}
         </div>
       </div>
 
@@ -699,7 +729,7 @@ function StayLane({
       {!items.length ? (
         <div className="tripStayEmpty">
           <div><strong>Noch kein STAY im Trip.</strong><p>Füge eine Unterkunft aus MY AROUND hinzu oder markiere offene Nächte beim Plan-Check bewusst als ohne Unterkunft.</p></div>
-          <Link className="secondary" href={`/search?role=stay&trip=${tripId}`}>+ STAY FINDEN</Link>
+          <div className="tripStayEmptyActions"><button type="button" className="secondary" onClick={() => onQuickAddStay()}>+ STAY FINDEN</button><Link className="textLink" href={`/search?role=stay&trip=${tripId}`}>AROUND durchsuchen →</Link></div>
         </div>
       ) : null}
 
@@ -801,7 +831,8 @@ function TripDayBlock({
   onDragStart,
   onDragEnd,
   onDragEnter,
-  onDrop
+  onDrop,
+  onQuickAdd
 }: {
   id: string;
   dayIndex: number | undefined;
@@ -819,6 +850,7 @@ function TripDayBlock({
   onDragEnd: () => void;
   onDragEnter: () => void;
   onDrop: () => Promise<void>;
+  onQuickAdd: () => void;
 }) {
   const fixedCount = items.filter(item => item.isFixed && item.fixedTime).length;
   const conflicts = fixedPointConflicts(items);
@@ -832,7 +864,7 @@ function TripDayBlock({
       <div className="tripDayHead tripDayHead--v18">
         <div className="tripDayNumber">{displayIndex}</div>
         <div><h2>{title}</h2><p>{dateLabel}</p></div>
-        <div className="tripDayCount"><strong>{items.length}</strong><span>{items.length === 1 ? "Stop" : "Stops"}</span>{fixedCount ? <em>{fixedCount} fix</em> : null}</div>
+        <div className="tripDayCount"><strong>{items.length}</strong><span>{items.length === 1 ? "Stop" : "Stops"}</span>{fixedCount ? <em>{fixedCount} fix</em> : null}<button type="button" className="tripDayQuickAdd" onClick={onQuickAdd}>+ STOP</button></div>
       </div>
       {conflicts.length ? <div className="tripDayConflict">ZEITKONFLIKT · {conflicts.length} {conflicts.length === 1 ? "Überschneidung" : "Überschneidungen"} prüfen</div> : null}
       {items.length ? (
