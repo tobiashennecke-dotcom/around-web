@@ -30,6 +30,10 @@ export type ContentCard = {
   suggestedDurationMinutes?: number;
   suggestedDaypart?: PlanningDaypart;
   suggestedTime?: string;
+  /** Geographic relevance inputs, used by lib/relevance.ts. Absent for content types without a location. */
+  destinationId?: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 export type SeoFields = {

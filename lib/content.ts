@@ -2,16 +2,24 @@ import { sanity } from "@/lib/sanity/client";
 import { normalizeContentRole } from "@/lib/content-role";
 import {
   COLLECTION_QUERY,
+  DESTINATION_GEO_QUERY,
   DESTINATION_QUERY,
   DISCOVER_QUERY,
   HOME_QUERY,
   PERSON_QUERY,
   PLACE_QUERY,
   PLACE_RELEVANCE_CANDIDATES_QUERY,
+  PLACES_BY_IDS_QUERY,
   PRODUCT_QUERY,
   STORY_QUERY
 } from "@/lib/sanity/queries";
-import { getAroundItRecommendations, type AroundItCandidate, type AroundItSubject } from "@/lib/relevance";
+import {
+  filterGeographicallyEligible,
+  getAroundItRecommendations,
+  type AroundItAnchor,
+  type AroundItCandidate,
+  type AroundItSubject
+} from "@/lib/relevance";
 import {
   cityGolf,
   content,
@@ -65,6 +73,9 @@ function toCard(doc: any): ContentCard | null {
     suggestedDurationMinutes: type === "place" && typeof doc.suggestedDurationMinutes === "number" ? doc.suggestedDurationMinutes : undefined,
     suggestedDaypart: type === "place" ? (doc.suggestedDaypart || undefined) : undefined,
     suggestedTime: type === "place" ? (doc.suggestedTime || undefined) : undefined,
+    destinationId: doc.destinationId || undefined,
+    latitude: doc.coordinates?.lat,
+    longitude: doc.coordinates?.lng,
     accent: accentFor(type, doc.placeType),
     image: doc.image || undefined,
     featured: Boolean(doc.featured),
@@ -343,8 +354,11 @@ export async function getCollection(slug: string): Promise<AroundCollection | nu
   return { ...cityGolf, items };
 }
 
-export async function getSearchContent(query:string,type?:string,role?:string):Promise<ContentCard[]> {
-  const cards=await getDiscoverContent();
+/**
+ * Text/role/editorial ranking shared by the global search and any trip-aware
+ * variant of it, so the two never drift into two different scoring functions.
+ */
+export function rankSearchResults(cards: ContentCard[], query: string, type?: string, role?: string): ContentCard[] {
   const q=query.trim().toLowerCase();
   const terms=q.split(/\s+/).filter(Boolean);
   const normalizedRole=normalizeContentRole(role);
@@ -384,4 +398,76 @@ export async function getSearchContent(query:string,type?:string,role?:string):P
       return typeOk && roleOk && relevance(item) >= 0;
     })
     .sort((a,b)=>relevance(b)-relevance(a));
+}
+
+export async function getSearchContent(query:string,type?:string,role?:string):Promise<ContentCard[]> {
+  const cards=await getDiscoverContent();
+  return rankSearchResults(cards, query, type, role);
+}
+
+export type TripSearchContext = {
+  /** Sanity place IDs already in the trip; their coordinates become geographic anchors. */
+  anchorPlaceIds?: string[];
+  /** Trip-level destination, used only when no anchor place has coordinates. */
+  destinationId?: string;
+};
+
+async function resolveTripAnchors(context: TripSearchContext): Promise<AroundItAnchor[]> {
+  if (!sanity) return [];
+
+  const anchorPlaceIds = (context.anchorPlaceIds || []).filter(Boolean);
+  if (anchorPlaceIds.length) {
+    const docs = await sanity.fetch(PLACES_BY_IDS_QUERY, { ids: anchorPlaceIds });
+    const anchors = (docs as any[] | undefined || [])
+      .filter(doc => typeof doc.coordinates?.lat === "number" && typeof doc.coordinates?.lng === "number")
+      .map((doc): AroundItAnchor => ({
+        destinationId: doc.destinationId || undefined,
+        latitude: doc.coordinates.lat,
+        longitude: doc.coordinates.lng
+      }));
+    if (anchors.length) return anchors;
+  }
+
+  if (context.destinationId) {
+    const doc = await sanity.fetch(DESTINATION_GEO_QUERY, { id: context.destinationId });
+    if (typeof doc?.coordinates?.lat === "number" && typeof doc?.coordinates?.lng === "number") {
+      return [{ destinationId: context.destinationId, latitude: doc.coordinates.lat, longitude: doc.coordinates.lng }];
+    }
+  }
+
+  return [];
+}
+
+/**
+ * Trip-aware variant of getSearchContent for Quick Add default recommendations.
+ *
+ * Pipeline: uncapped place candidate pool -> geographic eligibility -> the same
+ * role/text/editorial ranking as global search -> (caller applies the final
+ * display limit, same as getSearchContent does today).
+ *
+ * Deliberately does NOT go through getDiscoverContent()/DISCOVER_QUERY: that
+ * query caps at the top 36 documents across all content types by priority,
+ * which could drop a geographically relevant but lower-priority place before
+ * geographic eligibility is ever checked. Quick Add candidates are always
+ * places (role is always set), so this queries the full, uncapped place pool
+ * directly and only then ranks it with the same scorer as global search.
+ */
+export async function getTripAwareSearchContent(
+  query: string,
+  type: string | undefined,
+  role: string | undefined,
+  context: TripSearchContext
+): Promise<ContentCard[]> {
+  if (!sanity) return getSearchContent(query, type, role);
+
+  const anchors = await resolveTripAnchors(context);
+  if (!anchors.length) return getSearchContent(query, type, role);
+
+  const placeDocs = await sanity.fetch(PLACE_RELEVANCE_CANDIDATES_QUERY, { excludeId: "" });
+  const placeCards = (placeDocs as any[] | undefined || [])
+    .map(toCard)
+    .filter((item): item is ContentCard => Boolean(item));
+
+  const eligible = filterGeographicallyEligible(anchors, placeCards);
+  return rankSearchResults(eligible, query, type, role);
 }

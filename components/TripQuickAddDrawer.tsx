@@ -30,6 +30,7 @@ type Props = {
   startDate?: string;
   existingIds: string[];
   scheduledItems: TripItem[];
+  tripDestinationId?: string;
   defaultDayIndex?: number;
   defaultStayStartDay?: number;
   defaultStayEndDay?: number;
@@ -206,6 +207,7 @@ export function TripQuickAddDrawer({
   startDate,
   existingIds,
   scheduledItems,
+  tripDestinationId,
   defaultDayIndex,
   defaultStayStartDay,
   defaultStayEndDay,
@@ -241,6 +243,9 @@ export function TripQuickAddDrawer({
       setLoading(true);
       try {
         const params = new URLSearchParams({ q: query, type: "all", role });
+        const anchorPlaceIds = scheduledItems.filter(item => item.sourceType === "place").map(item => item.sourceId);
+        if (anchorPlaceIds.length) params.set("anchorPlaceIds", anchorPlaceIds.join(","));
+        if (tripDestinationId) params.set("destinationId", tripDestinationId);
         const response = await fetch(`/api/search?${params.toString()}`);
         const data = await response.json();
         setResults(Array.isArray(data.results) ? data.results : []);

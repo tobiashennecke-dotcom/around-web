@@ -47,6 +47,39 @@ export interface AroundItOptions {
   maxPerCategory?: number;
 }
 
+/** A geographic reference point used to judge whether a candidate is plausibly nearby. */
+export interface AroundItAnchor {
+  destinationId?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+interface AnchorEvaluation {
+  score: number;
+  sameDestination: boolean;
+}
+
+function evaluateAgainstAnchor(
+  anchor: AroundItAnchor,
+  candidate: AroundItCandidate,
+  sameDestinationMaxKm: number,
+  otherDestinationMaxKm: number
+): AnchorEvaluation | null {
+  const anchorHasCoordinates = typeof anchor.latitude === "number" && typeof anchor.longitude === "number";
+  const candidateHasCoordinates = typeof candidate.latitude === "number" && typeof candidate.longitude === "number";
+  if (!anchorHasCoordinates || !candidateHasCoordinates) return null;
+
+  const sameDestination = Boolean(anchor.destinationId) && candidate.destinationId === anchor.destinationId;
+  const maxKm = sameDestination ? sameDestinationMaxKm : otherDestinationMaxKm;
+  const distanceKm = haversineDistanceKm(
+    { latitude: anchor.latitude as number, longitude: anchor.longitude as number },
+    { latitude: candidate.latitude as number, longitude: candidate.longitude as number }
+  );
+  if (distanceKm > maxKm) return null;
+
+  return { score: (sameDestination ? 200 : 0) + Math.max(0, 1 - distanceKm / maxKm) * 150, sameDestination };
+}
+
 function normalizeCategory(placeType?: string): string {
   const value = (placeType || "").trim().toLowerCase();
   if (value === "course" || value === "play") return "play";
@@ -97,7 +130,7 @@ export function getAroundItRecommendations<T extends AroundItCandidate>(
   const maxPerCategory = options.maxPerCategory ?? 2;
   const manuallyRelatedIds = options.manuallyRelatedIds ?? new Set<string>();
 
-  const subjectHasCoordinates = typeof subject.latitude === "number" && typeof subject.longitude === "number";
+  const subjectAnchor: AroundItAnchor = { destinationId: subject.destinationId, latitude: subject.latitude, longitude: subject.longitude };
   const subjectCategory = normalizeCategory(subject.placeType);
   const evaluated: Evaluated<T>[] = [];
 
@@ -105,26 +138,16 @@ export function getAroundItRecommendations<T extends AroundItCandidate>(
     if (candidate.id === subject.id) continue;
 
     const manuallyRelated = manuallyRelatedIds.has(candidate.id);
-    const sameDestination = Boolean(subject.destinationId) && candidate.destinationId === subject.destinationId;
-    const maxKm = sameDestination ? sameDestinationMaxKm : otherDestinationMaxKm;
+    const geo = evaluateAgainstAnchor(subjectAnchor, candidate, sameDestinationMaxKm, otherDestinationMaxKm);
+    if (!manuallyRelated && !geo) continue;
 
-    const candidateHasCoordinates = typeof candidate.latitude === "number" && typeof candidate.longitude === "number";
-    const distanceKm = subjectHasCoordinates && candidateHasCoordinates
-      ? haversineDistanceKm(
-          { latitude: subject.latitude as number, longitude: subject.longitude as number },
-          { latitude: candidate.latitude as number, longitude: candidate.longitude as number }
-        )
-      : undefined;
-
-    if (!manuallyRelated) {
-      if (distanceKm === undefined) continue;
-      if (distanceKm > maxKm) continue;
+    let score = manuallyRelated ? 1000 : 0;
+    if (geo) {
+      score += geo.score;
+    } else {
+      const sameDestination = Boolean(subject.destinationId) && candidate.destinationId === subject.destinationId;
+      if (sameDestination) score += 200;
     }
-
-    let score = 0;
-    if (manuallyRelated) score += 1000;
-    if (sameDestination) score += 200;
-    if (distanceKm !== undefined) score += Math.max(0, 1 - distanceKm / maxKm) * 150;
 
     score += Math.max(0, Math.min(100, candidate.priority ?? 50)) * 0.6;
     if (candidate.featured) score += 15;
@@ -143,4 +166,33 @@ export function getAroundItRecommendations<T extends AroundItCandidate>(
 
   evaluated.sort((a, b) => b.score - a.score);
   return diversify(evaluated, limit, maxPerCategory).map(item => item.candidate);
+}
+
+/**
+ * Whether a candidate is within the applicable relevance radius of at least one anchor.
+ * An empty anchor list means no geographic signal exists at all - callers should treat
+ * that as "do not invent relevance" rather than calling this (see filterGeographicallyEligible).
+ */
+export function isGeographicallyEligible(
+  anchors: readonly AroundItAnchor[],
+  candidate: AroundItCandidate,
+  options: Pick<AroundItOptions, "sameDestinationMaxKm" | "otherDestinationMaxKm"> = {}
+): boolean {
+  const sameDestinationMaxKm = options.sameDestinationMaxKm ?? 80;
+  const otherDestinationMaxKm = options.otherDestinationMaxKm ?? 40;
+  return anchors.some(anchor => evaluateAgainstAnchor(anchor, candidate, sameDestinationMaxKm, otherDestinationMaxKm) !== null);
+}
+
+/**
+ * Filters candidates down to those geographically plausible for a trip, using the minimum
+ * distance to any of its anchors (existing trip stops, or a destination-level fallback).
+ * With no anchors at all, returns candidates unfiltered - there is no signal to filter on.
+ */
+export function filterGeographicallyEligible<T extends AroundItCandidate>(
+  anchors: readonly AroundItAnchor[],
+  candidates: readonly T[],
+  options: Pick<AroundItOptions, "sameDestinationMaxKm" | "otherDestinationMaxKm"> = {}
+): T[] {
+  if (!anchors.length) return candidates.slice();
+  return candidates.filter(candidate => isGeographicallyEligible(anchors, candidate, options));
 }

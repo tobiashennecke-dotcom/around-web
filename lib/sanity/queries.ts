@@ -3,6 +3,8 @@ import { defineQuery } from "next-sanity";
 const CARD_FIELDS = `
   _id,_type,title,slug,kicker,placeType,featured,aroundSelected,priority,
   defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,
+  coordinates,
+  "destinationId": destination->_id,
   "summary": coalesce(summary, deck, ""),
   "image": coalesce(heroImage.asset->url, portrait.asset->url, image.asset->url)
 `;
@@ -57,10 +59,21 @@ export const PLACE_QUERY = defineQuery(`
 `);
 
 export const PLACE_RELEVANCE_CANDIDATES_QUERY = defineQuery(`
-  *[_type == "place" && defined(slug.current) && _id != $excludeId]{
-    ${CARD_FIELDS},
+  *[_type == "place" && defined(slug.current) && _id != $excludeId]{${CARD_FIELDS}}
+`);
+
+export const PLACES_BY_IDS_QUERY = defineQuery(`
+  *[_type == "place" && _id in $ids]{
+    _id,
     coordinates,
     "destinationId": destination->_id
+  }
+`);
+
+export const DESTINATION_GEO_QUERY = defineQuery(`
+  *[_type == "destination" && _id == $id][0]{
+    _id,
+    coordinates
   }
 `);
 
