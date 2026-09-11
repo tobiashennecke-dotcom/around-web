@@ -48,6 +48,25 @@ export default async function DiscoverPage() {
         </div>
       </section>
 
+      <section className="tripDiscoverySection">
+        <div className="container">
+          <div className="tripDiscoveryHead">
+            <div>
+              <div className="eyebrow lime">BUILD A TRIP</div>
+              <h2>PLAY. STAY.<br/>EAT. DO.</h2>
+            </div>
+            <p>Golf ist der Start. Eine Reise entsteht aus den richtigen Bausteinen davor, danach und dazwischen.</p>
+          </div>
+          <div className="tripDiscoveryRoles">
+            <Link href="/search?role=play"><b>01</b><span>PLAY</span><small>Runden, für die du hinfährst.</small><i>→</i></Link>
+            <Link href="/search?role=stay"><b>02</b><span>STAY</span><small>Orte, an denen du bleiben willst.</small><i>→</i></Link>
+            <Link href="/search?role=eat"><b>03</b><span>EAT</span><small>Der nächste wichtige Termin nach der Runde.</small><i>→</i></Link>
+            <Link href="/search?role=do"><b>04</b><span>DO</span><small>Der Grund, nicht direkt wieder abzureisen.</small><i>→</i></Link>
+          </div>
+          <div className="tripDiscoveryFoot"><Link href="/my-around/trips">Meine Trips →</Link><Link href="/search">AROUND durchsuchen →</Link></div>
+        </div>
+      </section>
+
       <section className="discoveryPaths discoveryPathsV13">
         <div className="container">
           <div className="sectionHead compactHead">
@@ -126,6 +145,3 @@ export default async function DiscoverPage() {
     </main>
   );
 }
-
-// AROUND editorial freshness: refresh published Sanity content without a redeploy.
-export const revalidate = 30;

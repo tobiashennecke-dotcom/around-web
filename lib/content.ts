@@ -1,4 +1,5 @@
 import { sanity } from "@/lib/sanity/client";
+import { normalizeContentRole } from "@/lib/content-role";
 import {
   COLLECTION_QUERY,
   DESTINATION_QUERY,
@@ -292,12 +293,14 @@ export async function getCollection(slug: string): Promise<AroundCollection | nu
   return { ...cityGolf, items };
 }
 
-export async function getSearchContent(query:string,type?:string):Promise<ContentCard[]> {
+export async function getSearchContent(query:string,type?:string,role?:string):Promise<ContentCard[]> {
   const cards=await getDiscoverContent();
   const q=query.trim().toLowerCase();
+  const normalizedRole=normalizeContentRole(role);
   return cards.filter(item=>{
     const typeOk=!type || type === "all" || item.type === type;
-    const haystack=`${item.title} ${item.kicker || ""} ${item.description}`.toLowerCase();
-    return typeOk && (!q || haystack.includes(q));
+    const roleOk=!normalizedRole || (item.type === "place" && normalizeContentRole(item.placeType) === normalizedRole);
+    const haystack=`${item.title} ${item.kicker || ""} ${item.description} ${item.placeType || ""}`.toLowerCase();
+    return typeOk && roleOk && (!q || haystack.includes(q));
   });
 }

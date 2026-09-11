@@ -536,7 +536,7 @@ export function TripDetailClient({ id }: { id: string }) {
               ? "Autosave aktiv · dieser Plan bleibt auf diesem Gerät gespeichert."
               : "Autosave aktiv · dieser Plan wird mit deinem Account synchronisiert.")}
           </div>
-          <div className="tripDetailToolbar"><Link href="/my-around/trips">← Alle Trips</Link><Link href="/saved">+ Aus MY AROUND hinzufügen</Link></div>
+          <div className="tripDetailToolbar"><Link href="/my-around/trips">← Alle Trips</Link><div className="tripDetailToolbarActions"><Link href={`/search?trip=${trip.id}`}>+ AROUND DURCHSUCHEN</Link><Link href="/saved">+ AUS MY AROUND</Link></div></div>
 
           <div className={`tripReadinessBar ${trip.planReady ? "tripReadinessBar--ready" : ""}`}>
             <div>
@@ -696,7 +696,7 @@ function StayLane({
       {!items.length ? (
         <div className="tripStayEmpty">
           <div><strong>Noch kein STAY im Trip.</strong><p>Füge eine Unterkunft aus MY AROUND hinzu oder markiere offene Nächte beim Plan-Check bewusst als ohne Unterkunft.</p></div>
-          <Link className="secondary" href="/saved">+ STAY HINZUFÜGEN</Link>
+          <Link className="secondary" href={`/search?role=stay&trip=${trip.id}`}>+ STAY FINDEN</Link>
         </div>
       ) : null}
 
