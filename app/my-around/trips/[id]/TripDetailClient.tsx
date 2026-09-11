@@ -9,6 +9,7 @@ import {
   removeItemFromTrip,
   updateTripItem,
   updateUserTrip,
+  type TripBookingState,
   type TripItemPatch,
   type TripSlot,
   type TripStatus,
@@ -24,14 +25,56 @@ const slotLabels: Record<TripSlot, string> = {
   stay: "Stay"
 };
 
-const slotOrder: Record<TripSlot, number> = {
-  morning: 10,
-  midday: 20,
-  afternoon: 30,
-  evening: 40,
-  stay: 50,
-  flex: 60
+const slotMinutes: Record<TripSlot, number> = {
+  morning: 9 * 60,
+  midday: 12 * 60 + 30,
+  afternoon: 15 * 60 + 30,
+  evening: 19 * 60 + 30,
+  stay: 22 * 60,
+  flex: 24 * 60
 };
+
+const durationOptions = [30, 60, 90, 120, 180, 240, 270, 300, 360];
+
+function minutesFromTime(value?: string) {
+  if (!value || !/^\d{2}:\d{2}/.test(value)) return undefined;
+  const [hours, minutes] = value.slice(0, 5).split(":").map(Number);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return undefined;
+  return hours * 60 + minutes;
+}
+
+function slotForTime(value?: string): TripSlot {
+  const minutes = minutesFromTime(value);
+  if (minutes === undefined) return "flex";
+  if (minutes < 11 * 60) return "morning";
+  if (minutes < 14 * 60) return "midday";
+  if (minutes < 18 * 60) return "afternoon";
+  return "evening";
+}
+
+function formatDuration(minutes?: number) {
+  if (!minutes) return "Dauer offen";
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (!hours) return `${rest} Min`;
+  if (!rest) return `${hours} Std`;
+  return `${hours} Std ${rest} Min`;
+}
+
+function fixpointCopy(item: SavePayload) {
+  const role = item.sourceType === "place" ? normalizeContentRole(item.sourceRole) : undefined;
+  if (role === "play") return { label: "Tee Time", defaultTime: "09:00", defaultDuration: 270, requested: "Angefragt", confirmed: "Gebucht" };
+  if (role === "eat") return { label: "Reservierung", defaultTime: "19:00", defaultDuration: 120, requested: "Angefragt", confirmed: "Reserviert" };
+  if (role === "do") return { label: "Termin", defaultTime: "14:00", defaultDuration: 120, requested: "Angefragt", confirmed: "Gebucht" };
+  return { label: "Uhrzeit", defaultTime: "10:00", defaultDuration: 60, requested: "Angefragt", confirmed: "Bestätigt" };
+}
+
+function bookingStateLabel(item: SavePayload, state?: TripBookingState) {
+  const copy = fixpointCopy(item);
+  if (state === "requested") return copy.requested;
+  if (state === "confirmed") return copy.confirmed;
+  return "Offen";
+}
 
 const statusLabels: Record<TripStatus, string> = {
   idea: "Idee",
@@ -93,11 +136,33 @@ function tripDateRange(start?: string, end?: string) {
 
 function sortItems(items: UserTrip["items"]) {
   return [...items].sort((a, b) => {
-    const aSlot = slotOrder[(a.slot || "flex") as TripSlot];
-    const bSlot = slotOrder[(b.slot || "flex") as TripSlot];
-    if (aSlot !== bSlot) return aSlot - bSlot;
+    const aMinute = a.isFixed ? minutesFromTime(a.fixedTime) : undefined;
+    const bMinute = b.isFixed ? minutesFromTime(b.fixedTime) : undefined;
+    const aKey = aMinute ?? slotMinutes[(a.slot || "flex") as TripSlot];
+    const bKey = bMinute ?? slotMinutes[(b.slot || "flex") as TripSlot];
+    if (aKey !== bKey) return aKey - bKey;
     return a.sortOrder - b.sortOrder;
   });
+}
+
+function fixedPointConflicts(items: UserTrip["items"]) {
+  const scheduled = items
+    .filter(item => item.isFixed && item.fixedTime)
+    .map(item => ({
+      item,
+      start: minutesFromTime(item.fixedTime) as number,
+      end: (minutesFromTime(item.fixedTime) as number) + (item.durationMinutes || 60)
+    }))
+    .sort((a, b) => a.start - b.start);
+
+  const conflicts: Array<[string, string]> = [];
+  for (let index = 0; index < scheduled.length; index += 1) {
+    for (let next = index + 1; next < scheduled.length; next += 1) {
+      if (scheduled[next].start >= scheduled[index].end) break;
+      conflicts.push([scheduled[index].item.sourceId, scheduled[next].item.sourceId]);
+    }
+  }
+  return conflicts;
 }
 
 function isStayItem(item: UserTrip["items"][number]) {
@@ -284,7 +349,11 @@ export function TripDetailClient({ id }: { id: string }) {
         note: patch.note ?? item.note,
         stayStartDay: "stayStartDay" in patch ? patch.stayStartDay : item.stayStartDay,
         stayEndDay: "stayEndDay" in patch ? patch.stayEndDay : item.stayEndDay,
-        stayFullTrip: "stayFullTrip" in patch ? Boolean(patch.stayFullTrip) : item.stayFullTrip
+        stayFullTrip: "stayFullTrip" in patch ? Boolean(patch.stayFullTrip) : item.stayFullTrip,
+        isFixed: "isFixed" in patch ? Boolean(patch.isFixed) : item.isFixed,
+        fixedTime: "fixedTime" in patch ? (patch.fixedTime || undefined) : item.fixedTime,
+        durationMinutes: "durationMinutes" in patch ? patch.durationMinutes : item.durationMinutes,
+        bookingState: "bookingState" in patch ? patch.bookingState : item.bookingState
       } : item)
     } : current);
 
@@ -400,6 +469,7 @@ export function TripDetailClient({ id }: { id: string }) {
     const range = effectiveStayRange(item, dayCount);
     return item.stayFullTrip || (range.start !== undefined && range.end !== undefined && range.end > range.start);
   }).length;
+  const fixedPointCount = regularItems.filter(item => item.isFixed && item.fixedTime && item.dayIndex !== undefined).length;
   const plannedCount = (regularItems.length - unplanned.length) + stayPlannedCount;
   const coverage = stayCoverage(stays, dayCount, trip.stayExemptNights || []);
   const gap = firstGapSpan(coverage.uncoveredNightIndexes);
@@ -419,6 +489,7 @@ export function TripDetailClient({ id }: { id: string }) {
               <span>{tripDateRange(startDate, endDate)}</span>
               <span>{dayCount} {dayCount === 1 ? "Tag" : "Tage"}</span>
               <span>{trip.items.length} {trip.items.length === 1 ? "Fundstück" : "Fundstücke"}</span>
+              {fixedPointCount ? <span>{fixedPointCount} {fixedPointCount === 1 ? "Fixpunkt" : "Fixpunkte"}</span> : null}
             </div>
           </div>
           <div className="tripHeroAside tripHeroAside--v18">
@@ -746,6 +817,8 @@ function TripDayBlock({
   onDragEnter: () => void;
   onDrop: () => Promise<void>;
 }) {
+  const fixedCount = items.filter(item => item.isFixed && item.fixedTime).length;
+  const conflicts = fixedPointConflicts(items);
   return (
     <section
       id={id}
@@ -756,8 +829,9 @@ function TripDayBlock({
       <div className="tripDayHead tripDayHead--v18">
         <div className="tripDayNumber">{displayIndex}</div>
         <div><h2>{title}</h2><p>{dateLabel}</p></div>
-        <div className="tripDayCount"><strong>{items.length}</strong><span>{items.length === 1 ? "Stop" : "Stops"}</span></div>
+        <div className="tripDayCount"><strong>{items.length}</strong><span>{items.length === 1 ? "Stop" : "Stops"}</span>{fixedCount ? <em>{fixedCount} fix</em> : null}</div>
       </div>
+      {conflicts.length ? <div className="tripDayConflict">ZEITKONFLIKT · {conflicts.length} {conflicts.length === 1 ? "Überschneidung" : "Überschneidungen"} prüfen</div> : null}
       {items.length ? (
         <div className="tripDayItems tripDayItems--v18">
           {items.map(item => (
@@ -808,14 +882,31 @@ function TripItemRow({
   const itemSlot = (item.slot || "flex") as TripSlot;
   const canMoveBack = dayIndex !== undefined;
   const canMoveForward = dayIndex === undefined || dayIndex < dayCount - 1;
+  const fixedCopy = fixpointCopy(item);
+  const bookingState = item.bookingState || "none";
 
   useEffect(() => {
     setNote(item.note || "");
   }, [item.note]);
 
+  function setFixedMode(nextFixed: boolean) {
+    if (!nextFixed) {
+      void onChange(item.sourceId, { isFixed: false, bookingState: "none" });
+      return;
+    }
+    const time = item.fixedTime || fixedCopy.defaultTime;
+    void onChange(item.sourceId, {
+      isFixed: true,
+      fixedTime: time,
+      durationMinutes: item.durationMinutes || fixedCopy.defaultDuration,
+      bookingState,
+      slot: slotForTime(time)
+    });
+  }
+
   return (
     <article
-      className={`tripItemRow tripItemRow--v18 ${type.className}`}
+      className={`tripItemRow tripItemRow--v18 tripItemRow--v15 ${item.isFixed ? "tripItemRow--fixed" : "tripItemRow--flex"} ${type.className}`}
       draggable
       onDragStart={event => {
         event.dataTransfer.effectAllowed = "move";
@@ -825,23 +916,93 @@ function TripItemRow({
       onDragEnd={onDragEnd}
     >
       <div className="tripDragHandle" title="Auf Desktop ziehen, um den Tag zu ändern" aria-hidden="true"><i /><i /><i /></div>
-      <div className="tripItemSlotPill"><span>{slotLabels[itemSlot]}</span></div>
+      <div className={`tripItemSlotPill ${item.isFixed ? "tripItemSlotPill--fixed" : ""}`}>
+        {item.isFixed ? (
+          <>
+            <strong>{item.fixedTime || "--:--"}</strong>
+            <small>{fixedCopy.label}</small>
+          </>
+        ) : (
+          <span>{slotLabels[itemSlot]}</span>
+        )}
+      </div>
       <div className="tripItemIdentity tripItemIdentity--v18">
-        <span>{type.label}</span>
+        <span>{type.label}{item.isFixed ? " · FIXPUNKT" : ""}</span>
         <h3><Link href={hrefFor(item)}>{item.title}</Link></h3>
-        {item.note ? <p>{item.note}</p> : null}
+        {item.isFixed ? (
+          <p className="tripFixedMeta">
+            {bookingStateLabel(item, bookingState)} · {formatDuration(item.durationMinutes)}
+            {item.dayIndex === undefined ? " · Tag noch offen" : ""}
+          </p>
+        ) : item.note ? <p>{item.note}</p> : null}
       </div>
       <div className="tripItemMove" aria-label="Zwischen Tagen verschieben">
         <button type="button" onClick={() => onMove(item.sourceId, dayIndex, -1)} disabled={!canMoveBack} aria-label="Einen Tag zurück">←</button>
         <button type="button" onClick={() => onMove(item.sourceId, dayIndex, 1)} disabled={!canMoveForward} aria-label="Einen Tag weiter">→</button>
       </div>
-      <div className="tripItemEditors">
-        <label className="tripItemControl"><span>Tag</span><select value={item.dayIndex === undefined ? "" : String(item.dayIndex)} onChange={event => onChange(item.sourceId, { dayIndex: event.target.value === "" ? undefined : Number(event.target.value) })}><option value="">Offen</option>{Array.from({ length: dayCount }, (_, index) => <option value={index} key={index}>Day {index + 1}</option>)}</select></label>
-        <label className="tripItemControl"><span>Zeit</span><select value={itemSlot} onChange={event => onChange(item.sourceId, { slot: event.target.value as TripSlot })}>{Object.entries(slotLabels).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
-        <label className="tripItemNote"><span>Notiz</span><input value={note} placeholder="Tee Time, Tisch, Idee …" onChange={event => setNote(event.target.value)} onBlur={() => { if (note !== (item.note || "")) onChange(item.sourceId, { note }); }} /></label>
+      <div className={`tripItemEditors tripItemEditors--v15 ${item.isFixed ? "tripItemEditors--fixed" : ""}`}>
+        <label className="tripItemControl">
+          <span>Tag</span>
+          <select value={item.dayIndex === undefined ? "" : String(item.dayIndex)} onChange={event => onChange(item.sourceId, { dayIndex: event.target.value === "" ? undefined : Number(event.target.value) })}>
+            <option value="">Offen</option>
+            {Array.from({ length: dayCount }, (_, index) => <option value={index} key={index}>Day {index + 1}</option>)}
+          </select>
+        </label>
+
+        <label className="tripItemControl">
+          <span>Planung</span>
+          <select value={item.isFixed ? "fixed" : "flex"} onChange={event => setFixedMode(event.target.value === "fixed")}>
+            <option value="flex">Flexibel</option>
+            <option value="fixed">Fixpunkt</option>
+          </select>
+        </label>
+
+        {item.isFixed ? (
+          <>
+            <label className="tripItemControl">
+              <span>{fixedCopy.label}</span>
+              <input
+                type="time"
+                value={item.fixedTime || ""}
+                onChange={event => {
+                  const time = event.target.value;
+                  void onChange(item.sourceId, { fixedTime: time || undefined, slot: slotForTime(time) });
+                }}
+              />
+            </label>
+            <label className="tripItemControl">
+              <span>Dauer</span>
+              <select value={item.durationMinutes || ""} onChange={event => onChange(item.sourceId, { durationMinutes: event.target.value ? Number(event.target.value) : undefined })}>
+                <option value="">Offen</option>
+                {durationOptions.map(minutes => <option value={minutes} key={minutes}>{formatDuration(minutes)}</option>)}
+              </select>
+            </label>
+            <label className="tripItemControl">
+              <span>Status</span>
+              <select value={bookingState} onChange={event => onChange(item.sourceId, { bookingState: event.target.value as TripBookingState })}>
+                <option value="none">Offen</option>
+                <option value="requested">{fixedCopy.requested}</option>
+                <option value="confirmed">{fixedCopy.confirmed}</option>
+              </select>
+            </label>
+          </>
+        ) : (
+          <label className="tripItemControl">
+            <span>Zeitfenster</span>
+            <select value={itemSlot} onChange={event => onChange(item.sourceId, { slot: event.target.value as TripSlot })}>
+              {Object.entries(slotLabels).filter(([value]) => value !== "stay").map(([value, label]) => <option value={value} key={value}>{label}</option>)}
+            </select>
+          </label>
+        )}
+
+        <label className="tripItemNote">
+          <span>Notiz</span>
+          <input value={note} placeholder="Tee Time, Tisch, Idee …" onChange={event => setNote(event.target.value)} onBlur={() => { if (note !== (item.note || "")) onChange(item.sourceId, { note }); }} />
+        </label>
       </div>
       <Link href={hrefFor(item)} className="tripItemOpen" aria-label={`${item.title} öffnen`}>↗</Link>
       <button type="button" className="tripItemRemove" onClick={() => onRemove(item.sourceId)} aria-label={`${item.title} aus Trip entfernen`}>×</button>
     </article>
   );
 }
+

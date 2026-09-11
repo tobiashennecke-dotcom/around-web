@@ -4,6 +4,7 @@ import { normalizeContentRole } from "@/lib/content-role";
 
 export type TripStatus = "idea" | "planning" | "booked" | "completed";
 export type TripSlot = "flex" | "morning" | "midday" | "afternoon" | "evening" | "stay";
+export type TripBookingState = "none" | "requested" | "confirmed";
 
 export type TripItemPatch = {
   dayIndex?: number;
@@ -12,6 +13,10 @@ export type TripItemPatch = {
   stayStartDay?: number;
   stayEndDay?: number;
   stayFullTrip?: boolean;
+  isFixed?: boolean;
+  fixedTime?: string;
+  durationMinutes?: number;
+  bookingState?: TripBookingState;
 };
 
 export type TripItem = SavePayload & {
@@ -25,6 +30,14 @@ export type TripItem = SavePayload & {
   stayEndDay?: number;
   /** STAY-only: automatically span from trip start to trip end. */
   stayFullTrip?: boolean;
+  /** Exact-time appointment/tee time/reservation on a planned day. */
+  isFixed?: boolean;
+  /** Local clock time in HH:MM format for fixed points. */
+  fixedTime?: string;
+  /** Optional expected duration, used for timeline context and future conflict checks. */
+  durationMinutes?: number;
+  /** Lightweight reservation/booking state for PLAY / EAT / DO. */
+  bookingState?: TripBookingState;
 };
 
 export type UserTrip = {
@@ -159,6 +172,10 @@ async function mergeGuestTripsIntoAccount(
         stay_start_day: item.stayStartDay ?? null,
         stay_end_day: item.stayEndDay ?? null,
         stay_full_trip: Boolean(item.stayFullTrip),
+        is_fixed: Boolean(item.isFixed),
+        fixed_time: item.fixedTime || null,
+        duration_minutes: item.durationMinutes ?? null,
+        booking_state: item.bookingState || "none",
         sort_order: item.sortOrder
       };
 
@@ -197,13 +214,17 @@ async function fetchAccountTrips(
     stay_start_day: number | null;
     stay_end_day: number | null;
     stay_full_trip: boolean | null;
+    is_fixed: boolean | null;
+    fixed_time: string | null;
+    duration_minutes: number | null;
+    booking_state: string | null;
     sort_order: number;
   }> = [];
 
   if (tripIds.length) {
     const { data } = await supabase
       .from("trip_items")
-      .select("trip_id,source_id,source_type,source_role,day_index,slot,note,stay_start_day,stay_end_day,stay_full_trip,sort_order")
+      .select("trip_id,source_id,source_type,source_role,day_index,slot,note,stay_start_day,stay_end_day,stay_full_trip,is_fixed,fixed_time,duration_minutes,booking_state,sort_order")
       .in("trip_id", tripIds)
       .order("sort_order", { ascending: true });
     itemRows = data || [];
@@ -259,6 +280,10 @@ async function fetchAccountTrips(
           stayStartDay: item.stay_start_day ?? undefined,
           stayEndDay: item.stay_end_day ?? undefined,
           stayFullTrip: Boolean(item.stay_full_trip),
+          isFixed: Boolean(item.is_fixed),
+          fixedTime: item.fixed_time ? String(item.fixed_time).slice(0, 5) : undefined,
+          durationMinutes: item.duration_minutes ?? undefined,
+          bookingState: (["requested","confirmed"].includes(item.booking_state || "") ? item.booking_state : "none") as TripBookingState,
           sortOrder: item.sort_order
         };
       })
@@ -416,6 +441,8 @@ export async function addItemToTrip(
           stayStartDay: item.sourceRole === "stay" ? options.stayStartDay : undefined,
           stayEndDay: item.sourceRole === "stay" ? options.stayEndDay : undefined,
           stayFullTrip: item.sourceRole === "stay" ? Boolean(options.stayFullTrip) : false,
+          isFixed: false,
+          bookingState: "none",
           sortOrder: trip.items.length
         }]
       };
@@ -460,6 +487,10 @@ export async function addItemToTrip(
     stay_start_day: item.sourceRole === "stay" ? (options.stayStartDay ?? null) : null,
     stay_end_day: item.sourceRole === "stay" ? (options.stayEndDay ?? null) : null,
     stay_full_trip: item.sourceRole === "stay" ? Boolean(options.stayFullTrip) : false,
+    is_fixed: false,
+    fixed_time: null,
+    duration_minutes: null,
+    booking_state: "none",
     sort_order: count || 0
   });
   if (error) throw error;
@@ -493,7 +524,11 @@ export async function updateTripItem(
           note: patch.note ?? item.note,
           stayStartDay: "stayStartDay" in patch ? patch.stayStartDay : item.stayStartDay,
           stayEndDay: "stayEndDay" in patch ? patch.stayEndDay : item.stayEndDay,
-          stayFullTrip: "stayFullTrip" in patch ? Boolean(patch.stayFullTrip) : item.stayFullTrip
+          stayFullTrip: "stayFullTrip" in patch ? Boolean(patch.stayFullTrip) : item.stayFullTrip,
+          isFixed: "isFixed" in patch ? Boolean(patch.isFixed) : item.isFixed,
+          fixedTime: "fixedTime" in patch ? (patch.fixedTime || undefined) : item.fixedTime,
+          durationMinutes: "durationMinutes" in patch ? patch.durationMinutes : item.durationMinutes,
+          bookingState: "bookingState" in patch ? patch.bookingState : item.bookingState
         } : item)
       } : trip);
     });
@@ -507,6 +542,10 @@ export async function updateTripItem(
   if ("stayStartDay" in patch) dbPatch.stay_start_day = patch.stayStartDay ?? null;
   if ("stayEndDay" in patch) dbPatch.stay_end_day = patch.stayEndDay ?? null;
   if ("stayFullTrip" in patch) dbPatch.stay_full_trip = Boolean(patch.stayFullTrip);
+  if ("isFixed" in patch) dbPatch.is_fixed = Boolean(patch.isFixed);
+  if ("fixedTime" in patch) dbPatch.fixed_time = patch.fixedTime || null;
+  if ("durationMinutes" in patch) dbPatch.duration_minutes = patch.durationMinutes ?? null;
+  if ("bookingState" in patch) dbPatch.booking_state = patch.bookingState || "none";
 
   const { error } = await supabase.from("trip_items")
     .update(dbPatch)
