@@ -14,6 +14,7 @@ import {
   STORY_QUERY
 } from "@/lib/sanity/queries";
 import {
+  bestAnchorRelevance,
   filterGeographicallyEligible,
   getAroundItRecommendations,
   type AroundItAnchor,
@@ -358,7 +359,13 @@ export async function getCollection(slug: string): Promise<AroundCollection | nu
  * Text/role/editorial ranking shared by the global search and any trip-aware
  * variant of it, so the two never drift into two different scoring functions.
  */
-export function rankSearchResults(cards: ContentCard[], query: string, type?: string, role?: string): ContentCard[] {
+export function rankSearchResults(
+  cards: ContentCard[],
+  query: string,
+  type?: string,
+  role?: string,
+  geoScore?: (item: ContentCard) => number
+): ContentCard[] {
   const q=query.trim().toLowerCase();
   const terms=q.split(/\s+/).filter(Boolean);
   const normalizedRole=normalizeContentRole(role);
@@ -388,6 +395,7 @@ export function rankSearchResults(cards: ContentCard[], query: string, type?: st
     if (item.aroundSelected) score+=22;
     if (item.featured) score+=12;
     if (typeof item.priority === "number") score+=Math.max(-10,Math.min(20,item.priority));
+    if (geoScore) score+=geoScore(item);
     return score;
   }
 
@@ -441,16 +449,22 @@ async function resolveTripAnchors(context: TripSearchContext): Promise<AroundItA
 /**
  * Trip-aware variant of getSearchContent for Quick Add default recommendations.
  *
- * Pipeline: uncapped place candidate pool -> geographic eligibility -> the same
- * role/text/editorial ranking as global search -> (caller applies the final
- * display limit, same as getSearchContent does today).
+ * Pipeline: uncapped place candidate pool -> geographic eligibility -> each
+ * eligible candidate's geographic relevance score (via its best/nearest
+ * applicable anchor) -> combined with the same role/text/editorial ranking as
+ * global search, via rankSearchResults' optional geoScore bonus -> (caller
+ * applies the final display limit, same as getSearchContent does today).
+ * Geography is not just a pass/fail gate here: a candidate 2km from a trip
+ * anchor should outrank one 70km away even if the latter has a somewhat
+ * higher editorial priority, so its distance-based score is folded into the
+ * same ranking pass rather than discarded after the eligibility check.
  *
  * Deliberately does NOT go through getDiscoverContent()/DISCOVER_QUERY: that
  * query caps at the top 36 documents across all content types by priority,
  * which could drop a geographically relevant but lower-priority place before
  * geographic eligibility is ever checked. Quick Add candidates are always
  * places (role is always set), so this queries the full, uncapped place pool
- * directly and only then ranks it with the same scorer as global search.
+ * directly instead.
  */
 export async function getTripAwareSearchContent(
   query: string,
@@ -469,5 +483,12 @@ export async function getTripAwareSearchContent(
     .filter((item): item is ContentCard => Boolean(item));
 
   const eligible = filterGeographicallyEligible(anchors, placeCards);
-  return rankSearchResults(eligible, query, type, role);
+
+  const geoScores = new Map<string, number>();
+  for (const candidate of eligible) {
+    const best = bestAnchorRelevance(anchors, candidate);
+    if (best) geoScores.set(candidate.id, best.score);
+  }
+
+  return rankSearchResults(eligible, query, type, role, item => geoScores.get(item.id) ?? 0);
 }

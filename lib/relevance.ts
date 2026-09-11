@@ -54,7 +54,7 @@ export interface AroundItAnchor {
   longitude?: number;
 }
 
-interface AnchorEvaluation {
+export interface AnchorEvaluation {
   score: number;
   sameDestination: boolean;
 }
@@ -169,6 +169,28 @@ export function getAroundItRecommendations<T extends AroundItCandidate>(
 }
 
 /**
+ * The candidate's geographic relevance against whichever anchor scores it highest
+ * (in practice, its nearest applicable anchor - score falls off with distance and
+ * rises for a shared destination, so the best-scoring anchor is also the most
+ * relevant one). Returns null when no anchor is within the applicable radius.
+ */
+export function bestAnchorRelevance(
+  anchors: readonly AroundItAnchor[],
+  candidate: AroundItCandidate,
+  options: Pick<AroundItOptions, "sameDestinationMaxKm" | "otherDestinationMaxKm"> = {}
+): AnchorEvaluation | null {
+  const sameDestinationMaxKm = options.sameDestinationMaxKm ?? 80;
+  const otherDestinationMaxKm = options.otherDestinationMaxKm ?? 40;
+
+  let best: AnchorEvaluation | null = null;
+  for (const anchor of anchors) {
+    const evaluation = evaluateAgainstAnchor(anchor, candidate, sameDestinationMaxKm, otherDestinationMaxKm);
+    if (evaluation && (!best || evaluation.score > best.score)) best = evaluation;
+  }
+  return best;
+}
+
+/**
  * Whether a candidate is within the applicable relevance radius of at least one anchor.
  * An empty anchor list means no geographic signal exists at all - callers should treat
  * that as "do not invent relevance" rather than calling this (see filterGeographicallyEligible).
@@ -178,15 +200,15 @@ export function isGeographicallyEligible(
   candidate: AroundItCandidate,
   options: Pick<AroundItOptions, "sameDestinationMaxKm" | "otherDestinationMaxKm"> = {}
 ): boolean {
-  const sameDestinationMaxKm = options.sameDestinationMaxKm ?? 80;
-  const otherDestinationMaxKm = options.otherDestinationMaxKm ?? 40;
-  return anchors.some(anchor => evaluateAgainstAnchor(anchor, candidate, sameDestinationMaxKm, otherDestinationMaxKm) !== null);
+  return bestAnchorRelevance(anchors, candidate, options) !== null;
 }
 
 /**
- * Filters candidates down to those geographically plausible for a trip, using the minimum
- * distance to any of its anchors (existing trip stops, or a destination-level fallback).
- * With no anchors at all, returns candidates unfiltered - there is no signal to filter on.
+ * Filters candidates down to those geographically plausible for a trip - eligible if
+ * within the applicable radius of at least one anchor (existing trip stops, or a
+ * destination-level fallback). This is a pass/fail gate only; it does not rank
+ * candidates by distance - use bestAnchorRelevance for that. With no anchors at all,
+ * returns candidates unfiltered since there is no geographic signal to filter on.
  */
 export function filterGeographicallyEligible<T extends AroundItCandidate>(
   anchors: readonly AroundItAnchor[],
