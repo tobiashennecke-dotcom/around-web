@@ -62,6 +62,15 @@ function formatDuration(minutes?: number) {
   return `${hours} Std ${rest} Min`;
 }
 
+function formatDurationCompact(minutes?: number) {
+  if (!minutes) return "";
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (!hours) return `CA. ${rest} MIN`;
+  if (!rest) return `CA. ${hours} STD`;
+  return `CA. ${hours} STD ${rest} MIN`;
+}
+
 function fixpointCopy(item: SavePayload) {
   const role = item.sourceType === "place" ? normalizeContentRole(item.sourceRole) : undefined;
   if (role === "play") return { label: "Tee Time", defaultTime: "09:00", defaultDuration: 270, requested: "Angefragt", confirmed: "Gebucht" };
@@ -461,6 +470,22 @@ export function TripDetailClient({ id }: { id: string }) {
     setSaveMessage(`${candidate.title} wurde bis Day ${gap.end + 1} verlängert.`);
   }
 
+  async function startNextStayEarlier() {
+    if (!trip) return;
+    const staysNow = trip.items.filter(isStayItem);
+    const coverage = stayCoverage(staysNow, dayCount, trip.stayExemptNights || []);
+    const gap = firstGapSpan(coverage.uncoveredNightIndexes);
+    if (!gap) return;
+    const candidate = staysNow.find(item => {
+      const range = effectiveStayRange(item, dayCount);
+      return !item.stayFullTrip && range.start === gap.end;
+    });
+    if (!candidate) return;
+    await changeItem(candidate.sourceId, { stayFullTrip: false, stayStartDay: gap.start });
+    setShowReadiness(false);
+    setSaveMessage(`${candidate.title} beginnt jetzt ab Day ${gap.start + 1}.`);
+  }
+
   if (loading) return <section className="section"><div className="container savedLoading">Trip wird geladen …</div></section>;
   if (!trip) return <section className="section"><div className="container"><h1>Trip nicht gefunden.</h1><Link className="textLink" href="/my-around/trips">Zurück →</Link></div></section>;
 
@@ -482,6 +507,10 @@ export function TripDetailClient({ id }: { id: string }) {
   const extendCandidate = gap ? stays.find(item => {
     const range = effectiveStayRange(item, dayCount);
     return !item.stayFullTrip && range.end === gap.start;
+  }) : undefined;
+  const nextCandidate = gap ? stays.find(item => {
+    const range = effectiveStayRange(item, dayCount);
+    return !item.stayFullTrip && range.start === gap.end;
   }) : undefined;
 
   return (
@@ -658,6 +687,7 @@ export function TripDetailClient({ id }: { id: string }) {
             <div className="tripReadinessActions">
               {!coverage.overlaps ? <button className="primary" type="button" onClick={() => { setShowReadiness(false); setQuickAdd({ kind: "stay", stayStartDay: gap?.start, stayEndDay: gap?.end }); }}>STAY HINZUFÜGEN →</button> : null}
               {!coverage.overlaps && extendCandidate ? <button type="button" className="secondary" onClick={() => void extendStayAcrossFirstGap()}>{extendCandidate.title} verlängern</button> : null}
+              {!coverage.overlaps && nextCandidate ? <button type="button" className="secondary" onClick={() => void startNextStayEarlier()}>{nextCandidate.title} früher starten</button> : null}
               {!coverage.overlaps ? <button type="button" className="secondary" onClick={() => void markOpenNightsAsNoStay()}>Keine Unterkunft nötig</button> : null}
               {coverage.overlaps ? <a className="primary" href="#trip-stays" onClick={() => setShowReadiness(false)}>STAYS PRÜFEN →</a> : null}
               <button type="button" className="textLink tripReadinessLater" onClick={() => setShowReadiness(false)}>{coverage.overlaps ? "Als Optionen behalten & weiter planen" : "Später entscheiden"}</button>
@@ -952,14 +982,17 @@ function TripItemRow({
       onDragEnd={onDragEnd}
     >
       <div className="tripDragHandle" title="Auf Desktop ziehen, um den Tag zu ändern" aria-hidden="true"><i /><i /><i /></div>
-      <div className={`tripItemSlotPill ${item.isFixed ? "tripItemSlotPill--fixed" : ""}`}>
+      <div className={`tripItemSlotPill ${item.isFixed ? "tripItemSlotPill--fixed" : ""} ${!item.isFixed && item.durationMinutes ? "tripItemSlotPill--duration" : ""}`}>
         {item.isFixed ? (
           <>
             <strong>{item.fixedTime || "--:--"}</strong>
             <small>{fixedCopy.label}</small>
           </>
         ) : (
-          <span>{slotLabels[itemSlot]}</span>
+          <>
+            <span>{slotLabels[itemSlot]}</span>
+            {item.durationMinutes ? <small>{formatDurationCompact(item.durationMinutes)}</small> : null}
+          </>
         )}
       </div>
       <div className="tripItemIdentity tripItemIdentity--v18">

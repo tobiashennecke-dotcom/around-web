@@ -250,3 +250,20 @@ A change is done only when:
 - production build passes
 - no unintended schema/migration change was introduced
 - changed files and risks are summarized
+
+## 13. Agent efficiency
+
+AROUND development should be context-efficient.
+
+- Work autonomously within the supplied specification.
+- Avoid verbose progress narration.
+- Do not repeatedly reread project documentation.
+- Inspect only relevant files and dependencies.
+- Prefer targeted code search over broad repository exploration.
+- Do not perform unrelated refactors.
+- Do not use external research unless explicitly requested.
+- Do not spawn additional agents unless required.
+- Run expensive checks at meaningful milestones, normally once after implementation.
+- Stop only for genuine blockers, schema migrations or architecture decisions.
+- Final reports should be concise.
+
