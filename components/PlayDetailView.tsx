@@ -55,25 +55,42 @@ function imageStyle(item: PlaceMediaItem): CSSProperties | undefined {
   return { aspectRatio: `${item.width} / ${item.height}` };
 }
 
-const aroundItGroupLabels: Record<ContentRole, string> = {
+type TripGroupKey = ContentRole | "shop" | "other";
+
+const aroundItGroupLabels: Record<TripGroupKey, string> = {
   stay: "STAY",
   eat: "EAT",
   play: "PLAY NEXT",
-  do: "DO"
+  do: "DO",
+  shop: "SHOP",
+  other: "OTHER"
 };
-const aroundItGroupOrder: ContentRole[] = ["stay", "eat", "play", "do"];
+const aroundItGroupOrder: TripGroupKey[] = ["stay", "eat", "play", "do", "shop", "other"];
+
+/**
+ * normalizeContentRole() only covers the four planning roles (play/stay/eat/do)
+ * and returns undefined for other valid placeType values like "shop" - which
+ * would silently drop those results here. This adds a fallback so every valid
+ * aroundIt place lands in a group, without changing normalizeContentRole's
+ * shared behavior used elsewhere (search, planner, save).
+ */
+function tripGroupFor(placeType?: string): TripGroupKey {
+  const role = normalizeContentRole(placeType);
+  if (role) return role;
+  return (placeType || "").trim().toLowerCase() === "shop" ? "shop" : "other";
+}
 
 function groupAroundIt(items: Place["aroundIt"]) {
-  const groups = new Map<ContentRole, typeof items>();
+  const groups = new Map<TripGroupKey, typeof items>();
   for (const item of items || []) {
-    const role = item.type === "place" ? normalizeContentRole(item.placeType) : undefined;
-    if (!role) continue;
-    if (!groups.has(role)) groups.set(role, []);
-    groups.get(role)!.push(item);
+    if (item.type !== "place") continue;
+    const group = tripGroupFor(item.placeType);
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group)!.push(item);
   }
   return aroundItGroupOrder
-    .filter(role => groups.get(role)?.length)
-    .map(role => ({ role, label: aroundItGroupLabels[role], items: groups.get(role)! }));
+    .filter(group => groups.get(group)?.length)
+    .map(group => ({ role: group, label: aroundItGroupLabels[group], items: groups.get(group)! }));
 }
 
 export function PlayDetailView({ place }: { place: Place }) {
