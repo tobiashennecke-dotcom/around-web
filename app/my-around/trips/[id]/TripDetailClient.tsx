@@ -553,6 +553,7 @@ export function TripDetailClient({ id }: { id: string }) {
 
           {(dayCount > 1 || stays.length > 0) ? (
             <StayLane
+              tripId={trip.id}
               items={stays}
               dayCount={dayCount}
               startDate={startDate}
@@ -645,6 +646,7 @@ export function TripDetailClient({ id }: { id: string }) {
 }
 
 function StayLane({
+  tripId,
   items,
   dayCount,
   startDate,
@@ -653,6 +655,7 @@ function StayLane({
   onRemove,
   onClearExemptions
 }: {
+  tripId: string;
   items: UserTrip["items"];
   dayCount: number;
   startDate: string;
@@ -696,7 +699,7 @@ function StayLane({
       {!items.length ? (
         <div className="tripStayEmpty">
           <div><strong>Noch kein STAY im Trip.</strong><p>Füge eine Unterkunft aus MY AROUND hinzu oder markiere offene Nächte beim Plan-Check bewusst als ohne Unterkunft.</p></div>
-          <Link className="secondary" href={`/search?role=stay&trip=${trip.id}`}>+ STAY FINDEN</Link>
+          <Link className="secondary" href={`/search?role=stay&trip=${tripId}`}>+ STAY FINDEN</Link>
         </div>
       ) : null}
 
