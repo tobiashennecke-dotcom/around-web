@@ -1580,22 +1580,60 @@ img{display:block;max-width:100%}
 }
 
 
-/* AROUND PLAY Detail V2 v1.22 */
+/* AROUND PLAY Detail V2 v1.22 / v1.22.3 */
 .playHero h1{
   font-family:var(--around-font-sans);
   font-weight:900;
-  letter-spacing:-.055em
+  letter-spacing:-.055em;
+  font-size:clamp(52px,7vw,118px)
 }
+.playSection{padding:64px 0}
+
+.playHeroActions{align-items:stretch}
+.playCtaTrip .tripPickerTrigger{
+  display:inline-flex;align-items:center;justify-content:center;height:100%;min-height:52px;padding:0 24px;
+  background:var(--around-lime);color:var(--around-ink);border:1px solid var(--around-lime);
+  font:800 12px/1 Arial,Helvetica,sans-serif;letter-spacing:.07em;text-transform:uppercase;transition:background .14s ease
+}
+.playCtaTrip .tripPickerTrigger:hover{background:#c3d824}
+.playCtaSave .saveLabelButton{
+  min-height:52px;padding:0 20px;border:1px solid rgba(245,243,238,.55);background:rgba(20,22,21,.3);
+  color:var(--around-warm-white,#f5f3ee);font:700 11px/1 Arial,Helvetica,sans-serif;backdrop-filter:blur(2px)
+}
+.playCtaSave .saveLabelButton:hover{border-color:var(--around-warm-white,#f5f3ee)}
+.playCtaSave .saveLabelButton[data-saved="true"]{background:transparent;border-color:var(--around-lime);color:var(--around-lime)}
+.playCtaSave .saveLabelButton[data-saved="true"] .saveDrop{background:transparent;border-color:var(--around-lime)}
+.playCtaBooking{
+  display:inline-flex;align-items:center;min-height:52px;padding:0 24px;background:var(--around-lime);color:var(--around-ink);
+  font:800 12px/1 Arial,Helvetica,sans-serif;letter-spacing:.07em;text-transform:uppercase;transition:background .14s ease
+}
+.playCtaBooking:hover{background:#c3d824}
+.playHeroActions--booking .playCtaTrip .tripPickerTrigger{
+  background:transparent;color:var(--around-warm-white,#f5f3ee);border-color:rgba(245,243,238,.6)
+}
+.playHeroActions--booking .playCtaTrip .tripPickerTrigger:hover{background:rgba(245,243,238,.12)}
+
 .playUtilityStrip{background:var(--around-ink);color:var(--around-warm-white,#f5f3ee);border-top:1px solid rgba(245,243,238,.18);border-bottom:1px solid rgba(245,243,238,.18)}
 .playUtilityRow{padding:16px var(--around-pad,24px);font:800 12px/1.3 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase;overflow-x:auto;white-space:nowrap}
-.playWhyLead{margin:22px 0 0;max-width:760px;font:500 27px/1.34 var(--around-font-sans);letter-spacing:-.008em}
-.playWhyTake{margin:16px 0 0;max-width:680px;font:400 16px/1.5 Arial,Helvetica,sans-serif;color:var(--around-muted)}
-.playWhyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 56px;margin-top:44px;padding-top:36px;border-top:1px solid var(--around-line)}
-.playWhyBlock{display:grid;gap:12px;align-content:start}
+
+.playWhyLead{margin:20px 0 0;max-width:640px;font:500 26px/1.36 var(--around-font-sans);letter-spacing:-.008em}
+
+.playAroundTake{margin:26px 0 0;max-width:600px;padding:18px 22px;border-left:3px solid var(--around-lime);background:rgba(33,35,34,.035)}
+.playAroundTakeLabel{display:block;margin-bottom:8px;font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-ink)}
+.playAroundTake p{margin:0;font:600 16px/1.5 Arial,Helvetica,sans-serif;color:var(--around-ink)}
+
+.playWhyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:30px;border-top:1px solid var(--around-line)}
+.playWhyBlock{display:grid;gap:10px;align-content:start;padding:22px 26px 22px 0;border-bottom:1px solid var(--around-line)}
+.playWhyBlock:nth-child(even){padding-left:26px;border-left:1px solid var(--around-line)}
 .playWhyLabel{font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-muted)}
 .playWhyBlock p{margin:0;font:400 16px/1.5 Arial,Helvetica,sans-serif}
 .playTagList{display:flex;flex-wrap:wrap;gap:8px}
 .playTagList span{border:1px solid var(--around-ink);padding:7px 10px;font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+
+.planFactsGrid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--around-line);margin-top:25px}
+.planFactsGrid .fact{padding:24px 18px 24px 0;border-bottom:1px solid var(--around-line)}
+.planFactsGrid .fact strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
 .playOfficialPanel{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;margin-top:24px;padding:26px 28px;border:1px solid var(--around-line)}
 .playOfficialStatus{display:grid;gap:6px}
 .playOfficialStatus strong{font:800 15px/1.2 Arial,Helvetica,sans-serif}
@@ -1605,10 +1643,20 @@ img{display:block;max-width:100%}
 .playTripGroup:first-of-type{margin-top:20px}
 .playTripGroupLabel{margin-bottom:16px;font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-muted)}
 
+@media(max-width:900px){
+  .planFactsGrid{grid-template-columns:repeat(2,1fr)}
+}
+
 @media(max-width:760px){
+  .playSection{padding:48px 0}
+  .playHeroActions{flex-direction:column;align-items:stretch}
+  .playHeroActions>*{width:100%}
+  .playCtaTrip .tripPickerTrigger,.playCtaSave .saveLabelButton,.playCtaBooking{width:100%;justify-content:center}
   .playUtilityRow{font-size:10px;padding:13px var(--around-pad,18px)}
-  .playWhyLead{font-size:22px}
-  .playWhyGrid{grid-template-columns:1fr;gap:26px;margin-top:32px;padding-top:26px}
+  .playWhyLead{font-size:22px;max-width:none}
+  .playAroundTake{max-width:none;padding:16px 18px}
+  .playWhyGrid{grid-template-columns:1fr;margin-top:24px}
+  .playWhyBlock{padding:18px 0;border-left:0!important}
   .playOfficialPanel{flex-direction:column;align-items:stretch;padding:20px}
   .playOfficialActions{flex-direction:column}
   .playOfficialActions a{text-align:center}

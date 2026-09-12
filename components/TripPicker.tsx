@@ -9,7 +9,7 @@ import {
   type UserTrip
 } from "@/lib/supabase/trips";
 
-export function TripPicker({ item, compact = false }: { item: SavePayload; compact?: boolean }) {
+export function TripPicker({ item, compact = false, label = "+ Trip" }: { item: SavePayload; compact?: boolean; label?: string }) {
   const [open, setOpen] = useState(false);
   const [trips, setTrips] = useState<UserTrip[]>([]);
   const [title, setTitle] = useState("");
@@ -55,7 +55,7 @@ export function TripPicker({ item, compact = false }: { item: SavePayload; compa
 
   return (
     <div className={`tripPicker ${compact ? "tripPicker--compact" : ""}`}>
-      <button type="button" className="tripPickerTrigger" onClick={() => setOpen(value => !value)} aria-expanded={open}>+ Trip</button>
+      <button type="button" className="tripPickerTrigger" onClick={() => setOpen(value => !value)} aria-expanded={open}>{label}</button>
       {open ? (
         <div className="tripPickerPanel">
           <div className="collectionPickerHead">

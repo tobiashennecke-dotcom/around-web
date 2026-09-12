@@ -122,11 +122,11 @@ export function PlayDetailView({ place }: { place: Place }) {
           <div className={`eyebrow ${place.accent}`}>{place.aroundSelected ? "AROUND SELECTED · PLAY" : "PLAY"}</div>
           <h1>{place.title.toUpperCase()}</h1>
           <p className="heroIntro">{place.description}</p>
-          <div className="heroActions">
-            <TripPicker item={savePayload} />
-            <SaveButton sourceId={place.id} sourceType={place.type} title={place.title} slug={place.slug} placeType={place.placeType} label="Merken" />
+          <div className={`heroActions playHeroActions ${place.bookingUrl ? "playHeroActions--booking" : ""}`}>
+            <div className="playCtaTrip"><TripPicker item={savePayload} label="+ ZUM TRIP" /></div>
+            <div className="playCtaSave"><SaveButton sourceId={place.id} sourceType={place.type} title={place.title} slug={place.slug} placeType={place.placeType} label="Merken" /></div>
             {place.bookingUrl ? (
-              <a className="secondary" href={place.bookingUrl} target="_blank" rel="noreferrer">
+              <a className="playCtaBooking" href={place.bookingUrl} target="_blank" rel="noreferrer">
                 {(place.bookingLabel || "Tee Times / Greenfees").toUpperCase()} ↗
               </a>
             ) : null}
@@ -141,12 +141,17 @@ export function PlayDetailView({ place }: { place: Place }) {
       ) : null}
 
       {hasWhyPlayIt ? (
-        <section className="section">
+        <section className="section playSection">
           <div className="container">
             <div className="eyebrow lime">PLAY / EDITORIAL</div>
             <h2 className="sectionTitle">WHY PLAY IT.</h2>
             {place.whyWeLikeIt ? <p className="playWhyLead">{place.whyWeLikeIt}</p> : null}
-            {place.aroundTake ? <p className="playWhyTake">{place.aroundTake}</p> : null}
+            {place.aroundTake ? (
+              <div className="playAroundTake">
+                <span className="playAroundTakeLabel">THE AROUND TAKE.</span>
+                <p>{place.aroundTake}</p>
+              </div>
+            ) : null}
 
             {hasWhyPlayItGrid ? (
               <div className="playWhyGrid">
@@ -181,7 +186,7 @@ export function PlayDetailView({ place }: { place: Place }) {
       ) : null}
 
       {gallery.length > 0 && (
-        <section className="section placeGallerySection">
+        <section className="section playSection placeGallerySection">
           <div className="container">
             <div className="placeGalleryIntro">
               <div className={`eyebrow ${place.accent}`}>PLAY / IMAGES</div>
@@ -194,19 +199,19 @@ export function PlayDetailView({ place }: { place: Place }) {
       )}
 
       {planFacts.length ? (
-        <section className="section">
+        <section className="section playSection">
           <div className="container">
             <div className="eyebrow blue">PLAY / PLANNING</div>
             <h2 className="sectionTitle">PLAN YOUR ROUND.</h2>
-            <div className="factsGrid">
-              {planFacts.map(fact => <div className="fact" key={fact.label}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
+            <div className="planFactsGrid">
+              {planFacts.map(fact => <div className="fact" key={fact.label}><small>{fact.label}</small><strong title={fact.value}>{fact.value}</strong></div>)}
             </div>
           </div>
         </section>
       ) : null}
 
       {place.goodToKnow && place.goodToKnow.length > 0 && (
-        <section className="section">
+        <section className="section playSection">
           <div className="container">
             <div className="eyebrow lime">GOOD TO KNOW</div>
             <div className="factsGrid">
@@ -217,7 +222,7 @@ export function PlayDetailView({ place }: { place: Place }) {
       )}
 
       {hasOfficialInfo ? (
-        <section className="section">
+        <section className="section playSection">
           <div className="container">
             <div className="eyebrow lime">PLAY / OFFICIAL INFO</div>
             <h2 className="sectionTitle">OFFICIAL INFO.</h2>
@@ -246,7 +251,7 @@ export function PlayDetailView({ place }: { place: Place }) {
       ) : null}
 
       {aroundItGroups.length ? (
-        <section className="section">
+        <section className="section playSection">
           <div className="container">
             <div className="eyebrow lime">PLAY / TRIP</div>
             <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>MAKE A TRIP OF IT.</h2>
@@ -261,7 +266,7 @@ export function PlayDetailView({ place }: { place: Place }) {
       ) : null}
 
       {place.destination && !aroundItGroups.length ? (
-        <section className="section">
+        <section className="section playSection">
           <div className="container">
             <div className="eyebrow lime">PLAY / TRIP</div>
             <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>MAKE A TRIP OF IT.</h2>
