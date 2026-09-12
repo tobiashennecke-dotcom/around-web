@@ -115,7 +115,7 @@ export function PlayDetailView({ place }: { place: Place }) {
   return (
     <main>
       <section
-        className={`hero ${place.image ? "heroWithImage" : ""}`}
+        className={`hero playHero ${place.image ? "heroWithImage" : ""}`}
         style={place.image ? {backgroundImage:`linear-gradient(rgba(18,20,19,.25),rgba(18,20,19,.8)),url(${place.image})`} : undefined}
       >
         <div className="container">
@@ -145,7 +145,7 @@ export function PlayDetailView({ place }: { place: Place }) {
           <div className="container">
             <div className="eyebrow lime">PLAY / EDITORIAL</div>
             <h2 className="sectionTitle">WHY PLAY IT.</h2>
-            {place.whyWeLikeIt ? <p className="playWhyLead serif">{place.whyWeLikeIt}</p> : null}
+            {place.whyWeLikeIt ? <p className="playWhyLead">{place.whyWeLikeIt}</p> : null}
             {place.aroundTake ? <p className="playWhyTake">{place.aroundTake}</p> : null}
 
             {hasWhyPlayItGrid ? (
