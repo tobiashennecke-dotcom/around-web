@@ -1,10 +1,10 @@
-import type { CSSProperties } from "react";
 import Link from "next/link";
 import { SaveButton } from "@/components/SaveButton";
 import { TripPicker } from "@/components/TripPicker";
 import { ContentCard } from "@/components/ContentCard";
+import { PlaceGallery } from "@/components/PlaceGallery";
 import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
-import type { Place, PlaceMediaItem, PlaceMediaLayout } from "@/lib/types";
+import type { Place } from "@/lib/types";
 
 function daypartLabel(daypart?: string) {
   if (daypart === "morning") return "Morgen";
@@ -40,19 +40,6 @@ function formatDate(value?: string) {
   } catch {
     return undefined;
   }
-}
-
-function resolvedMediaLayout(item: PlaceMediaItem): Exclude<PlaceMediaLayout,"auto"> | "standard" {
-  if (item.layout && item.layout !== "auto") return item.layout;
-  const ratio = item.aspectRatio || (item.width && item.height ? item.width / item.height : undefined);
-  if (ratio && ratio < .82) return "portrait";
-  if (ratio && ratio > 1.55) return "wide";
-  return "standard";
-}
-
-function imageStyle(item: PlaceMediaItem): CSSProperties | undefined {
-  if (!item.width || !item.height) return undefined;
-  return { aspectRatio: `${item.width} / ${item.height}` };
 }
 
 type TripGroupKey = ContentRole | "shop" | "other";
@@ -201,24 +188,7 @@ export function PlayDetailView({ place }: { place: Place }) {
               <h2 className="sectionTitle">LOOK<br/>AROUND.</h2>
               <p>Ein Platz entscheidet sich nicht in einem Bild. Lage, Bahnen, Licht und Atmosphäre gehören zusammen.</p>
             </div>
-            <div className="placeMediaStream">
-              {gallery.map((item,index)=>{
-                const layout=resolvedMediaLayout(item);
-                return (
-                  <figure className={`placeMedia placeMedia--${layout}`} key={`${item.url}-${index}`}>
-                    <div className="placeMediaFrame" style={imageStyle(item)}>
-                      <img src={item.url} alt={item.alt || `${place.title} – Bild ${index + 1}`} loading="lazy" />
-                    </div>
-                    {(item.caption || item.credit) && (
-                      <figcaption>
-                        <span>{item.caption || ""}</span>
-                        {item.credit ? <small>{item.credit}</small> : null}
-                      </figcaption>
-                    )}
-                  </figure>
-                );
-              })}
-            </div>
+            <PlaceGallery items={gallery} title={place.title} />
           </div>
         </section>
       )}

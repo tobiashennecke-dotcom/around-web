@@ -1,13 +1,12 @@
-import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getPlace } from "@/lib/content";
 import { SaveButton } from "@/components/SaveButton";
 import { ContentCard } from "@/components/ContentCard";
+import { PlaceGallery } from "@/components/PlaceGallery";
 import { PlayDetailView } from "@/components/PlayDetailView";
 import { contentTypeLabel } from "@/lib/content-role";
-import type { PlaceMediaItem, PlaceMediaLayout } from "@/lib/types";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
@@ -17,19 +16,6 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
   const description=place.seoDescription || place.description;
   const image=place.socialImage || place.image;
   return {title,description,openGraph:{title,description,images:image?[image]:undefined}};
-}
-
-function resolvedMediaLayout(item: PlaceMediaItem): Exclude<PlaceMediaLayout,"auto"> | "standard" {
-  if (item.layout && item.layout !== "auto") return item.layout;
-  const ratio = item.aspectRatio || (item.width && item.height ? item.width / item.height : undefined);
-  if (ratio && ratio < .82) return "portrait";
-  if (ratio && ratio > 1.55) return "wide";
-  return "standard";
-}
-
-function imageStyle(item: PlaceMediaItem): CSSProperties | undefined {
-  if (!item.width || !item.height) return undefined;
-  return { aspectRatio: `${item.width} / ${item.height}` };
 }
 
 export default async function PlacePage({ params }: { params: Promise<{slug:string}>}) {
@@ -83,24 +69,7 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
               <h2 className="sectionTitle">LOOK<br/>AROUND.</h2>
               <p>Ein Ort entscheidet sich nicht in einem Bild. Architektur, Landschaft, Details und Atmosphäre gehören zusammen.</p>
             </div>
-            <div className="placeMediaStream">
-              {gallery.map((item,index)=>{
-                const layout=resolvedMediaLayout(item);
-                return (
-                  <figure className={`placeMedia placeMedia--${layout}`} key={`${item.url}-${index}`}>
-                    <div className="placeMediaFrame" style={imageStyle(item)}>
-                      <img src={item.url} alt={item.alt || `${place.title} – Bild ${index + 1}`} loading="lazy" />
-                    </div>
-                    {(item.caption || item.credit) && (
-                      <figcaption>
-                        <span>{item.caption || ""}</span>
-                        {item.credit ? <small>{item.credit}</small> : null}
-                      </figcaption>
-                    )}
-                  </figure>
-                );
-              })}
-            </div>
+            <PlaceGallery items={gallery} title={place.title} />
           </div>
         </section>
       )}
