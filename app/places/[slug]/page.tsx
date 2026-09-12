@@ -6,6 +6,7 @@ import { SaveButton } from "@/components/SaveButton";
 import { ContentCard } from "@/components/ContentCard";
 import { PlaceGallery } from "@/components/PlaceGallery";
 import { PlayDetailView } from "@/components/PlayDetailView";
+import { StayDetailView } from "@/components/StayDetailView";
 import { contentTypeLabel } from "@/lib/content-role";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
@@ -23,6 +24,7 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
   const place = await getPlace(slug);
   if (!place) notFound();
   if (place.placeType === "course") return <PlayDetailView place={place} />;
+  if (place.placeType === "stay") return <StayDetailView place={place} />;
   const roleLabel = contentTypeLabel("place", place.placeType);
   const gallery = place.gallery || [];
 

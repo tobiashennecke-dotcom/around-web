@@ -45,6 +45,8 @@ export const PLACE_QUERY = defineQuery(`
     _id,title,slug,kicker,summary,placeType,defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,whyWeLikeIt,aroundTake,goodToKnow,
     theFeel,bestFor,aroundMoment,knowBeforeYouGo,
     holes,par,courseCharacter,walkability,cartAvailability,practiceFacilities,guestPlay,season,
+    stayCharacter,accommodationTypes,roomSummary,spaSummary,foodSummary,breakfastSummary,parkingSummary,dogPolicy,
+    checkIn,checkOut,openAllYear,recommendedNightsMin,recommendedNightsMax,golfBaseWhy,
     address,website,instagram,coordinates,featured,aroundSelected,priority,
     bookingUrl,bookingLabel,operatorStatus,commercialPartner,
     seoTitle,seoDescription,

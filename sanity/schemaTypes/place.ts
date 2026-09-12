@@ -8,6 +8,7 @@ export const place = defineType({
     {name:"basics",title:"Basics",default:true},
     {name:"editorial",title:"Editorial"},
     {name:"play",title:"PLAY Details",hidden:({document}) => document?.placeType !== "course"},
+    {name:"stay",title:"STAY Details",hidden:({document}) => document?.placeType !== "stay"},
     {name:"details",title:"Details"},
     {name:"planning",title:"Planning"},
     {name:"media",title:"Media"},
@@ -103,6 +104,30 @@ export const place = defineType({
       description:"Editorial, stable description of guest access, e.g. handicap requirements. Not live availability."
     }),
     defineField({name:"season",title:"Season",type:"string",group:"play",description:"e.g. April–October."}),
+
+    defineField({
+      name:"stayCharacter",title:"Stay character",type:"string",group:"stay",
+      description:"Short editorial descriptor, e.g. Alpine Retreat, Design Hotel, City Base."
+    }),
+    defineField({
+      name:"accommodationTypes",title:"Accommodation types",type:"array",group:"stay",of:[{type:"string"}],options:{layout:"tags"},
+      description:"e.g. Rooms, Suites, Chalets."
+    }),
+    defineField({name:"roomSummary",title:"Room summary",type:"string",group:"stay"}),
+    defineField({name:"spaSummary",title:"Spa summary",type:"string",group:"stay"}),
+    defineField({name:"foodSummary",title:"Food summary",type:"string",group:"stay"}),
+    defineField({name:"breakfastSummary",title:"Breakfast summary",type:"string",group:"stay"}),
+    defineField({name:"parkingSummary",title:"Parking summary",type:"string",group:"stay"}),
+    defineField({name:"dogPolicy",title:"Dog policy",type:"string",group:"stay"}),
+    defineField({name:"checkIn",title:"Check-in",type:"string",group:"stay",description:"e.g. Ab 15:00."}),
+    defineField({name:"checkOut",title:"Check-out",type:"string",group:"stay",description:"e.g. Bis 12:00."}),
+    defineField({name:"openAllYear",title:"Open all year",type:"boolean",group:"stay"}),
+    defineField({name:"recommendedNightsMin",title:"Recommended nights (min)",type:"number",group:"stay",validation:r=>r.min(1).max(30)}),
+    defineField({name:"recommendedNightsMax",title:"Recommended nights (max)",type:"number",group:"stay",validation:r=>r.min(1).max(30)}),
+    defineField({
+      name:"golfBaseWhy",title:"Why it works for golf",type:"text",rows:4,group:"stay",
+      description:"Editorial intro for WHY IT WORKS FOR GOLF. Never invent driving times."
+    }),
 
     defineField({name:"address",title:"Address",type:"string",group:"details"}),
     defineField({name:"coordinates",title:"Coordinates",type:"geopoint",group:"details"}),

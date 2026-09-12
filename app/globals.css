@@ -1637,6 +1637,91 @@ img{display:block;max-width:100%}
   .playOfficialActions a{text-align:center}
 }
 
+/* AROUND STAY Detail V2 v1.23b - calmer, more luxurious variant of the PLAY V2 system */
+.stayHero h1{
+  font-family:var(--around-font-sans);
+  font-weight:800;
+  letter-spacing:-.04em;
+  font-size:clamp(46px,6.2vw,102px)
+}
+.staySection{padding:72px 0}
+
+.stayHeroActions{align-items:stretch}
+.stayCtaBooking{
+  display:inline-flex;align-items:center;min-height:52px;padding:0 26px;background:var(--around-lime);color:var(--around-ink);
+  font:800 12px/1 Arial,Helvetica,sans-serif;letter-spacing:.07em;text-transform:uppercase;transition:background .14s ease
+}
+.stayCtaBooking:hover{background:#c3d824}
+.stayCtaTrip .tripPickerTrigger{
+  display:inline-flex;align-items:center;justify-content:center;height:100%;min-height:52px;padding:0 24px;
+  background:var(--around-lime);color:var(--around-ink);border:1px solid var(--around-lime);
+  font:800 12px/1 Arial,Helvetica,sans-serif;letter-spacing:.07em;text-transform:uppercase;transition:background .14s ease
+}
+.stayCtaTrip .tripPickerTrigger:hover{background:#c3d824}
+.stayHeroActions--booking .stayCtaTrip .tripPickerTrigger{
+  background:transparent;color:var(--around-warm-white,#f5f3ee);border-color:rgba(245,243,238,.6)
+}
+.stayHeroActions--booking .stayCtaTrip .tripPickerTrigger:hover{background:rgba(245,243,238,.12)}
+.stayCtaSave .saveLabelButton{
+  min-height:52px;padding:0 20px;border:1px solid rgba(245,243,238,.55);background:rgba(20,22,21,.3);
+  color:var(--around-warm-white,#f5f3ee);font:700 11px/1 Arial,Helvetica,sans-serif;backdrop-filter:blur(2px)
+}
+.stayCtaSave .saveLabelButton:hover{border-color:var(--around-warm-white,#f5f3ee)}
+.stayCtaSave .saveLabelButton[data-saved="true"]{background:transparent;border-color:var(--around-lime);color:var(--around-lime)}
+.stayCtaSave .saveLabelButton[data-saved="true"] .saveDrop{background:transparent;border-color:var(--around-lime)}
+
+.stayUtilityStrip{background:var(--around-ink);color:var(--around-warm-white,#f5f3ee);border-top:1px solid rgba(245,243,238,.14);border-bottom:1px solid rgba(245,243,238,.14)}
+.stayUtilityRow{padding:18px var(--around-pad,24px);font:600 11px/1.4 Arial,Helvetica,sans-serif;letter-spacing:.08em;text-transform:uppercase;overflow-x:auto;white-space:nowrap}
+
+.stayWhyLead{margin:22px 0 0;max-width:660px;font:400 26px/1.42 var(--around-font-sans);letter-spacing:-.004em}
+
+.stayAroundTake{margin:28px 0 0;max-width:620px;padding:20px 24px;border-left:3px solid var(--around-lime);background:rgba(33,35,34,.03)}
+.stayAroundTakeLabel{display:block;margin-bottom:8px;font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-ink)}
+.stayAroundTake p{margin:0;font:500 16px/1.55 Arial,Helvetica,sans-serif;color:var(--around-ink)}
+
+.stayWhyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:34px;border-top:1px solid var(--around-line)}
+.stayWhyBlock{display:grid;gap:12px;align-content:start;padding:26px 30px 26px 0;border-bottom:1px solid var(--around-line)}
+.stayWhyBlock:nth-child(even){padding-left:30px;border-left:1px solid var(--around-line)}
+.stayWhyLabel{font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-muted)}
+.stayWhyBlock p{margin:0;font:400 16px/1.55 Arial,Helvetica,sans-serif}
+.stayTagList{display:flex;flex-wrap:wrap;gap:8px}
+.stayTagList span{border:1px solid var(--around-ink);padding:7px 11px;font:600 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.05em;text-transform:uppercase}
+
+.stayFactsGrid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--around-line);margin-top:28px}
+.stayFactsGrid .fact{padding:24px 20px 24px 0;border-bottom:1px solid var(--around-line)}
+.stayFactsGrid .fact strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+.stayCourseCard{display:grid;gap:10px}
+.stayCourseDistance{font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:var(--around-muted)}
+
+.stayOfficialPanel{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;margin-top:26px;padding:28px 30px;border:1px solid var(--around-line)}
+.stayOfficialStatus{display:grid;gap:6px}
+.stayOfficialStatus strong{font:700 15px/1.2 Arial,Helvetica,sans-serif}
+.stayOfficialStatus small{font:500 11px/1.3 Arial,Helvetica,sans-serif;color:var(--around-muted)}
+.stayOfficialActions{display:flex;flex-wrap:wrap;gap:10px}
+
+.stayTripGroup{margin-top:42px}
+.stayTripGroup:first-of-type{margin-top:22px}
+.stayTripGroupLabel{margin-bottom:16px;font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-muted)}
+
+@media(max-width:900px){
+  .stayFactsGrid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:760px){
+  .staySection{padding:52px 0}
+  .stayHeroActions{flex-direction:column;align-items:stretch}
+  .stayCtaTrip .tripPickerTrigger,.stayCtaSave .saveLabelButton,.stayCtaBooking{width:100%;justify-content:center}
+  .stayUtilityRow{font-size:10px;padding:14px var(--around-pad,18px)}
+  .stayWhyLead{font-size:21px;max-width:none}
+  .stayAroundTake{max-width:none;padding:16px 18px}
+  .stayWhyGrid{grid-template-columns:1fr;margin-top:26px}
+  .stayWhyBlock{padding:18px 0;border-left:0!important}
+  .stayOfficialPanel{flex-direction:column;align-items:stretch;padding:20px}
+  .stayOfficialActions{flex-direction:column}
+  .stayOfficialActions a{text-align:center}
+}
+
 
 /* AROUND Trip Readiness + STAY states v1.14 */
 .tripReadinessBar{display:flex;align-items:center;justify-content:space-between;gap:28px;margin:28px 0 0;padding:22px 24px;border:1px solid rgba(33,35,34,.28);border-left:6px solid var(--around-pink);background:rgba(245,243,238,.72)}

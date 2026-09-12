@@ -17,6 +17,7 @@ import {
   bestAnchorRelevance,
   filterGeographicallyEligible,
   getAroundItRecommendations,
+  haversineDistanceKm,
   type AroundItAnchor,
   type AroundItCandidate,
   type AroundItSubject
@@ -106,13 +107,15 @@ function toRelevanceCandidate(doc: any): RelevanceCandidateDoc | null {
   };
 }
 
-async function getAroundItForPlace(doc: any, destinationId: string | undefined): Promise<ContentCard[]> {
+async function fetchRelevanceCandidates(excludeId: string): Promise<RelevanceCandidateDoc[]> {
   if (!sanity) return [];
-  const candidateDocs = await sanity.fetch(PLACE_RELEVANCE_CANDIDATES_QUERY, { excludeId: doc._id });
-  const candidates = (candidateDocs as any[] | undefined || [])
+  const candidateDocs = await sanity.fetch(PLACE_RELEVANCE_CANDIDATES_QUERY, { excludeId });
+  return (candidateDocs as any[] | undefined || [])
     .map(toRelevanceCandidate)
     .filter((item): item is RelevanceCandidateDoc => Boolean(item));
+}
 
+function getAroundItFromCandidates(doc: any, destinationId: string | undefined, candidates: RelevanceCandidateDoc[]): ContentCard[] {
   const subject: AroundItSubject = {
     id: doc._id,
     placeType: doc.placeType || undefined,
@@ -124,6 +127,35 @@ async function getAroundItForPlace(doc: any, destinationId: string | undefined):
   return getAroundItRecommendations(subject, candidates)
     .map(item => toCard(item.doc))
     .filter((item): item is ContentCard => Boolean(item));
+}
+
+/**
+ * STAY only: up to 3 nearby PLAY courses sorted by actual straight-line distance,
+ * for WHY IT WORKS FOR GOLF. Deliberately bypasses getAroundItRecommendations'
+ * per-category diversification cap (2) - a STAY page benefits from surfacing every
+ * eligible course, not just two - without changing that shared function's behavior
+ * for PLAY/EAT/DO pages. Eligibility still uses the same, unweakened geographic
+ * thresholds as everywhere else (see lib/relevance.ts); no drive times, ever.
+ */
+function getNearbyCoursesFromCandidates(doc: any, destinationId: string | undefined, candidates: RelevanceCandidateDoc[]): (ContentCard & { distanceKm: number })[] {
+  const latitude = doc.coordinates?.lat;
+  const longitude = doc.coordinates?.lng;
+  if (typeof latitude !== "number" || typeof longitude !== "number") return [];
+
+  const anchor: AroundItAnchor = { destinationId, latitude, longitude };
+  const courseCandidates = candidates.filter(candidate => candidate.placeType === "course");
+  const eligible = filterGeographicallyEligible([anchor], courseCandidates);
+
+  return eligible
+    .map(candidate => {
+      const card = toCard(candidate.doc);
+      if (!card || typeof candidate.latitude !== "number" || typeof candidate.longitude !== "number") return null;
+      const distanceKm = haversineDistanceKm({ latitude, longitude }, { latitude: candidate.latitude, longitude: candidate.longitude });
+      return { ...card, distanceKm };
+    })
+    .filter((item): item is ContentCard & { distanceKm: number } => Boolean(item))
+    .sort((a, b) => a.distanceKm - b.distanceKm)
+    .slice(0, 3);
 }
 
 export async function getHomepageContent(): Promise<{featured:ContentCard[];latest:ContentCard[]}> {
@@ -194,7 +226,9 @@ export async function getPlace(slug: string): Promise<Place | null> {
     const doc = await sanity.fetch(PLACE_QUERY, { slug });
     if (doc) {
       const destination = toCard(doc.destination);
-      const aroundIt = await getAroundItForPlace(doc, destination?.id);
+      const candidates = await fetchRelevanceCandidates(doc._id);
+      const aroundIt = getAroundItFromCandidates(doc, destination?.id, candidates);
+      const nearbyCourses = doc.placeType === "stay" ? getNearbyCoursesFromCandidates(doc, destination?.id, candidates) : undefined;
       return {
         id: doc._id,
         type: "place",
@@ -229,6 +263,20 @@ export async function getPlace(slug: string): Promise<Place | null> {
         practiceFacilities: Array.isArray(doc.practiceFacilities) ? doc.practiceFacilities.filter((x:unknown): x is string => Boolean(x)) : [],
         guestPlay: doc.guestPlay || undefined,
         season: doc.season || undefined,
+        stayCharacter: doc.stayCharacter || undefined,
+        accommodationTypes: Array.isArray(doc.accommodationTypes) ? doc.accommodationTypes.filter((x:unknown): x is string => Boolean(x)) : [],
+        roomSummary: doc.roomSummary || undefined,
+        spaSummary: doc.spaSummary || undefined,
+        foodSummary: doc.foodSummary || undefined,
+        breakfastSummary: doc.breakfastSummary || undefined,
+        parkingSummary: doc.parkingSummary || undefined,
+        dogPolicy: doc.dogPolicy || undefined,
+        checkIn: doc.checkIn || undefined,
+        checkOut: doc.checkOut || undefined,
+        openAllYear: typeof doc.openAllYear === "boolean" ? doc.openAllYear : undefined,
+        recommendedNightsMin: typeof doc.recommendedNightsMin === "number" ? doc.recommendedNightsMin : undefined,
+        recommendedNightsMax: typeof doc.recommendedNightsMax === "number" ? doc.recommendedNightsMax : undefined,
+        golfBaseWhy: doc.golfBaseWhy || undefined,
         bookingUrl: doc.bookingUrl || undefined,
         bookingLabel: doc.bookingLabel || undefined,
         operatorStatus: doc.operatorStatus?.source ? {
@@ -255,6 +303,7 @@ export async function getPlace(slug: string): Promise<Place | null> {
         latitude: doc.coordinates?.lat,
         longitude: doc.coordinates?.lng,
         aroundIt,
+        nearbyCourses,
         seoTitle: doc.seoTitle || undefined,
         seoDescription: doc.seoDescription || undefined,
         socialImage: doc.socialImage || undefined

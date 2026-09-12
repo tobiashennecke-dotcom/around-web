@@ -106,6 +106,8 @@ export type Place = ContentCard & SeoFields & {
   longitude?: number;
   /** Geographically + editorially relevant places, computed by lib/relevance.ts. */
   aroundIt?: ContentCard[];
+  /** STAY only - nearby PLAY courses sorted by straight-line distance, for WHY IT WORKS FOR GOLF. Never invented drive times. */
+  nearbyCourses?: (ContentCard & { distanceKm: number })[];
 
   /** WHY PLAY IT - independent AROUND editorial judgement, never operator-controlled. */
   theFeel?: string[];
@@ -133,6 +135,22 @@ export type Place = ContentCard & SeoFields & {
    * WHY PLAY IT, or AROUND IT relevance - see sanity/schemaTypes/place.ts.
    */
   commercialPartner?: boolean;
+
+  /** STAY utility facts. Stable information only, never live prices/availability or invented drive times. */
+  stayCharacter?: string;
+  accommodationTypes?: string[];
+  roomSummary?: string;
+  spaSummary?: string;
+  foodSummary?: string;
+  breakfastSummary?: string;
+  parkingSummary?: string;
+  dogPolicy?: string;
+  checkIn?: string;
+  checkOut?: string;
+  openAllYear?: boolean;
+  recommendedNightsMin?: number;
+  recommendedNightsMax?: number;
+  golfBaseWhy?: string;
 };
 
 export type Person = ContentCard & {
