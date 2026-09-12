@@ -63,17 +63,26 @@ export type GoodToKnow = {
   value: string;
 };
 
-export type PlaceMediaLayout = "auto" | "wide" | "portrait" | "full" | "detail";
+export type MediaHotspot = { x: number; y: number };
 
-export type PlaceMediaItem = {
+/** Generic media item for the shared MediaGallery/MediaLightbox system (place galleries, story galleries, later destinations). */
+export type MediaItem = {
   url: string;
   alt?: string;
   caption?: string;
   credit?: string;
-  layout?: PlaceMediaLayout;
   width?: number;
   height?: number;
   aspectRatio?: number;
+  /** Sanity hotspot (0-1 range), used as the tile grid's crop focal point. Never applied in fullscreen. */
+  hotspot?: MediaHotspot;
+};
+
+/** @deprecated kept for the old stage/thumbnail gallery; the tile grid ignores it. */
+export type PlaceMediaLayout = "auto" | "wide" | "portrait" | "full" | "detail";
+
+export type PlaceMediaItem = MediaItem & {
+  layout?: PlaceMediaLayout;
 };
 
 export type OperatorStatus = {

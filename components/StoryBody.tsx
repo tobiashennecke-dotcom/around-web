@@ -1,7 +1,36 @@
 import { PortableText } from "@portabletext/react";
+import { MediaGallery } from "@/components/MediaGallery";
+import type { MediaItem } from "@/lib/types";
+
+function toMediaItem(raw: any): MediaItem | null {
+  if (!raw?.url) return null;
+  return {
+    url: raw.url,
+    alt: raw.alt || undefined,
+    caption: raw.caption || undefined,
+    credit: raw.credit || undefined,
+    width: typeof raw.width === "number" ? raw.width : undefined,
+    height: typeof raw.height === "number" ? raw.height : undefined,
+    aspectRatio: typeof raw.aspectRatio === "number" ? raw.aspectRatio : undefined,
+    hotspot: raw.hotspot && typeof raw.hotspot.x === "number" && typeof raw.hotspot.y === "number"
+      ? { x: raw.hotspot.x, y: raw.hotspot.y }
+      : undefined
+  };
+}
 
 const components: any = {
   types: {
+    mediaGallery: ({value}: any) => {
+      const items = Array.isArray(value?.images)
+        ? value.images.map(toMediaItem).filter((item: MediaItem | null): item is MediaItem => Boolean(item))
+        : [];
+      if (!items.length) return null;
+      return (
+        <div className="storyMediaGallery">
+          <MediaGallery items={items} title="Galerie" />
+        </div>
+      );
+    },
     image: ({value}: any) => {
       if (!value?.url) return null;
       const layout = value.layout || "wide";

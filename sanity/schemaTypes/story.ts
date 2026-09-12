@@ -81,6 +81,31 @@ export const story = defineType({
               {title:"Full bleed",value:"full"}
             ]},initialValue:"wide"}
           ]
+        },
+        {
+          type:"object",name:"mediaGallery",title:"Editorial Gallery",
+          description:"A quiet tile grid with fullscreen viewing - for a set of images, not a single deliberate editorial image.",
+          fields:[
+            {
+              name:"images",title:"Images",type:"array",
+              validation:r=>r.min(2).max(20),
+              of:[{
+                type:"image",options:{hotspot:true},
+                fields:[
+                  {name:"alt",title:"Alt text",type:"string",description:"Important for accessibility and SEO."},
+                  {name:"caption",title:"Caption",type:"string"},
+                  {name:"credit",title:"Credit",type:"string"}
+                ]
+              }]
+            }
+          ],
+          preview:{
+            select:{images:"images"},
+            prepare({images}){
+              const count=Array.isArray(images)?images.length:0;
+              return {title:"Editorial Gallery",subtitle:`${count} ${count===1?"Bild":"Bilder"}`,media:images?.[0]};
+            }
+          }
         }
       ]
     }),

@@ -244,7 +244,10 @@ export async function getPlace(slug: string): Promise<Place | null> {
           layout:x.layout || "auto",
           width:typeof x.width === "number" ? x.width : undefined,
           height:typeof x.height === "number" ? x.height : undefined,
-          aspectRatio:typeof x.aspectRatio === "number" ? x.aspectRatio : undefined
+          aspectRatio:typeof x.aspectRatio === "number" ? x.aspectRatio : undefined,
+          hotspot: x.hotspot && typeof x.hotspot.x === "number" && typeof x.hotspot.y === "number"
+            ? { x: x.hotspot.x, y: x.hotspot.y }
+            : undefined
         })) : [],
         address: doc.address || undefined,
         website: doc.website || undefined,

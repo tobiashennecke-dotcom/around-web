@@ -51,7 +51,7 @@ export const PLACE_QUERY = defineQuery(`
     "image": heroImage.asset->url,
     "socialImage": socialImage.asset->url,
     gallery[]{
-      alt,caption,credit,layout,
+      alt,caption,credit,layout,hotspot,
       "url": asset->url,
       "width": asset->metadata.dimensions.width,
       "height": asset->metadata.dimensions.height,
@@ -92,6 +92,16 @@ export const STORY_QUERY = defineQuery(`
         ...,
         "url": asset->url,
         "dimensions": asset->metadata.dimensions
+      },
+      _type == "mediaGallery" => {
+        ...,
+        images[]{
+          alt,caption,credit,hotspot,
+          "url": asset->url,
+          "width": asset->metadata.dimensions.width,
+          "height": asset->metadata.dimensions.height,
+          "aspectRatio": asset->metadata.dimensions.aspectRatio
+        }
       }
     },
     "author": author->{_id,title,slug,role,"image":portrait.asset->url},
