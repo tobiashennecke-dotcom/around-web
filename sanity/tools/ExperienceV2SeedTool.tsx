@@ -6,6 +6,29 @@ import {useClient} from "sanity";
 const SCHMIEDE_ID = "around-place-grillhaus-alte-schmiede";
 const WINKLMOOS_ID = "around-place-winklmoos-alm";
 
+// Geographic reference points used by AROUND relevance.
+// Alte Schmiede: actual restaurant location, Hausbergstraße 3, 83242 Reit im Winkl.
+// Source cross-check: official Reit im Winkl listing + map/geodata result for the exact address.
+const SCHMIEDE_COORDINATES = {
+  _type: "geopoint" as const,
+  lat: 47.6790975,
+  lng: 12.4706601
+};
+
+// Winklmoos-Alm: representative central point of the Winklmoos-Alm locality/plateau,
+// not a specific restaurant, parking area, hut or lift station.
+// Source cross-check: Winklmoos-Alm locality / OSM-Geonames point.
+const WINKLMOOS_COORDINATES = {
+  _type: "geopoint" as const,
+  lat: 47.65765,
+  lng: 12.58228
+};
+
+const COORDINATES_BY_ID: Record<string, {_type:"geopoint"; lat:number; lng:number}> = {
+  [SCHMIEDE_ID]: SCHMIEDE_COORDINATES,
+  [WINKLMOOS_ID]: WINKLMOOS_COORDINATES
+};
+
 const schmiedePatch = {
   // Editorial
   theFeel: ["Historic", "Warm", "Characterful", "Social"],
@@ -57,8 +80,8 @@ const winklmoosPatch = {
 };
 
 const PATCHED_FIELD_SUMMARY: Record<string, string> = {
-  [SCHMIEDE_ID]: "Editorial (theFeel, bestFor, aroundMoment, knowBeforeYouGo), Planning (defaultPlanningMode, suggestedDurationMinutes, suggestedDaypart, compatibleDayparts, effortLevel, environment, weatherSensitivity - suggestedTime NOT touched), EAT Details (eatCharacter, mealTypes, cuisine, setting, reservationAdvice), Internal (lastEditorialReviewAt, editorialStatus via setIfMissing).",
-  [WINKLMOOS_ID]: "Editorial (theFeel, bestFor, aroundMoment, knowBeforeYouGo), Planning (defaultPlanningMode, suggestedDurationMinutes, suggestedDaypart, compatibleDayparts, effortLevel, environment, weatherSensitivity - suggestedTime NOT touched), EXPERIENCE Details (experienceType, experienceDurationLabel, season, bookingAdvice), Internal (lastEditorialReviewAt, editorialStatus via setIfMissing)."
+  [SCHMIEDE_ID]: "Editorial (theFeel, bestFor, aroundMoment, knowBeforeYouGo), Planning (defaultPlanningMode, suggestedDurationMinutes, suggestedDaypart, compatibleDayparts, effortLevel, environment, weatherSensitivity - suggestedTime NOT touched), EAT Details (eatCharacter, mealTypes, cuisine, setting, reservationAdvice), Geo coordinates via setIfMissing, Internal (lastEditorialReviewAt, editorialStatus via setIfMissing).",
+  [WINKLMOOS_ID]: "Editorial (theFeel, bestFor, aroundMoment, knowBeforeYouGo), Planning (defaultPlanningMode, suggestedDurationMinutes, suggestedDaypart, compatibleDayparts, effortLevel, environment, weatherSensitivity - suggestedTime NOT touched), EXPERIENCE Details (experienceType, experienceDurationLabel, season, bookingAdvice), Geo coordinates via setIfMissing, Internal (lastEditorialReviewAt, editorialStatus via setIfMissing)."
 };
 
 type RunConfig = {
@@ -87,6 +110,7 @@ export function ExperienceV2SeedTool() {
           "hasHero": defined(heroImage),
           "galleryCount": count(gallery),
           "hasCoordinates": defined(coordinates),
+          coordinates,
           bookingUrl, commercialPartner, aroundSelected, editorialStatus
         }`,
         {id: config.id}
@@ -103,10 +127,13 @@ export function ExperienceV2SeedTool() {
       addLog(`✓ placeType stimmt überein: "${doc.placeType}".`);
 
       const now = new Date().toISOString();
+      const fallbackCoordinates = COORDINATES_BY_ID[config.id];
+      if (!fallbackCoordinates) throw new Error(`Keine freigegebenen Geo-Koordinaten für ${config.id} konfiguriert.`);
+
       await client
         .patch(config.id)
         .set({...config.patch, lastEditorialReviewAt: now})
-        .setIfMissing({editorialStatus: "researched"})
+        .setIfMissing({editorialStatus: "researched", coordinates: fallbackCoordinates})
         .commit();
 
       addLog(`✓ v1.24-Felder gepatcht: ${PATCHED_FIELD_SUMMARY[config.id]}`);
@@ -115,8 +142,8 @@ export function ExperienceV2SeedTool() {
       addLog(`✓ Gallery: ${doc.galleryCount ?? 0} Bilder (unverändert).`);
       addLog(
         doc.hasCoordinates
-          ? "✓ Koordinaten: vorhanden (unverändert, nicht überschrieben)."
-          : "⚠ Koordinaten: FEHLEN auf diesem Dokument. Nicht gesetzt (außerhalb dieses Tasks) - separate Geo-Pass nötig, bevor Nearby-Empfehlungen für diesen Ort funktionieren."
+          ? `✓ Koordinaten: bereits vorhanden (${doc.coordinates?.lat ?? "?"}, ${doc.coordinates?.lng ?? "?"}) und wegen setIfMissing NICHT überschrieben.`
+          : `✓ Koordinaten: fehlten und wurden per setIfMissing gesetzt (${fallbackCoordinates.lat}, ${fallbackCoordinates.lng}).`
       );
       addLog(
         doc.bookingUrl
@@ -151,7 +178,7 @@ export function ExperienceV2SeedTool() {
         <p style={{fontSize: 18, lineHeight: 1.5, maxWidth: 700, margin: "0 0 28px"}}>
           Patched zwei bestehende Dokumente (<code>{SCHMIEDE_ID}</code>, <code>{WINKLMOOS_ID}</code>) mit den v1.24-Feldern.
           Verwendet <code>client.patch(id).set(...).setIfMissing(...).commit()</code> - keine Neuanlage, kein Überschreiben von
-          Koordinaten, bookingUrl, commercialPartner, aroundSelected oder einem bereits gesetzten editorialStatus.
+          vorhandenen Koordinaten, bookingUrl, commercialPartner, aroundSelected oder einem bereits gesetzten editorialStatus.
         </p>
 
         <div style={{display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 20}}>
