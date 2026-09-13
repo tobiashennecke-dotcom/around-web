@@ -294,9 +294,13 @@ function detectContext(window: AvailableWindow, fixedPoints: FixedPoint[], geo: 
 
   const isAfterGolf = Boolean(playPoint) && geo.distanceToItemKm?.[playPoint!.sourceId] !== undefined;
   const isAfterMorningGolf = isAfterGolf && playPoint!.startMinutes < MORNING_GOLF_CUTOFF_MINUTES;
+  // candidateRole must be KNOWN and not "eat" (drink is already normalized to "eat"
+  // by content-role.ts). An undefined role is not proof of anything - never treat
+  // "we don't know" as "not eat", or this would invent a contextual dinner claim.
   const isBeforeDinner =
     Boolean(dinnerPoint) &&
     geo.distanceToItemKm?.[dinnerPoint!.sourceId] !== undefined &&
+    Boolean(candidateRole) &&
     candidateRole !== "eat";
 
   return {
@@ -432,10 +436,11 @@ export function evaluateTripFit(input: TripFitInput): TripFitResult {
       }
     }
     if (!chosenWindow || !chosenSlot) {
-      // V0 deliberately does not distinguish "raw time too short" from "no window
-      // overlaps the required daypart" on this path - both mean the same thing to
-      // a caller: there is no viable placement today.
-      return emptyResult(["INSUFFICIENT_TIME"]);
+      // Distinguish "wrong time of day" from "not enough time anywhere": if some
+      // window has enough raw minutes once daypart restrictions are ignored, the
+      // problem is specifically the daypart, not the day's overall availability.
+      const rawWindowLongEnough = windows.some(window => window.endMinutes - window.startMinutes >= (duration as number));
+      return emptyResult([rawWindowLongEnough ? "DAYPART_MISMATCH" : "INSUFFICIENT_TIME"]);
     }
   }
 
