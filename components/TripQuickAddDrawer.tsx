@@ -13,6 +13,7 @@ import {
 import type { SavePayload } from "@/lib/supabase/saves";
 import type { ContentCard, PlanningDaypart, PlanningMode } from "@/lib/types";
 import { formatTripFitLabel, type TripFitResult } from "@/lib/trip-fit";
+import type { TripBestDayResult } from "@/lib/trip-fit-adapter";
 
 type StopRole = Exclude<ContentRole, "stay">;
 
@@ -226,6 +227,7 @@ export function TripQuickAddDrawer({
   const [fixedDraft, setFixedDraft] = useState<FixedDraft | null>(null);
   const [message, setMessage] = useState("");
   const [tripFitResults, setTripFitResults] = useState<Record<string, TripFitResult>>({});
+  const [bestDayResults, setBestDayResults] = useState<Record<string, TripBestDayResult>>({});
   const existing = useMemo(() => new Set(existingIds), [existingIds]);
   const visibleResults = useMemo(() => results.slice(0, 10), [results]);
 
@@ -346,6 +348,61 @@ export function TripQuickAddDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, kind, defaultDayIndex, candidateIdsKey, tripItemsKey, fixedDraft?.time, fixedDraft?.durationMinutes, fixedDraft?.itemId, tripDestinationId]);
 
+  // BEST DAY: only from "Offen" (defaultDayIndex undefined) - "which day fits
+  // best?" is a different question from "+ STOP on Day 2" ("does it fit THIS
+  // day?", handled by the effect above, which stays untouched for that case).
+  // No candidateStartTimes/candidateDurationMinutes are ever sent here: v1.24d
+  // Smart Add only concerns flexible candidates, and roleDefaults()/suggestedTime
+  // must never become invented evidence for a fixed candidate's Best Day.
+  useEffect(() => {
+    if (!open || kind !== "stop" || defaultDayIndex !== undefined || dayCount <= 0) {
+      setBestDayResults({});
+      return;
+    }
+    const candidateIds = visibleResults.filter(item => item.type === "place").map(item => item.id);
+    if (!candidateIds.length) {
+      setBestDayResults({});
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const response = await fetch("/api/trip-fit/best-day", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            candidateIds,
+            dayIndexes: Array.from({ length: dayCount }, (_, index) => index),
+            tripItems: scheduledItems.map(item => ({
+              sourceId: item.sourceId,
+              sourceType: item.sourceType,
+              sourceRole: item.sourceRole,
+              dayIndex: item.dayIndex,
+              isFixed: item.isFixed,
+              fixedTime: item.fixedTime,
+              durationMinutes: item.durationMinutes
+            })),
+            tripDestinationId
+          })
+        });
+        if (cancelled) return;
+        const data = await response.json();
+        if (cancelled) return;
+        setBestDayResults(data?.results && typeof data.results === "object" ? data.results : {});
+      } catch {
+        // Silently omit Best Day - Quick Add must behave exactly as before.
+        if (!cancelled) setBestDayResults({});
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, kind, defaultDayIndex, dayCount, candidateIdsKey, tripItemsKey, tripDestinationId]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
@@ -398,11 +455,14 @@ export function TripQuickAddDrawer({
     setMessage("");
   }
 
-  async function addStop(item: ContentCard, fixed: boolean, draft?: FixedDraft) {
+  async function addStop(item: ContentCard, fixed: boolean, draft?: FixedDraft, dayIndexOverride?: number) {
     if (existing.has(item.id)) return;
     const itemRole = normalizeContentRole(item.placeType);
     if (!itemRole || itemRole === "stay") return;
     const defaults = planningDefaults(item, itemRole);
+    // Smart Add (Best Day) passes its chosen day explicitly; every other caller
+    // keeps using the drawer's own defaultDayIndex exactly as before.
+    const targetDayIndex = dayIndexOverride !== undefined ? dayIndexOverride : defaultDayIndex;
     setAddingId(item.id);
     setMessage("");
     try {
@@ -411,7 +471,7 @@ export function TripQuickAddDrawer({
         const time = draft?.time || defaults.time;
         const durationMinutes = draft?.durationMinutes || defaults.durationMinutes;
         await updateTripItem(tripId, item.id, {
-          dayIndex: defaultDayIndex,
+          dayIndex: targetDayIndex,
           isFixed: true,
           fixedTime: time,
           durationMinutes,
@@ -420,7 +480,7 @@ export function TripQuickAddDrawer({
         });
       } else {
         await updateTripItem(tripId, item.id, {
-          dayIndex: defaultDayIndex,
+          dayIndex: targetDayIndex,
           isFixed: false,
           durationMinutes: defaults.durationMinutes,
           slot: defaults.slot === "stay" ? "flex" : defaults.slot,
@@ -497,6 +557,13 @@ export function TripQuickAddDrawer({
             const recommendedFixed = defaults?.mode === "fixed";
             const fitResult = tripFitResults[item.id];
             const fitLabel = fitResult?.eligible ? formatTripFitLabel(fitResult) : undefined;
+            // Best Day only ever exists for "Offen" (mutually exclusive with fitLabel above).
+            const bestDay = bestDayResults[item.id];
+            const bestDayLabel = bestDay?.fit.eligible ? formatTripFitLabel(bestDay.fit) : undefined;
+            // V0 Smart Add stays conservative: canonical (Sanity) defaultPlanningMode
+            // must not be "fixed" - never the UI-resolved role-default mode, and
+            // never for a candidate already in the trip.
+            const smartAddDayIndex = !contained && bestDayLabel && item.defaultPlanningMode !== "fixed" ? bestDay!.dayIndex : undefined;
 
             return (
               <article className={`tripQuickAddResult ${contained ? "tripQuickAddResult--contained" : ""}`} key={item.id}>
@@ -518,6 +585,12 @@ export function TripQuickAddDrawer({
                         <b>AROUND FIT</b>
                         <strong>{fitLabel}</strong>
                       </div>
+                    ) : bestDayLabel ? (
+                      <div className="tripQuickAddFitHint tripQuickAddFitHint--bestDay">
+                        <b>AROUND FIT</b>
+                        <span className="tripQuickAddFitDay">BEST ON DAY {bestDay!.dayIndex + 1}</span>
+                        <strong>{bestDayLabel}</strong>
+                      </div>
                     ) : null}
                   </div>
                 </div>
@@ -535,6 +608,14 @@ export function TripQuickAddDrawer({
                   </div>
                 ) : (
                   <div className="tripQuickAddActions tripQuickAddActions--planning">
+                    {smartAddDayIndex !== undefined ? (
+                      <button
+                        type="button"
+                        className="tripQuickAddSmartAdd"
+                        disabled={addingId === item.id}
+                        onClick={() => void addStop(item, false, undefined, smartAddDayIndex)}
+                      >ADD TO DAY {smartAddDayIndex + 1} →</button>
+                    ) : null}
                     <button
                       type="button"
                       className={!recommendedFixed ? "recommended" : ""}
