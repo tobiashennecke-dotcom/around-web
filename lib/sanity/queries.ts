@@ -43,10 +43,13 @@ export const DESTINATION_QUERY = defineQuery(`
 export const PLACE_QUERY = defineQuery(`
   *[_type == "place" && slug.current == $slug][0]{
     _id,title,slug,kicker,summary,placeType,defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,whyWeLikeIt,aroundTake,goodToKnow,
+    compatibleDayparts,effortLevel,environment,weatherSensitivity,
     theFeel,bestFor,aroundMoment,knowBeforeYouGo,
     holes,par,courseCharacter,walkability,cartAvailability,practiceFacilities,guestPlay,season,
     stayCharacter,accommodationTypes,roomSummary,spaSummary,foodSummary,breakfastSummary,parkingSummary,dogPolicy,
     checkIn,checkOut,openAllYear,recommendedNightsMin,recommendedNightsMax,golfBaseWhy,
+    eatCharacter,mealTypes,cuisine,priceLevel,reservationAdvice,dietaryNotes,setting,
+    experienceType,experienceDurationLabel,bookingAdvice,
     address,website,instagram,coordinates,featured,aroundSelected,priority,
     bookingUrl,bookingLabel,operatorStatus,commercialPartner,
     seoTitle,seoDescription,

@@ -9,6 +9,8 @@ export const place = defineType({
     {name:"editorial",title:"Editorial"},
     {name:"play",title:"PLAY Details",hidden:({document}) => document?.placeType !== "course"},
     {name:"stay",title:"STAY Details",hidden:({document}) => document?.placeType !== "stay"},
+    {name:"eat",title:"EAT Details",hidden:({document}) => !["eat","drink"].includes(document?.placeType as string)},
+    {name:"experience",title:"EXPERIENCE Details",hidden:({document}) => !["do","culture","shop"].includes(document?.placeType as string)},
     {name:"details",title:"Details"},
     {name:"planning",title:"Planning"},
     {name:"media",title:"Media"},
@@ -52,6 +54,26 @@ export const place = defineType({
       name:"suggestedTime",title:"Suggested exact time",type:"string",group:"planning",
       description:"Optional HH:MM, e.g. 10:30. Only use when an exact time is editorially meaningful.",
       validation:r=>r.custom(value=>!value || /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value)) || "Use HH:MM, e.g. 10:30")
+    }),
+    defineField({
+      name:"compatibleDayparts",title:"Compatible dayparts",type:"array",group:"planning",of:[{type:"string"}],
+      options:{list:[
+        {title:"Morning",value:"morning"},{title:"Midday",value:"midday"},{title:"Afternoon",value:"afternoon"},{title:"Evening",value:"evening"},{title:"All day",value:"all_day"}
+      ]},
+      description:"All dayparts this Place reasonably fits, e.g. for filtering. suggestedDaypart remains the editorial first choice."
+    }),
+    defineField({
+      name:"effortLevel",title:"Effort level",type:"string",group:"planning",
+      options:{list:[{title:"Low",value:"low"},{title:"Medium",value:"medium"},{title:"High",value:"high"}],layout:"radio"},
+      description:"Factual planning metadata, not a marketing claim."
+    }),
+    defineField({
+      name:"environment",title:"Environment",type:"string",group:"planning",
+      options:{list:[{title:"Indoor",value:"indoor"},{title:"Outdoor",value:"outdoor"},{title:"Mixed",value:"mixed"}],layout:"radio"}
+    }),
+    defineField({
+      name:"weatherSensitivity",title:"Weather sensitivity",type:"string",group:"planning",
+      options:{list:[{title:"Low",value:"low"},{title:"Medium",value:"medium"},{title:"High",value:"high"}],layout:"radio"}
     }),
 
     defineField({name:"whyWeLikeIt",title:"Why we like it",type:"text",rows:7,group:"editorial"}),
@@ -103,7 +125,7 @@ export const place = defineType({
       name:"guestPlay",title:"Guest play",type:"text",rows:2,group:"play",
       description:"Editorial, stable description of guest access, e.g. handicap requirements. Not live availability."
     }),
-    defineField({name:"season",title:"Season",type:"string",group:"play",description:"e.g. April–October."}),
+    defineField({name:"season",title:"Season",type:"string",group:["play","experience"],description:"e.g. April–October."}),
 
     defineField({
       name:"stayCharacter",title:"Stay character",type:"string",group:"stay",
@@ -128,6 +150,30 @@ export const place = defineType({
       name:"golfBaseWhy",title:"Why it works for golf",type:"text",rows:4,group:"stay",
       description:"Editorial intro for WHY IT WORKS FOR GOLF. Never invent driving times."
     }),
+
+    defineField({
+      name:"eatCharacter",title:"Eat character",type:"string",group:"eat",
+      description:"Short editorial descriptor, e.g. Grill House, Alpine Dining, Wine Bar."
+    }),
+    defineField({
+      name:"mealTypes",title:"Meal types",type:"array",group:"eat",of:[{type:"string"}],options:{layout:"tags"},
+      description:"e.g. breakfast, lunch, dinner, drinks, coffee."
+    }),
+    defineField({name:"cuisine",title:"Cuisine",type:"array",group:"eat",of:[{type:"string"}],options:{layout:"tags"}}),
+    defineField({
+      name:"priceLevel",title:"Price level",type:"string",group:"eat",
+      options:{list:["€","€€","€€€","€€€€"],layout:"radio"}
+    }),
+    defineField({name:"reservationAdvice",title:"Reservation advice",type:"string",group:"eat"}),
+    defineField({name:"dietaryNotes",title:"Dietary notes",type:"string",group:"eat"}),
+    defineField({name:"setting",title:"Setting",type:"string",group:"eat"}),
+
+    defineField({name:"experienceType",title:"Experience type",type:"string",group:"experience"}),
+    defineField({
+      name:"experienceDurationLabel",title:"Duration label",type:"string",group:"experience",
+      description:"Optional editorial display override, e.g. \"Half a day\". Planning calculations always use suggestedDurationMinutes."
+    }),
+    defineField({name:"bookingAdvice",title:"Booking advice",type:"string",group:"experience",description:"e.g. Not required, Recommended, Book ahead in summer."}),
 
     defineField({name:"address",title:"Address",type:"string",group:"details"}),
     defineField({name:"coordinates",title:"Coordinates",type:"geopoint",group:"details"}),

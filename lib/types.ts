@@ -10,6 +10,10 @@ export type Accent = "lime" | "blue" | "pink";
 
 export type PlanningMode = "flexible" | "fixed";
 export type PlanningDaypart = "morning" | "midday" | "afternoon" | "evening" | "all_day";
+export type EffortLevel = "low" | "medium" | "high";
+export type PlaceEnvironment = "indoor" | "outdoor" | "mixed";
+export type WeatherSensitivity = "low" | "medium" | "high";
+export type PriceLevel = "€" | "€€" | "€€€" | "€€€€";
 
 export type ContentCard = {
   id: string;
@@ -151,6 +155,30 @@ export type Place = ContentCard & SeoFields & {
   recommendedNightsMin?: number;
   recommendedNightsMax?: number;
   golfBaseWhy?: string;
+
+  /**
+   * Common trip-intelligence planning metadata (all Place types). Factual/planning
+   * only - must never carry personalized/marketing claims like "good after golf";
+   * that belongs to the future Trip Fit Engine, not this data model.
+   */
+  compatibleDayparts?: PlanningDaypart[];
+  effortLevel?: EffortLevel;
+  environment?: PlaceEnvironment;
+  weatherSensitivity?: WeatherSensitivity;
+
+  /** EAT/DRINK utility facts. No live menus, item prices or opening hours. */
+  eatCharacter?: string;
+  mealTypes?: string[];
+  cuisine?: string[];
+  priceLevel?: PriceLevel;
+  reservationAdvice?: string;
+  dietaryNotes?: string;
+  setting?: string;
+
+  /** DO/CULTURE/SHOP utility facts. Duration display only - suggestedDurationMinutes stays authoritative for planning. */
+  experienceType?: string;
+  experienceDurationLabel?: string;
+  bookingAdvice?: string;
 };
 
 export type Person = ContentCard & {

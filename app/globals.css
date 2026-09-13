@@ -1742,6 +1742,98 @@ img{display:block;max-width:100%}
   .stayFactsGrid .fact{padding:18px 0}
 }
 
+/* AROUND Experience Detail v1.24a - shared editorial system for eat/drink/do/culture/shop,
+   same design language as PLAY/STAY, single CSS namespace reused via configuration. */
+.experienceHero h1{
+  font-family:var(--around-font-sans);
+  font-weight:800;
+  letter-spacing:-.04em;
+  font-size:clamp(42px,5.6vw,92px);
+  overflow-wrap:break-word
+}
+.experienceSection{padding:68px 0}
+.experienceSection + .experienceSection{padding-top:40px}
+
+.experienceHeroActions{align-items:stretch}
+.experienceCtaBooking{
+  display:inline-flex;align-items:center;min-height:52px;padding:0 26px;background:var(--around-lime);color:var(--around-ink);
+  font:800 12px/1 Arial,Helvetica,sans-serif;letter-spacing:.07em;text-transform:uppercase;transition:background .14s ease
+}
+.experienceCtaBooking:hover{background:#c3d824}
+.experienceCtaTrip .tripPickerTrigger{
+  display:inline-flex;align-items:center;justify-content:center;height:100%;min-height:52px;padding:0 24px;
+  background:var(--around-lime);color:var(--around-ink);border:1px solid var(--around-lime);
+  font:800 12px/1 Arial,Helvetica,sans-serif;letter-spacing:.07em;text-transform:uppercase;transition:background .14s ease
+}
+.experienceCtaTrip .tripPickerTrigger:hover{background:#c3d824}
+.experienceHeroActions--booking .experienceCtaTrip .tripPickerTrigger{
+  background:transparent;color:var(--around-warm-white,#f5f3ee);border-color:rgba(245,243,238,.6)
+}
+.experienceHeroActions--booking .experienceCtaTrip .tripPickerTrigger:hover{background:rgba(245,243,238,.12)}
+.experienceCtaSave .saveLabelButton{
+  min-height:52px;padding:0 20px;border:1px solid rgba(245,243,238,.55);background:rgba(20,22,21,.3);
+  color:var(--around-warm-white,#f5f3ee);font:700 11px/1 Arial,Helvetica,sans-serif;backdrop-filter:blur(2px)
+}
+.experienceCtaSave .saveLabelButton:hover{border-color:var(--around-warm-white,#f5f3ee)}
+.experienceCtaSave .saveLabelButton[data-saved="true"]{background:transparent;border-color:var(--around-lime);color:var(--around-lime)}
+.experienceCtaSave .saveLabelButton[data-saved="true"] .saveDrop{background:transparent;border-color:var(--around-lime)}
+/* Non-primary booking/ticket link for DO/CULTURE/SHOP - shown clearly, never promoted to primary. */
+.experienceCtaBookingSecondary{
+  display:inline-flex;align-items:center;min-height:52px;padding:0 20px;background:transparent;
+  border:1px solid rgba(33,35,34,.35);color:var(--around-ink);
+  font:700 11px/1 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase
+}
+
+.experienceWhyLead{margin:22px 0 0;max-width:660px;font:400 26px/1.42 var(--around-font-sans);letter-spacing:-.004em}
+
+.experienceAroundTake{margin:28px 0 0;max-width:580px;padding-left:22px;border-left:3px solid var(--around-lime)}
+.experienceAroundTakeLabel{display:block;margin-bottom:8px;font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-ink)}
+.experienceAroundTake p{margin:0;font:600 17px/1.56 Arial,Helvetica,sans-serif;color:var(--around-ink)}
+
+.experienceWhyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:34px;border-top:1px solid var(--around-line)}
+.experienceWhyBlock{display:grid;gap:12px;align-content:start;padding:26px 30px 26px 0;border-bottom:1px solid var(--around-line)}
+.experienceWhyBlock:nth-child(even){padding-left:30px;border-left:1px solid var(--around-line)}
+.experienceWhyLabel{font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-muted)}
+.experienceWhyBlock p{margin:0;font:400 16px/1.55 Arial,Helvetica,sans-serif}
+.experienceTagList{display:flex;flex-wrap:wrap;gap:8px}
+.experienceTagList span{border:1px solid var(--around-ink);padding:7px 11px;font:600 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.05em;text-transform:uppercase}
+
+.experienceFactsGrid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--around-line);margin-top:28px}
+.experienceFactsGrid .fact{padding:24px 20px 24px 0;border-bottom:1px solid var(--around-line)}
+.experienceFactsGrid .fact strong{display:block;white-space:normal;overflow-wrap:break-word;font:500 16px/1.42 Arial,Helvetica,sans-serif}
+
+.experienceOfficialPanel{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;margin-top:26px;padding:28px 30px;border:1px solid var(--around-line)}
+.experienceOfficialStatus{display:grid;gap:6px}
+.experienceOfficialStatus strong{font:700 15px/1.2 Arial,Helvetica,sans-serif}
+.experienceOfficialStatus small{font:500 11px/1.3 Arial,Helvetica,sans-serif;color:var(--around-muted)}
+.experienceOfficialActions{display:flex;flex-wrap:wrap;gap:10px}
+
+.experienceTripGroup{margin-top:42px}
+.experienceTripGroup:first-of-type{margin-top:22px}
+.experienceTripGroupLabel{margin-bottom:16px;font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-muted)}
+
+@media(max-width:900px){
+  .experienceFactsGrid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:760px){
+  .experienceSection{padding:52px 0}
+  .experienceHeroActions{flex-direction:column;align-items:stretch}
+  .experienceCtaTrip .tripPickerTrigger,.experienceCtaSave .saveLabelButton,.experienceCtaBooking,.experienceCtaBookingSecondary{width:100%;justify-content:center}
+  .experienceWhyLead{font-size:21px;max-width:none}
+  .experienceAroundTake{max-width:none;padding:16px 18px}
+  .experienceWhyGrid{grid-template-columns:1fr;margin-top:26px}
+  .experienceWhyBlock{padding:18px 0;border-left:0!important}
+  .experienceOfficialPanel{flex-direction:column;align-items:stretch;padding:20px}
+  .experienceOfficialActions{flex-direction:column}
+  .experienceOfficialActions a{text-align:center}
+}
+
+@media(max-width:620px){
+  .experienceFactsGrid{grid-template-columns:1fr}
+  .experienceFactsGrid .fact{padding:18px 0}
+}
+
 
 /* AROUND Trip Readiness + STAY states v1.14 */
 .tripReadinessBar{display:flex;align-items:center;justify-content:space-between;gap:28px;margin:28px 0 0;padding:22px 24px;border:1px solid rgba(33,35,34,.28);border-left:6px solid var(--around-pink);background:rgba(245,243,238,.72)}
