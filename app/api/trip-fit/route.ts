@@ -3,7 +3,7 @@ import { evaluateTripFitBatch, type TripFitAdapterTripItem } from "@/lib/trip-fi
 
 /**
  * Thin delegation to lib/trip-fit-adapter.ts - no score/reason logic here.
- * Body: { candidateIds, dayIndex, tripItems, tripDestinationId?, candidateStartTimes? }
+ * Body: { candidateIds, dayIndex, tripItems, tripDestinationId?, candidateStartTimes?, candidateDurationMinutes? }
  * Response: { results: { [candidateId]: TripFitResult } }
  */
 export async function POST(request: Request) {
@@ -37,13 +37,21 @@ export async function POST(request: Request) {
           Object.entries(body.candidateStartTimes).filter((entry): entry is [string, string] => typeof entry[1] === "string")
         )
       : undefined;
+  const candidateDurationMinutes: Record<string, number> | undefined =
+    body?.candidateDurationMinutes && typeof body.candidateDurationMinutes === "object"
+      ? Object.fromEntries(
+          Object.entries(body.candidateDurationMinutes).filter(
+            (entry): entry is [string, number] => typeof entry[1] === "number" && Number.isFinite(entry[1]) && entry[1] > 0
+          )
+        )
+      : undefined;
 
   if (!candidateIds.length || dayIndex === undefined) {
     return NextResponse.json({ results: {} });
   }
 
   try {
-    const results = await evaluateTripFitBatch({ candidateIds, dayIndex, tripItems, tripDestinationId, candidateStartTimes });
+    const results = await evaluateTripFitBatch({ candidateIds, dayIndex, tripItems, tripDestinationId, candidateStartTimes, candidateDurationMinutes });
     return NextResponse.json({ results });
   } catch {
     // Never fabricate fallback context - if resolution fails, omit all contextual results.

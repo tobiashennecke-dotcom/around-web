@@ -299,10 +299,13 @@ export function TripQuickAddDrawer({
 
     let cancelled = false;
     const candidateStartTimes: Record<string, string> = {};
+    const candidateDurationMinutes: Record<string, number> = {};
     // Only the item whose FIXPUNKT editor is actually open gets a real, visible,
-    // user-editable time - never a silent role default for any other candidate.
-    if (fixedDraft?.time && candidateIds.includes(fixedDraft.itemId)) {
-      candidateStartTimes[fixedDraft.itemId] = fixedDraft.time;
+    // user-editable time/duration - never a silent role default or invented
+    // override for any other candidate, which keep using canonical Place Intelligence.
+    if (fixedDraft && candidateIds.includes(fixedDraft.itemId)) {
+      if (fixedDraft.time) candidateStartTimes[fixedDraft.itemId] = fixedDraft.time;
+      if (fixedDraft.durationMinutes > 0) candidateDurationMinutes[fixedDraft.itemId] = fixedDraft.durationMinutes;
     }
 
     (async () => {
@@ -323,7 +326,8 @@ export function TripQuickAddDrawer({
               durationMinutes: item.durationMinutes
             })),
             tripDestinationId,
-            candidateStartTimes: Object.keys(candidateStartTimes).length ? candidateStartTimes : undefined
+            candidateStartTimes: Object.keys(candidateStartTimes).length ? candidateStartTimes : undefined,
+            candidateDurationMinutes: Object.keys(candidateDurationMinutes).length ? candidateDurationMinutes : undefined
           })
         });
         if (cancelled) return;
@@ -340,7 +344,7 @@ export function TripQuickAddDrawer({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, kind, defaultDayIndex, candidateIdsKey, tripItemsKey, fixedDraft?.time, fixedDraft?.itemId, tripDestinationId]);
+  }, [open, kind, defaultDayIndex, candidateIdsKey, tripItemsKey, fixedDraft?.time, fixedDraft?.durationMinutes, fixedDraft?.itemId, tripDestinationId]);
 
   useEffect(() => {
     if (!open) return;

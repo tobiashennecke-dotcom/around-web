@@ -337,9 +337,14 @@ export function TripDetailClient({ id }: { id: string }) {
         const perDay = await Promise.all(
           Array.from(evaluableByDay.entries()).map(async ([dayIndex, items]) => {
             const candidateStartTimes: Record<string, string> = {};
+            const candidateDurationMinutes: Record<string, number> = {};
             for (const item of items) {
               // Actual fixedTime only - never invented for a flexible item.
               if (item.isFixed && item.fixedTime) candidateStartTimes[item.sourceId] = item.fixedTime;
+              // Actual planned duration wins over canonical Sanity duration when the user has set one.
+              if (typeof item.durationMinutes === "number" && item.durationMinutes > 0) {
+                candidateDurationMinutes[item.sourceId] = item.durationMinutes;
+              }
             }
             const response = await fetch("/api/trip-fit", {
               method: "POST",
@@ -349,7 +354,8 @@ export function TripDetailClient({ id }: { id: string }) {
                 dayIndex,
                 tripItems: tripItemsPayload,
                 tripDestinationId,
-                candidateStartTimes: Object.keys(candidateStartTimes).length ? candidateStartTimes : undefined
+                candidateStartTimes: Object.keys(candidateStartTimes).length ? candidateStartTimes : undefined,
+                candidateDurationMinutes: Object.keys(candidateDurationMinutes).length ? candidateDurationMinutes : undefined
               })
             });
             const data = await response.json();
