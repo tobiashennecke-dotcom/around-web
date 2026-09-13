@@ -131,12 +131,38 @@ async function prepareTripContext(request: SharedRequestFields): Promise<Prepare
 }
 
 /**
- * Builds the day-independent evaluation context for every candidate. Geography
- * and duration overrides only need to be resolved once per candidate, since
- * evaluateTripFit()'s dayIndex parameter is the only thing that varies per day.
+ * Builds the evaluation context for every candidate.
+ *
+ * When `dayIndex` is omitted (evaluateTripFitBatch's single-day path), geography
+ * is resolved exactly as before: every OTHER trip Place, any day, is a valid
+ * anchor. This behavior is unchanged.
+ *
+ * When `dayIndex` is supplied (evaluateTripBestDays), geography is resolved
+ * PER DAY instead, because Best Day asks "which specific day fits?" - a Place
+ * near a Day 3 anchor must not make the candidate equally plausible for Day 1.
+ * Anchor preference for that day:
+ *   1. OTHER Place items actually assigned to this same day
+ *   2. trip-level STAY/base Place anchors (sourceRole "stay"), which
+ *      legitimately span multiple days rather than belonging to one
+ *   3. the trip destination, only when neither of the above exists
+ * A Place item assigned exclusively to a different day is never used as
+ * evidence for this one. Duration overrides still resolve once per candidate,
+ * independent of day, exactly as before.
  */
-function buildCandidateEvalContexts(request: SharedRequestFields, prepared: PreparedTripContext): CandidateEvalContext[] {
+function buildCandidateEvalContexts(request: SharedRequestFields, prepared: PreparedTripContext, dayIndex?: number): CandidateEvalContext[] {
   const contexts: CandidateEvalContext[] = [];
+
+  // Precomputed once per call (not per candidate) when day-scoping is requested.
+  let sameDayPlaceIds: string[] = [];
+  let baseAnchorPlaceIds: string[] = [];
+  if (dayIndex !== undefined) {
+    sameDayPlaceIds = request.tripItems
+      .filter(item => item.sourceType === "place" && item.dayIndex === dayIndex)
+      .map(item => item.sourceId);
+    baseAnchorPlaceIds = request.tripItems
+      .filter(item => item.sourceType === "place" && normalizeContentRole(item.sourceRole) === "stay")
+      .map(item => item.sourceId);
+  }
 
   for (const doc of prepared.docs) {
     if (!doc?._id) continue;
@@ -145,13 +171,21 @@ function buildCandidateEvalContexts(request: SharedRequestFields, prepared: Prep
     // logic, no second algorithm, but never the candidate's own coordinate: the
     // candidate may already be one of the trip's Place items (Planner, or an
     // "already in trip" candidate), and must not become its own 0 km anchor.
-    // Falls back to the trip destination only when no OTHER trip Place has known
-    // coordinates; with neither, isGeographicallyEligible([], ...) yields false.
-    const anchors: AroundItAnchor[] = [];
-    for (const [sourceId, geo] of prepared.tripPlaceGeo) {
-      if (sourceId === doc._id) continue;
-      anchors.push({ destinationId: geo.destinationId, latitude: geo.lat, longitude: geo.lng });
+    let anchorSourceIds: string[];
+    if (dayIndex === undefined) {
+      anchorSourceIds = Array.from(prepared.tripPlaceGeo.keys()).filter(sourceId => sourceId !== doc._id);
+    } else {
+      const sameDay = sameDayPlaceIds.filter(sourceId => sourceId !== doc._id && prepared.tripPlaceGeo.has(sourceId));
+      const base = baseAnchorPlaceIds.filter(sourceId => sourceId !== doc._id && prepared.tripPlaceGeo.has(sourceId));
+      anchorSourceIds = sameDay.length ? sameDay : base;
     }
+
+    const anchors: AroundItAnchor[] = anchorSourceIds.map(sourceId => {
+      const geo = prepared.tripPlaceGeo.get(sourceId)!;
+      return { destinationId: geo.destinationId, latitude: geo.lat, longitude: geo.lng };
+    });
+    // Falls back to the trip destination only when no usable Place anchor exists;
+    // with neither, isGeographicallyEligible([], ...) below correctly yields false.
     if (!anchors.length && prepared.destinationAnchor) anchors.push(prepared.destinationAnchor);
 
     const candidateGeoCandidate: AroundItCandidate = {
@@ -165,12 +199,16 @@ function buildCandidateEvalContexts(request: SharedRequestFields, prepared: Prep
       aroundSelected: Boolean(doc.aroundSelected)
     };
 
-    // D) distanceToItemKm - only for OTHER trip items whose coordinates are
-    // actually known; the candidate's own item (if any) is excluded here too.
+    // D) distanceToItemKm - only for the same anchor-eligible items whose
+    // coordinates are actually known (all other trip Places for the single-day
+    // path; same-day items only for Best Day - AFTER_GOLF/BEFORE_FIXED_DINNER
+    // only ever look up a same-day fixed point anyway, so unrelated other-day
+    // Place distances are never needed). The candidate's own item is excluded.
     let distanceToItemKm: Record<string, number> | undefined;
     if (typeof doc.coordinates?.lat === "number" && typeof doc.coordinates?.lng === "number") {
-      for (const [sourceId, geo] of prepared.tripPlaceGeo) {
-        if (sourceId === doc._id) continue;
+      const distanceSourceIds = dayIndex === undefined ? anchorSourceIds : sameDayPlaceIds.filter(sourceId => sourceId !== doc._id && prepared.tripPlaceGeo.has(sourceId));
+      for (const sourceId of distanceSourceIds) {
+        const geo = prepared.tripPlaceGeo.get(sourceId)!;
         const distance = haversineDistanceKm({ latitude: doc.coordinates.lat, longitude: doc.coordinates.lng }, { latitude: geo.lat, longitude: geo.lng });
         distanceToItemKm ??= {};
         distanceToItemKm[sourceId] = distance;
@@ -263,13 +301,13 @@ function isBetterBestDay(candidate: TripBestDayResult, current: TripBestDayResul
 }
 
 /**
- * BEST DAY ONLY COMPARES ELIGIBLE ENGINE RESULTS. For each candidate, evaluates
- * every requested day via the exact same evaluateTripFit() call as the single-day
- * path (same shared candidate context, so geo/duration/time rules are identical),
- * discards every ineligible day, and ranks what's left by score, then
- * recommendation specificity, then earliest day. A candidate with no eligible day
- * at all - including any "fixed, no real time" candidate, which is ineligible on
- * every day identically - simply gets no entry in the result map.
+ * BEST DAY ONLY COMPARES ELIGIBLE ENGINE RESULTS. For each requested day, builds
+ * DAY-SCOPED candidate contexts (see buildCandidateEvalContexts) and evaluates
+ * via the exact same evaluateTripFit() call as the single-day path, discards
+ * every ineligible day, and ranks what's left per candidate by score, then
+ * recommendation specificity, then earliest day. A candidate with no eligible
+ * day at all - including any "fixed, no real time" candidate, which is
+ * ineligible on every day identically - simply gets no entry in the result map.
  */
 export async function evaluateTripBestDays(request: TripBestDayAdapterRequest): Promise<Record<string, TripBestDayResult>> {
   const results: Record<string, TripBestDayResult> = {};
@@ -279,9 +317,10 @@ export async function evaluateTripBestDays(request: TripBestDayAdapterRequest): 
   const prepared = await prepareTripContext(request);
   if (!prepared) return results;
 
-  for (const context of buildCandidateEvalContexts(request, prepared)) {
-    let best: TripBestDayResult | null = null;
-    for (const dayIndex of dayIndexes) {
+  const bestByCandidate = new Map<string, TripBestDayResult>();
+
+  for (const dayIndex of dayIndexes) {
+    for (const context of buildCandidateEvalContexts(request, prepared, dayIndex)) {
       const fit = evaluateTripFit({
         candidate: context.candidate,
         dayIndex,
@@ -291,10 +330,11 @@ export async function evaluateTripBestDays(request: TripBestDayAdapterRequest): 
       });
       if (!fit.eligible) continue;
       const candidateResult: TripBestDayResult = { candidateId: context.id, dayIndex, fit };
-      if (!best || isBetterBestDay(candidateResult, best)) best = candidateResult;
+      const current = bestByCandidate.get(context.id);
+      if (!current || isBetterBestDay(candidateResult, current)) bestByCandidate.set(context.id, candidateResult);
     }
-    if (best) results[context.id] = best;
   }
 
+  for (const [candidateId, best] of bestByCandidate) results[candidateId] = best;
   return results;
 }
