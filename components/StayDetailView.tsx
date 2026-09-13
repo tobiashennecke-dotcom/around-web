@@ -167,6 +167,17 @@ export function StayDetailView({ place }: { place: Place }) {
         </section>
       ) : null}
 
+      {place.goodToKnow && place.goodToKnow.length > 0 && (
+        <section className="section staySection">
+          <div className="container">
+            <div className="eyebrow lime">GOOD TO KNOW</div>
+            <div className="factsGrid">
+              {place.goodToKnow.map((fact,index)=><div className="fact" key={`${fact.label}-${index}`}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
+            </div>
+          </div>
+        </section>
+      )}
+
       {hasGolfBase ? (
         <section className="section staySection">
           <div className="container">
