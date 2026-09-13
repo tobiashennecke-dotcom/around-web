@@ -136,18 +136,21 @@ function buildExperienceFacts(place: Place): Fact[] {
       : undefined;
 
   return [
+    { label: "TYPE", value: place.experienceType },
     { label: "TIME", value: place.experienceDurationLabel || formatDuration(place.suggestedDurationMinutes) },
     { label: "BEST TIME", value: bestTime },
     { label: "FLEXIBILITY", value: flexibilityLabel(place.defaultPlanningMode) },
     { label: "EFFORT", value: effortLabel(place.effortLevel) },
     { label: "ENVIRONMENT", value: environmentLabel(place.environment) },
     { label: "WEATHER", value: weatherLabel(place.weatherSensitivity) },
+    { label: "SEASON", value: place.season },
     { label: "BOOKING", value: place.bookingAdvice }
   ].filter((fact): fact is Fact => Boolean(fact.value));
 }
 
 function buildEatFacts(place: Place): Fact[] {
   return [
+    { label: "CHARACTER", value: place.eatCharacter },
     { label: "MEAL", value: titleCaseJoin(place.mealTypes) },
     { label: "CUISINE", value: titleCaseJoin(place.cuisine) },
     { label: "SETTING", value: place.setting },
@@ -155,6 +158,25 @@ function buildEatFacts(place: Place): Fact[] {
     { label: "RESERVATION", value: place.reservationAdvice },
     { label: "DIETARY", value: place.dietaryNotes }
   ].filter((fact): fact is Fact => Boolean(fact.value));
+}
+
+function normalizeFactValue(value: string) {
+  return value.trim().toLowerCase();
+}
+
+/**
+ * Legacy `goodToKnow` facts predate the v1.24 Experience-specific utility fields.
+ * Never edits/removes the underlying Sanity content - only suppresses a fact from
+ * this page's render when its value is an exact match (case/whitespace-insensitive)
+ * of a value already shown in the type-specific utility section above. Generic
+ * across any eat/drink/do/culture document; a legacy fact with no matching v1.24
+ * value survives untouched. Mirrors StayDetailView's visibleGoodToKnow dedupe.
+ */
+function visibleLegacyGoodToKnow(place: Place, shownValues: string[]): Fact[] {
+  const facts = (place.goodToKnow || []).filter((fact): fact is Fact => Boolean(fact.label && fact.value));
+  if (!facts.length) return [];
+  const shown = new Set(shownValues.filter(Boolean).map(normalizeFactValue));
+  return facts.filter(fact => !shown.has(normalizeFactValue(fact.value)));
 }
 
 export function ExperienceDetailView({ place }: { place: Place }) {
@@ -169,6 +191,9 @@ export function ExperienceDetailView({ place }: { place: Place }) {
     : isShop
       ? (place.goodToKnow || []).filter((fact): fact is Fact => Boolean(fact.label && fact.value))
       : buildExperienceFacts(place);
+
+  // SHOP already renders goodToKnow as its primary utility section above - no separate legacy block for it.
+  const legacyGoodToKnow = isShop ? [] : visibleLegacyGoodToKnow(place, utilityFacts.map(fact => fact.value));
 
   const hasWhyGrid = Boolean(place.theFeel?.length || place.bestFor?.length || place.aroundMoment || place.knowBeforeYouGo);
   const hasWhy = Boolean(place.whyWeLikeIt || hasWhyGrid);
@@ -259,6 +284,17 @@ export function ExperienceDetailView({ place }: { place: Place }) {
           </div>
         </section>
       ) : null}
+
+      {legacyGoodToKnow.length > 0 && (
+        <section className="section experienceSection experienceGoodToKnow">
+          <div className="container">
+            <div className="eyebrow experienceGoodToKnowEyebrow">GOOD TO KNOW</div>
+            <div className="factsGrid">
+              {legacyGoodToKnow.map((fact,index)=><div className="fact" key={`${fact.label}-${index}`}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
+            </div>
+          </div>
+        </section>
+      )}
 
       {gallery.length > 0 && (
         <section className="section experienceSection placeGallerySection">
