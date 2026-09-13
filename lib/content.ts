@@ -509,7 +509,7 @@ export type TripSearchContext = {
   destinationId?: string;
 };
 
-async function resolveTripAnchors(context: TripSearchContext): Promise<AroundItAnchor[]> {
+export async function resolveTripAnchors(context: TripSearchContext): Promise<AroundItAnchor[]> {
   if (!sanity) return [];
 
   const anchorPlaceIds = (context.anchorPlaceIds || []).filter(Boolean);

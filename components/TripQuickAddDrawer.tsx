@@ -12,6 +12,7 @@ import {
 } from "@/lib/supabase/trips";
 import type { SavePayload } from "@/lib/supabase/saves";
 import type { ContentCard, PlanningDaypart, PlanningMode } from "@/lib/types";
+import { formatTripFitLabel, type TripFitResult } from "@/lib/trip-fit";
 
 type StopRole = Exclude<ContentRole, "stay">;
 
@@ -224,7 +225,9 @@ export function TripQuickAddDrawer({
   const [stayEndDay, setStayEndDay] = useState<number | undefined>(defaultStayEndDay);
   const [fixedDraft, setFixedDraft] = useState<FixedDraft | null>(null);
   const [message, setMessage] = useState("");
+  const [tripFitResults, setTripFitResults] = useState<Record<string, TripFitResult>>({});
   const existing = useMemo(() => new Set(existingIds), [existingIds]);
+  const visibleResults = useMemo(() => results.slice(0, 10), [results]);
 
   useEffect(() => {
     if (!open) return;
@@ -259,6 +262,85 @@ export function TripQuickAddDrawer({
   useEffect(() => {
     setFixedDraft(null);
   }, [query, role]);
+
+  // Trip Fit is annotation only: search results already rendered above, this only
+  // adds context afterward. "Offen" (defaultDayIndex undefined) never gets a
+  // day-specific label - there is no day to be contextually correct about yet.
+  const candidateIdsKey = useMemo(
+    () => visibleResults.filter(item => item.type === "place").map(item => item.id).join(","),
+    [visibleResults]
+  );
+  const tripItemsKey = useMemo(
+    () =>
+      JSON.stringify(
+        scheduledItems.map(item => ({
+          sourceId: item.sourceId,
+          sourceType: item.sourceType,
+          sourceRole: item.sourceRole,
+          dayIndex: item.dayIndex,
+          isFixed: item.isFixed,
+          fixedTime: item.fixedTime,
+          durationMinutes: item.durationMinutes
+        }))
+      ),
+    [scheduledItems]
+  );
+
+  useEffect(() => {
+    if (!open || kind !== "stop" || defaultDayIndex === undefined) {
+      setTripFitResults({});
+      return;
+    }
+    const candidateIds = visibleResults.filter(item => item.type === "place").map(item => item.id);
+    if (!candidateIds.length) {
+      setTripFitResults({});
+      return;
+    }
+
+    let cancelled = false;
+    const candidateStartTimes: Record<string, string> = {};
+    // Only the item whose FIXPUNKT editor is actually open gets a real, visible,
+    // user-editable time - never a silent role default for any other candidate.
+    if (fixedDraft?.time && candidateIds.includes(fixedDraft.itemId)) {
+      candidateStartTimes[fixedDraft.itemId] = fixedDraft.time;
+    }
+
+    (async () => {
+      try {
+        const response = await fetch("/api/trip-fit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            candidateIds,
+            dayIndex: defaultDayIndex,
+            tripItems: scheduledItems.map(item => ({
+              sourceId: item.sourceId,
+              sourceType: item.sourceType,
+              sourceRole: item.sourceRole,
+              dayIndex: item.dayIndex,
+              isFixed: item.isFixed,
+              fixedTime: item.fixedTime,
+              durationMinutes: item.durationMinutes
+            })),
+            tripDestinationId,
+            candidateStartTimes: Object.keys(candidateStartTimes).length ? candidateStartTimes : undefined
+          })
+        });
+        if (cancelled) return;
+        const data = await response.json();
+        if (cancelled) return;
+        setTripFitResults(data?.results && typeof data.results === "object" ? data.results : {});
+      } catch {
+        // Silently omit labels - Trip Fit must never break Quick Add.
+        if (!cancelled) setTripFitResults({});
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, kind, defaultDayIndex, candidateIdsKey, tripItemsKey, fixedDraft?.time, fixedDraft?.itemId, tripDestinationId]);
 
   useEffect(() => {
     if (!open) return;
@@ -356,7 +438,6 @@ export function TripQuickAddDrawer({
     return "evening";
   }
 
-  const visibleResults = results.slice(0, 10);
   const hasSuggestedGap = kind === "stay" && defaultStayStartDay !== undefined && defaultStayEndDay !== undefined;
 
   return (
@@ -410,6 +491,8 @@ export function TripQuickAddDrawer({
               ? conflictsWithDay(scheduledItems, defaultDayIndex, fixedDraft.time, fixedDraft.durationMinutes)
               : false;
             const recommendedFixed = defaults?.mode === "fixed";
+            const fitResult = tripFitResults[item.id];
+            const fitLabel = fitResult?.eligible ? formatTripFitLabel(fitResult) : undefined;
 
             return (
               <article className={`tripQuickAddResult ${contained ? "tripQuickAddResult--contained" : ""}`} key={item.id}>
@@ -424,6 +507,12 @@ export function TripQuickAddDrawer({
                         <b>EMPFOHLEN</b>
                         <strong>{defaults.mode === "fixed" ? "FIXPUNKT" : "FLEXIBEL"}</strong>
                         <em>{daypartLabel(defaults.daypart)} · {durationLabel(defaults.durationMinutes)}{defaults.mode === "fixed" && item.suggestedTime ? ` · ${item.suggestedTime}` : ""}</em>
+                      </div>
+                    ) : null}
+                    {fitLabel ? (
+                      <div className="tripQuickAddFitHint">
+                        <b>AROUND FIT</b>
+                        <strong>{fitLabel}</strong>
                       </div>
                     ) : null}
                   </div>

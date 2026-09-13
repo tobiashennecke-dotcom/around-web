@@ -16,6 +16,7 @@ import {
   type TripStatus,
   type UserTrip
 } from "@/lib/supabase/trips";
+import { formatTripFitLabel, type TripFitResult } from "@/lib/trip-fit";
 
 const slotLabels: Record<TripSlot, string> = {
   flex: "Flexibel",
@@ -249,6 +250,7 @@ export function TripDetailClient({ id }: { id: string }) {
     | { kind: "stop"; dayIndex?: number }
     | null
   >(null);
+  const [tripFitResults, setTripFitResults] = useState<Record<string, TripFitResult>>({});
   const autosaveReady = useRef(false);
 
   async function load() {
@@ -276,6 +278,97 @@ export function TripDetailClient({ id }: { id: string }) {
   }, [id]);
 
   const dayCount = useMemo(() => daysBetween(startDate, endDate), [startDate, endDate]);
+
+  // Trip Fit: evaluate only regular Place items that are actually assigned to a
+  // day - never unplanned ("Offen") items, never STAY items, never non-Place
+  // content. Recalculates when the relevant trip-item fields actually change.
+  const tripFitItemsKey = useMemo(() => {
+    if (!trip) return "";
+    return JSON.stringify(
+      trip.items
+        .filter(item => item.sourceType === "place" && normalizeContentRole(item.sourceRole) !== "stay")
+        .map(item => ({
+          sourceId: item.sourceId,
+          sourceType: item.sourceType,
+          sourceRole: item.sourceRole,
+          dayIndex: item.dayIndex,
+          isFixed: item.isFixed,
+          fixedTime: item.fixedTime,
+          durationMinutes: item.durationMinutes
+        }))
+    );
+  }, [trip]);
+
+  useEffect(() => {
+    if (!trip) {
+      setTripFitResults({});
+      return;
+    }
+
+    const placeItems = trip.items.filter(item => item.sourceType === "place" && normalizeContentRole(item.sourceRole) !== "stay");
+    const evaluableByDay = new Map<number, typeof placeItems>();
+    for (const item of placeItems) {
+      if (item.dayIndex === undefined) continue; // unplanned - no day-specific claim possible
+      if (!evaluableByDay.has(item.dayIndex)) evaluableByDay.set(item.dayIndex, []);
+      evaluableByDay.get(item.dayIndex)!.push(item);
+    }
+    if (!evaluableByDay.size) {
+      setTripFitResults({});
+      return;
+    }
+
+    let cancelled = false;
+    const tripItemsPayload = trip.items.map(item => ({
+      sourceId: item.sourceId,
+      sourceType: item.sourceType,
+      sourceRole: item.sourceRole,
+      dayIndex: item.dayIndex,
+      isFixed: item.isFixed,
+      fixedTime: item.fixedTime,
+      durationMinutes: item.durationMinutes
+    }));
+    const tripDestinationId = trip.destinationSourceId;
+
+    (async () => {
+      try {
+        // One request per day (batched within that day) - the adapter itself
+        // excludes each candidate's own existing TripItem before evaluating it,
+        // so ALREADY_IN_TRIP doesn't incorrectly block Planner evaluation.
+        const perDay = await Promise.all(
+          Array.from(evaluableByDay.entries()).map(async ([dayIndex, items]) => {
+            const candidateStartTimes: Record<string, string> = {};
+            for (const item of items) {
+              // Actual fixedTime only - never invented for a flexible item.
+              if (item.isFixed && item.fixedTime) candidateStartTimes[item.sourceId] = item.fixedTime;
+            }
+            const response = await fetch("/api/trip-fit", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                candidateIds: items.map(candidate => candidate.sourceId),
+                dayIndex,
+                tripItems: tripItemsPayload,
+                tripDestinationId,
+                candidateStartTimes: Object.keys(candidateStartTimes).length ? candidateStartTimes : undefined
+              })
+            });
+            const data = await response.json();
+            return data?.results && typeof data.results === "object" ? data.results : {};
+          })
+        );
+        if (cancelled) return;
+        setTripFitResults(Object.assign({}, ...perDay));
+      } catch {
+        // Trip Fit must never break the Planner - silently omit labels.
+        if (!cancelled) setTripFitResults({});
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tripFitItemsKey]);
 
   useEffect(() => {
     if (!autosaveReady.current || !trip || loading || savingMeta || !title.trim()) return;
@@ -620,6 +713,7 @@ export function TripDetailClient({ id }: { id: string }) {
               dayCount={dayCount}
               isOpen
               isDragTarget={dragTargetDay === "open"}
+              tripFitResults={tripFitResults}
               onChange={changeItem}
               onRemove={remove}
               onMove={moveItem}
@@ -642,6 +736,7 @@ export function TripDetailClient({ id }: { id: string }) {
               items={day.items}
               dayCount={dayCount}
               isDragTarget={dragTargetDay === day.dayIndex}
+              tripFitResults={tripFitResults}
               onChange={changeItem}
               onRemove={remove}
               onMove={moveItem}
@@ -857,6 +952,7 @@ function TripDayBlock({
   dayCount,
   isOpen = false,
   isDragTarget,
+  tripFitResults,
   onChange,
   onRemove,
   onMove,
@@ -875,6 +971,7 @@ function TripDayBlock({
   dayCount: number;
   isOpen?: boolean;
   isDragTarget: boolean;
+  tripFitResults: Record<string, TripFitResult>;
   onChange: (sourceId: string, patch: TripItemPatch) => Promise<void>;
   onRemove: (sourceId: string) => Promise<void>;
   onMove: (sourceId: string, currentDay: number | undefined, direction: -1 | 1) => Promise<void>;
@@ -907,6 +1004,7 @@ function TripDayBlock({
               item={item}
               dayIndex={dayIndex}
               dayCount={dayCount}
+              tripFitResult={tripFitResults[item.sourceId]}
               onChange={onChange}
               onRemove={onRemove}
               onMove={onMove}
@@ -929,6 +1027,7 @@ function TripItemRow({
   item,
   dayIndex,
   dayCount,
+  tripFitResult,
   onChange,
   onRemove,
   onMove,
@@ -938,12 +1037,14 @@ function TripItemRow({
   item: UserTrip["items"][number];
   dayIndex: number | undefined;
   dayCount: number;
+  tripFitResult?: TripFitResult;
   onChange: (sourceId: string, patch: TripItemPatch) => Promise<void>;
   onRemove: (sourceId: string) => Promise<void>;
   onMove: (sourceId: string, currentDay: number | undefined, direction: -1 | 1) => Promise<void>;
   onDragStart: (sourceId: string) => void;
   onDragEnd: () => void;
 }) {
+  const fitLabel = tripFitResult?.eligible ? formatTripFitLabel(tripFitResult) : undefined;
   const [note, setNote] = useState(item.note || "");
   const type = plannerType(item);
   const itemSlot = (item.slot || "flex") as TripSlot;
@@ -1005,6 +1106,12 @@ function TripItemRow({
             {item.dayIndex === undefined ? " · Tag noch offen" : ""}
           </p>
         ) : item.note ? <p>{item.note}</p> : null}
+        {fitLabel ? (
+          <div className="aroundFitHint">
+            <b>AROUND FIT</b>
+            <strong>{fitLabel}</strong>
+          </div>
+        ) : null}
       </div>
       <div className="tripItemMove" aria-label="Zwischen Tagen verschieben">
         <button type="button" onClick={() => onMove(item.sourceId, dayIndex, -1)} disabled={!canMoveBack} aria-label="Einen Tag zurück">←</button>

@@ -79,6 +79,26 @@ export const PLACES_BY_IDS_QUERY = defineQuery(`
   }
 `);
 
+/** Minimal Place Intelligence for lib/trip-fit-adapter.ts - no media/editorial prose. */
+export const TRIP_FIT_CANDIDATES_QUERY = defineQuery(`
+  *[_type == "place" && _id in $ids]{
+    _id,
+    placeType,
+    defaultPlanningMode,
+    suggestedDurationMinutes,
+    suggestedDaypart,
+    compatibleDayparts,
+    effortLevel,
+    environment,
+    weatherSensitivity,
+    priority,
+    featured,
+    aroundSelected,
+    coordinates,
+    "destinationId": destination->_id
+  }
+`);
+
 export const DESTINATION_GEO_QUERY = defineQuery(`
   *[_type == "destination" && _id == $id][0]{
     _id,
