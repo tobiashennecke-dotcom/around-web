@@ -5,6 +5,11 @@ import {useClient} from "sanity";
 
 const GOLFCLUB_ID = "around-place-golfclub-reit-im-winkl-koessen";
 
+// Verified clubhouse coordinates (Moserbergweg 60, 6345 Kössen - the address
+// already seeded on this document). Only applied via setIfMissing below, so a
+// coordinate a human already set in Studio is never overwritten.
+const GOLFCLUB_COORDINATES = {_type: "geopoint" as const, lat: 47.6706472, lng: 12.4360943};
+
 const playV2Patch = {
   theFeel: ["Alpine", "Strategic", "Scenic", "Hilly", "Border-crossing"],
   bestFor: ["Mountain golf", "Golf weekends", "Scenery hunters", "Course collectors", "Players who like variety"],
@@ -49,6 +54,7 @@ export function PlayV2SeedTool() {
           "hasDestination": defined(destination),
           "hasHero": defined(heroImage),
           "galleryCount": count(gallery),
+          "hasCoordinates": defined(coordinates),
           address, bookingUrl
         }`,
         {id: GOLFCLUB_ID}
@@ -65,10 +71,15 @@ export function PlayV2SeedTool() {
         operatorStatus: {source: "around" as const, lastVerifiedAt: now}
       };
 
-      await client.patch(GOLFCLUB_ID).set(patch).commit();
+      await client.patch(GOLFCLUB_ID).set(patch).setIfMissing({coordinates: GOLFCLUB_COORDINATES}).commit();
       addLog("✓ PLAY-V2-Felder gepatcht: Editorial (theFeel, bestFor, aroundMoment, knowBeforeYouGo, whyWeLikeIt, aroundTake), PLAY Details (holes, par, courseCharacter, walkability, cartAvailability, practiceFacilities, guestPlay, season), Planning (suggestedDurationMinutes, suggestedDaypart, defaultPlanningMode), Commercial (commercialPartner), Internal (editorialStatus, lastEditorialReviewAt), Operator Status.");
       addLog(
         `✓ Bestehende Inhalte unverändert erhalten: _id, Slug (${doc.slug || "—"}), Destination-Relation (${doc.hasDestination ? "vorhanden" : "fehlt"}), Hero-Bild (${doc.hasHero ? "vorhanden" : "fehlt"}), Gallery (${doc.galleryCount ?? 0} Bilder), Adresse (${doc.address || "—"}).`
+      );
+      addLog(
+        doc.hasCoordinates
+          ? "ℹ Koordinaten waren bereits gesetzt und wurden nicht verändert."
+          : "✓ Koordinaten waren leer und wurden auf die verifizierte Clubhaus-Position gesetzt (setIfMissing, Moserbergweg 60, 6345 Kössen)."
       );
       addLog(
         doc.bookingUrl

@@ -5,6 +5,11 @@ import {useClient} from "sanity";
 
 const GUT_STEINBACH_SLUG = "gut-steinbach";
 
+// Verified property coordinates (Steinbachweg 10, 83242 Reit im Winkl). Only
+// applied via setIfMissing below, so a coordinate a human already set in
+// Studio is never overwritten.
+const GUT_STEINBACH_COORDINATES = {_type: "geopoint" as const, lat: 47.6671046, lng: 12.4814630};
+
 const stayV2Patch = {
   whyWeLikeIt: "Das Gut Steinbach funktioniert weniger wie ein klassisches Golfhotel als wie ein Rückzugsort, um den sich eine Chiemgau-Reise bauen lässt. Zimmer, Suiten und freistehende Chalets liegen auf einem weitläufigen Gut; dazu kommen Spa und Restaurant direkt auf dem Gelände. Für AROUND ist vor allem die Kombination interessant: tagsüber Golf und Berge, danach muss man kein zweites Programm mehr suchen. Man kommt zurück und bleibt.",
   aroundTake: "Keine Golfanlage mit angeschlossenem Hotel – sondern eine starke alpine Base, von der aus Golf, Chiemgau und Kaiserwinkl zusammen funktionieren.",
@@ -49,6 +54,7 @@ export function StayV2SeedTool() {
           "hasDestination": defined(destination),
           "hasHero": defined(heroImage),
           "galleryCount": count(gallery),
+          "hasCoordinates": defined(coordinates),
           address, bookingUrl, bookingLabel, commercialPartner
         }`,
         {slug: GUT_STEINBACH_SLUG}
@@ -67,7 +73,7 @@ export function StayV2SeedTool() {
           lastEditorialReviewAt: now,
           operatorStatus: {source: "around" as const, lastVerifiedAt: now}
         })
-        .setIfMissing({bookingLabel: "Verfügbarkeit prüfen"})
+        .setIfMissing({bookingLabel: "Verfügbarkeit prüfen", coordinates: GUT_STEINBACH_COORDINATES})
         .commit();
 
       addLog("✓ STAY-V2-Felder gepatcht: Editorial (whyWeLikeIt, aroundTake, theFeel, bestFor, aroundMoment, knowBeforeYouGo), STAY Details (stayCharacter, accommodationTypes, roomSummary, spaSummary, foodSummary, breakfastSummary, parkingSummary, dogPolicy, checkIn, checkOut, openAllYear, recommendedNightsMin/Max, golfBaseWhy), Internal (editorialStatus, lastEditorialReviewAt), Operator Status.");
@@ -83,6 +89,11 @@ export function StayV2SeedTool() {
         doc.bookingLabel
           ? `ℹ bookingLabel war bereits gesetzt (${doc.bookingLabel}) und wurde nicht verändert.`
           : "✓ bookingLabel war leer und wurde auf „Verfügbarkeit prüfen“ gesetzt (setIfMissing)."
+      );
+      addLog(
+        doc.hasCoordinates
+          ? "ℹ Koordinaten waren bereits gesetzt und wurden nicht verändert."
+          : "✓ Koordinaten waren leer und wurden auf die verifizierte Position gesetzt (setIfMissing, Steinbachweg 10, 83242 Reit im Winkl)."
       );
       addLog("✓ Keine Live-Preise, keine erfundenen Fahrzeiten gesetzt.");
       addLog("✓ Fertig.");

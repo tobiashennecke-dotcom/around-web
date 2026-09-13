@@ -37,6 +37,35 @@ function tripGroupFor(placeType?: string): TripGroupKey {
   return normalizeContentRole(placeType) || "other";
 }
 
+function normalizeFactValue(value: string) {
+  return value.trim().toLowerCase();
+}
+
+/**
+ * Legacy `goodToKnow` facts predate the STAY-V2 fields and can end up restating
+ * one verbatim (e.g. a legacy "Best for" fact duplicating the new bestFor tags).
+ * Never edits/removes the underlying Sanity content - only suppresses a fact from
+ * this page's render when its value is an exact match (case/whitespace-insensitive)
+ * of a value already shown elsewhere on the page. Generic across any STAY
+ * document; a legacy fact with no matching V2 value survives untouched.
+ */
+function visibleGoodToKnow(place: Place) {
+  const facts = place.goodToKnow || [];
+  if (!facts.length) return [];
+
+  const shownElsewhere = new Set(
+    [
+      place.roomSummary, place.spaSummary, place.foodSummary, place.breakfastSummary,
+      place.parkingSummary, place.dogPolicy, place.checkIn, place.checkOut,
+      ...(place.bestFor || [])
+    ]
+      .filter((value): value is string => Boolean(value))
+      .map(normalizeFactValue)
+  );
+
+  return facts.filter(fact => !shownElsewhere.has(normalizeFactValue(fact.value)));
+}
+
 function groupAroundIt(items: Place["aroundIt"]) {
   const groups = new Map<TripGroupKey, typeof items>();
   for (const item of items || []) {
@@ -81,6 +110,7 @@ export function StayDetailView({ place }: { place: Place }) {
   const lastVerified = formatDate(place.operatorStatus?.lastVerifiedAt);
 
   const aroundItGroups = groupAroundIt(place.aroundIt);
+  const goodToKnow = visibleGoodToKnow(place);
 
   return (
     <main>
@@ -167,12 +197,12 @@ export function StayDetailView({ place }: { place: Place }) {
         </section>
       ) : null}
 
-      {place.goodToKnow && place.goodToKnow.length > 0 && (
-        <section className="section staySection">
+      {goodToKnow.length > 0 && (
+        <section className="section staySection stayGoodToKnow">
           <div className="container">
-            <div className="eyebrow lime">GOOD TO KNOW</div>
+            <div className="eyebrow stayGoodToKnowEyebrow">GOOD TO KNOW</div>
             <div className="factsGrid">
-              {place.goodToKnow.map((fact,index)=><div className="fact" key={`${fact.label}-${index}`}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
+              {goodToKnow.map((fact,index)=><div className="fact" key={`${fact.label}-${index}`}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
             </div>
           </div>
         </section>

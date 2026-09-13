@@ -1642,9 +1642,14 @@ img{display:block;max-width:100%}
   font-family:var(--around-font-sans);
   font-weight:800;
   letter-spacing:-.04em;
-  font-size:clamp(46px,6.2vw,102px)
+  font-size:clamp(42px,5.6vw,92px);
+  overflow-wrap:break-word
 }
-.staySection{padding:72px 0}
+.staySection{padding:68px 0}
+/* v1.23d: tighter editorial rhythm between consecutive STAY sections (WHY STAY HERE -> YOUR STAY,
+   GOOD TO KNOW -> WHY IT WORKS FOR GOLF, WHY IT WORKS FOR GOLF -> LOOK AROUND, etc.) without
+   touching PLAY or generic Place section spacing. */
+.staySection + .staySection{padding-top:40px}
 
 .stayHeroActions{align-items:stretch}
 .stayCtaBooking{
@@ -1675,9 +1680,9 @@ img{display:block;max-width:100%}
 
 .stayWhyLead{margin:22px 0 0;max-width:660px;font:400 26px/1.42 var(--around-font-sans);letter-spacing:-.004em}
 
-.stayAroundTake{margin:28px 0 0;max-width:620px;padding:20px 24px;border-left:3px solid var(--around-lime);background:rgba(33,35,34,.03)}
+.stayAroundTake{margin:28px 0 0;max-width:580px;padding-left:22px;border-left:3px solid var(--around-lime)}
 .stayAroundTakeLabel{display:block;margin-bottom:8px;font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--around-ink)}
-.stayAroundTake p{margin:0;font:500 16px/1.55 Arial,Helvetica,sans-serif;color:var(--around-ink)}
+.stayAroundTake p{margin:0;font:600 17px/1.56 Arial,Helvetica,sans-serif;color:var(--around-ink)}
 
 .stayWhyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:34px;border-top:1px solid var(--around-line)}
 .stayWhyBlock{display:grid;gap:12px;align-content:start;padding:26px 30px 26px 0;border-bottom:1px solid var(--around-line)}
@@ -1689,7 +1694,17 @@ img{display:block;max-width:100%}
 
 .stayFactsGrid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--around-line);margin-top:28px}
 .stayFactsGrid .fact{padding:24px 20px 24px 0;border-bottom:1px solid var(--around-line)}
-.stayFactsGrid .fact strong{display:block;white-space:normal;overflow-wrap:break-word}
+.stayFactsGrid .fact strong{display:block;white-space:normal;overflow-wrap:break-word;font:500 16px/1.42 Arial,Helvetica,sans-serif}
+
+/* v1.23d: GOOD TO KNOW reads as secondary property utility, not another headline module.
+   (.staySection.stayGoodToKnow, not .stayGoodToKnow alone, so this outranks the
+   .staySection + .staySection rhythm rule above regardless of source order.) */
+.staySection.stayGoodToKnow{padding-top:20px;padding-bottom:44px}
+.stayGoodToKnowEyebrow{color:var(--around-muted)}
+.stayGoodToKnow .factsGrid{margin-top:14px}
+.stayGoodToKnow .fact{padding:16px 16px 16px 0}
+.stayGoodToKnow .fact small{opacity:.8}
+.stayGoodToKnow .fact strong{font:500 15px/1.4 Arial,Helvetica,sans-serif}
 
 .stayCourseCard{display:grid;gap:10px}
 .stayCourseDistance{font:800 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:var(--around-muted)}
