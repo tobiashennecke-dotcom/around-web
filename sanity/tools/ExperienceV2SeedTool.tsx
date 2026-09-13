@@ -29,6 +29,10 @@ const COORDINATES_BY_ID: Record<string, {_type:"geopoint"; lat:number; lng:numbe
   [WINKLMOOS_ID]: WINKLMOOS_COORDINATES
 };
 
+function fact(_key: string, label: string, value: string) {
+  return {_type: "fact", _key, label, value};
+}
+
 const schmiedePatch = {
   // Editorial
   theFeel: ["Historic", "Warm", "Characterful", "Social"],
@@ -53,7 +57,12 @@ const schmiedePatch = {
   mealTypes: ["dinner", "drinks"],
   cuisine: ["Grill", "Regional", "International"],
   setting: "Historic house",
-  reservationAdvice: "Für einen bewusst geplanten Dinner-Abend Reservierung empfohlen."
+  reservationAdvice: "Für einen bewusst geplanten Dinner-Abend Reservierung empfohlen.",
+
+  // Reference cleanup (v1.24a.3): the legacy Charakter/Küche/Planung facts are now
+  // fully represented by eatCharacter, cuisine and the planning metadata above -
+  // nothing genuinely additive remains, so the array is intentionally empty.
+  goodToKnow: [] as ReturnType<typeof fact>[]
 };
 
 const winklmoosPatch = {
@@ -76,12 +85,21 @@ const winklmoosPatch = {
   experienceType: "Alpine plateau / Outdoor",
   experienceDurationLabel: "Half day / Full day",
   season: "Year-round · access varies by season",
-  bookingAdvice: "No booking for the plateau itself · check seasonal access separately"
+  bookingAdvice: "No booking for the plateau itself · check seasonal access separately",
+
+  // Reference cleanup (v1.24a.3): the legacy "Planung" fact (Halbtag/Ganztag) now
+  // duplicates experienceDurationLabel/compatibleDayparts, so it's dropped. Höhe and
+  // Charakter stay - altitude and the specific activity list (Wandern/Ski/Dark Sky/
+  // Hütten) aren't represented by experienceType or any other structured field.
+  goodToKnow: [
+    fact("w1", "Höhe", "Almplateau auf rund 1.170 m"),
+    fact("w2", "Charakter", "Wandern · Ski · Dark Sky · Hütten")
+  ]
 };
 
 const PATCHED_FIELD_SUMMARY: Record<string, string> = {
-  [SCHMIEDE_ID]: "Editorial (theFeel, bestFor, aroundMoment, knowBeforeYouGo), Planning (defaultPlanningMode, suggestedDurationMinutes, suggestedDaypart, compatibleDayparts, effortLevel, environment, weatherSensitivity - suggestedTime NOT touched), EAT Details (eatCharacter, mealTypes, cuisine, setting, reservationAdvice), Geo coordinates via setIfMissing, Internal (lastEditorialReviewAt, editorialStatus via setIfMissing).",
-  [WINKLMOOS_ID]: "Editorial (theFeel, bestFor, aroundMoment, knowBeforeYouGo), Planning (defaultPlanningMode, suggestedDurationMinutes, suggestedDaypart, compatibleDayparts, effortLevel, environment, weatherSensitivity - suggestedTime NOT touched), EXPERIENCE Details (experienceType, experienceDurationLabel, season, bookingAdvice), Geo coordinates via setIfMissing, Internal (lastEditorialReviewAt, editorialStatus via setIfMissing)."
+  [SCHMIEDE_ID]: "Editorial (theFeel, bestFor, aroundMoment, knowBeforeYouGo), Planning (defaultPlanningMode, suggestedDurationMinutes, suggestedDaypart, compatibleDayparts, effortLevel, environment, weatherSensitivity - suggestedTime NOT touched), EAT Details (eatCharacter, mealTypes, cuisine, setting, reservationAdvice), goodToKnow cleaned up to [] (Charakter/Küche/Planung now fully covered by structured fields), Geo coordinates via setIfMissing, Internal (lastEditorialReviewAt, editorialStatus via setIfMissing).",
+  [WINKLMOOS_ID]: "Editorial (theFeel, bestFor, aroundMoment, knowBeforeYouGo), Planning (defaultPlanningMode, suggestedDurationMinutes, suggestedDaypart, compatibleDayparts, effortLevel, environment, weatherSensitivity - suggestedTime NOT touched), EXPERIENCE Details (experienceType, experienceDurationLabel, season, bookingAdvice), goodToKnow cleaned up to Höhe + Charakter only (legacy Planung fact removed as duplicate), Geo coordinates via setIfMissing, Internal (lastEditorialReviewAt, editorialStatus via setIfMissing)."
 };
 
 type RunConfig = {
