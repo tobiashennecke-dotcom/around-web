@@ -34,6 +34,11 @@ export type ContentCard = {
   suggestedDurationMinutes?: number;
   suggestedDaypart?: PlanningDaypart;
   suggestedTime?: string;
+  /** Additional Place Intelligence for lib/trip-fit.ts. Absent for content types without it. */
+  compatibleDayparts?: PlanningDaypart[];
+  effortLevel?: EffortLevel;
+  environment?: PlaceEnvironment;
+  weatherSensitivity?: WeatherSensitivity;
   /** Geographic relevance inputs, used by lib/relevance.ts. Absent for content types without a location. */
   destinationId?: string;
   latitude?: number;

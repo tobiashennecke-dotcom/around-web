@@ -3,6 +3,7 @@ import { defineQuery } from "next-sanity";
 const CARD_FIELDS = `
   _id,_type,title,slug,kicker,placeType,featured,aroundSelected,priority,
   defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,
+  compatibleDayparts,effortLevel,environment,weatherSensitivity,
   coordinates,
   "destinationId": destination->_id,
   "summary": coalesce(summary, deck, ""),
