@@ -199,16 +199,23 @@ function buildCandidateEvalContexts(request: SharedRequestFields, prepared: Prep
       aroundSelected: Boolean(doc.aroundSelected)
     };
 
-    // D) distanceToItemKm - only for the same anchor-eligible items whose
-    // coordinates are actually known (all other trip Places for the single-day
-    // path; same-day items only for Best Day - AFTER_GOLF/BEFORE_FIXED_DINNER
-    // only ever look up a same-day fixed point anyway, so unrelated other-day
-    // Place distances are never needed). The candidate's own item is excluded.
+    // D) distanceToItemKm - the engine treats the mere presence of an entry here
+    // as proof of a contextual geo relation to that exact fixed point (AFTER_GOLF/
+    // BEFORE_FIXED_DINNER). A candidate can be globally/day-eligible via one
+    // anchor (e.g. dinner) while genuinely too far from another specific one
+    // (e.g. golf) - so each candidate source is checked individually against
+    // isGeographicallyEligible() with a single-item anchor array (same thresholds,
+    // no duplicated logic) before its distance is ever added. Candidates are drawn
+    // from the same set as before (all other trip Places for the single-day path;
+    // same-day items only for Best Day, since AFTER_GOLF/BEFORE_FIXED_DINNER only
+    // ever look up a same-day fixed point). The candidate's own item is excluded.
     let distanceToItemKm: Record<string, number> | undefined;
     if (typeof doc.coordinates?.lat === "number" && typeof doc.coordinates?.lng === "number") {
       const distanceSourceIds = dayIndex === undefined ? anchorSourceIds : sameDayPlaceIds.filter(sourceId => sourceId !== doc._id && prepared.tripPlaceGeo.has(sourceId));
       for (const sourceId of distanceSourceIds) {
         const geo = prepared.tripPlaceGeo.get(sourceId)!;
+        const singleSourceAnchor: AroundItAnchor = { destinationId: geo.destinationId, latitude: geo.lat, longitude: geo.lng };
+        if (!isGeographicallyEligible([singleSourceAnchor], candidateGeoCandidate)) continue;
         const distance = haversineDistanceKm({ latitude: doc.coordinates.lat, longitude: doc.coordinates.lng }, { latitude: geo.lat, longitude: geo.lng });
         distanceToItemKm ??= {};
         distanceToItemKm[sourceId] = distance;
