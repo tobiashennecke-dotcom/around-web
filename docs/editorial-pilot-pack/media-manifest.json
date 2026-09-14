@@ -1,0 +1,196 @@
+{
+  "version": "0.1",
+  "generatedFor": "AROUND Editorial Pilot Pack v0.1",
+  "policy": "No image was auto-ingested into Sanity for this pilot. An item is only eligible for automatic ingestion once ALL three are true: (1) the source explicitly permits editorial reuse, (2) the exact required credit/photographer is known, (3) the intended use complies with the source's terms. None of the candidates below currently satisfy all three with full confidence, so every item is 'permission_required' or 'placeholder_only'. See README.md for the full reasoning per source.",
+  "items": [
+    {
+      "storyId": "around-story-soma-bay-worth-the-trip",
+      "role": "hero",
+      "sourceUrl": "https://somabaygolf.com/Gallery",
+      "credit": "Somabay Golf (official course gallery) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://somabaygolf.com/",
+      "notes": "Official course gallery, used here only as a sourcing reference. No explicit press/editorial reuse grant found on-site. Contact Somabay Golf for a licensed hero image of the Gary Player Championship Course (desert + Red Sea contrast) before uploading."
+    },
+    {
+      "storyId": "around-story-soma-bay-worth-the-trip",
+      "role": "gallery",
+      "sourceUrl": "https://somabaygolf.com/Gallery",
+      "credit": "Somabay Golf (official course gallery) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://somabaygolf.com/",
+      "notes": "Candidate: a hole running along the Red Sea coastline (course + water in one frame)."
+    },
+    {
+      "storyId": "around-story-soma-bay-worth-the-trip",
+      "role": "gallery",
+      "sourceUrl": "https://somabay.com/explore-somabay/cascades/",
+      "credit": "Somabay / The Cascades — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://somabay.com/",
+      "notes": "Candidate: The Cascades hotel exterior/pool, to caption honestly as 'The Cascades' only if the image actually shows that property."
+    },
+    {
+      "storyId": "around-story-soma-bay-worth-the-trip",
+      "role": "inline",
+      "sourceUrl": "https://somabaygolf.com/",
+      "credit": "Somabay Golf — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://somabaygolf.com/",
+      "notes": "Candidate: driving range / short game arena, to illustrate the practice-facility paragraph."
+    },
+    {
+      "storyId": "around-story-soma-bay-after-18",
+      "role": "hero",
+      "sourceUrl": "https://somabay.com/",
+      "credit": "Somabay — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://somabay.com/",
+      "notes": "Candidate: Red Sea water / house reef context, distinct from Story 1's golf-course hero so the two pieces don't share imagery."
+    },
+    {
+      "storyId": "around-story-soma-bay-after-18",
+      "role": "gallery",
+      "sourceUrl": "https://somabay.com/",
+      "credit": "Somabay — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://somabay.com/",
+      "notes": "Candidate: diving/house reef imagery (Orca Diving is the named operator in the Story text)."
+    },
+    {
+      "storyId": "around-story-soma-bay-after-18",
+      "role": "gallery",
+      "sourceUrl": "https://somabay.com/",
+      "credit": "Somabay — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://somabay.com/",
+      "notes": "Candidate: kitesurfing on the peninsula (7BFT Kite House / Duotone Kiteboarding)."
+    },
+    {
+      "storyId": "around-story-soma-bay-after-18",
+      "role": "gallery",
+      "sourceUrl": "https://somabay.com/",
+      "credit": "Somabay — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://somabay.com/",
+      "notes": "Candidate: Thalasso spa interior, to illustrate the 'spa instead of another round' section."
+    },
+    {
+      "storyId": "around-story-postwirt-soell",
+      "role": "hero",
+      "sourceUrl": "https://www.derpostwirt.at/bildergalerie",
+      "credit": "Der Postwirt (official gallery) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.derpostwirt.at/",
+      "notes": "Official hotel gallery, used only as a sourcing reference. No explicit press/editorial reuse grant found on-site. Contact Familie Bliem / Der Postwirt directly for a licensed exterior or historic-building hero image."
+    },
+    {
+      "storyId": "around-story-postwirt-soell",
+      "role": "gallery",
+      "sourceUrl": "https://www.derpostwirt.at/bildergalerie",
+      "credit": "Der Postwirt (official gallery) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.derpostwirt.at/",
+      "notes": "Candidate: the Adults-only Panorama Spa / Infinity Sunset Pool, added in the 2020 expansion."
+    },
+    {
+      "storyId": "around-story-postwirt-soell",
+      "role": "gallery",
+      "sourceUrl": "https://www.derpostwirt.at/bildergalerie",
+      "credit": "Der Postwirt (official gallery) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.derpostwirt.at/",
+      "notes": "Candidate: a room/suite interior, natural materials and alpine design."
+    },
+    {
+      "storyId": "around-story-postwirt-soell",
+      "role": "inline",
+      "sourceUrl": "https://www.wilderkaiser.info/en/soell/",
+      "credit": "Wilder Kaiser regional tourism board — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.wilderkaiser.info/",
+      "notes": "Regional context image only (Wilder Kaiser peaks/alpine meadows). If used, caption as 'Wilder Kaiser / regional context', never as if it depicts Der Postwirt itself, unless verified."
+    },
+    {
+      "storyId": "around-story-west-cliffs-course-correction",
+      "role": "hero",
+      "sourceUrl": "https://westcliffs.com/en/gallery/",
+      "credit": "West Cliffs (official gallery) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://westcliffs.com/en/west-cliffs-golf-course/",
+      "notes": "Official course gallery, used only as a sourcing reference. No explicit press/editorial reuse grant found on-site. Contact West Cliffs / Praia D'El Rey Golf & Beach Resort for a licensed hero image showing the dune/pine/Atlantic landscape."
+    },
+    {
+      "storyId": "around-story-west-cliffs-course-correction",
+      "role": "gallery",
+      "sourceUrl": "https://westcliffs.com/en/gallery/",
+      "credit": "West Cliffs (official gallery) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://westcliffs.com/en/west-cliffs-golf-course/",
+      "notes": "Candidate: a hole framed by native dune vegetation, to illustrate the 'restraint' argument."
+    },
+    {
+      "storyId": "around-story-west-cliffs-course-correction",
+      "role": "gallery",
+      "sourceUrl": "https://westcliffs.com/en/gallery/",
+      "credit": "West Cliffs (official gallery) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://westcliffs.com/en/west-cliffs-golf-course/",
+      "notes": "Candidate: an aerial/wide shot showing the Atlantic coastline behind the course."
+    },
+    {
+      "storyId": "around-story-estonia-48-hours",
+      "role": "hero",
+      "sourceUrl": "https://visitestonia.com/en/media",
+      "credit": "Visit Estonia / Enterprise Estonia (EAS) — specific photographer to be confirmed per asset",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://visitestonia.com/en/media",
+      "notes": "Visit Estonia's media centre states assets 'can be used to promote Estonia' with required credit to author + Visit Estonia, but forbids use 'in advertising campaigns and marketing activities that are directed to sell a certain product or service'. Given AROUND's Trip/booking features, confirm applicability with brand@estonia.ee before use, and pick one concrete asset with its named photographer before ingesting. Most promising path of all five sources for a fast, real clearance."
+    },
+    {
+      "storyId": "around-story-estonia-48-hours",
+      "role": "gallery",
+      "sourceUrl": "https://visitestonia.com/en/traveltrade/estonia-photo-gallery",
+      "credit": "Visit Estonia — specific photographer to be confirmed per asset",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://visitestonia.com/en/media",
+      "notes": "Candidate: Tallinn Old Town (medieval streets / city walls)."
+    },
+    {
+      "storyId": "around-story-estonia-48-hours",
+      "role": "gallery",
+      "sourceUrl": "https://visitestonia.com/en/traveltrade/estonia-photo-gallery",
+      "credit": "Visit Estonia — specific photographer to be confirmed per asset",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://visitestonia.com/en/media",
+      "notes": "Candidate: Pärnu beach / seafront, to illustrate the 'Summer Capital' section."
+    },
+    {
+      "storyId": "around-story-estonia-48-hours",
+      "role": "gallery",
+      "sourceUrl": "https://visitestonia.com/en/parnu-bay-golf-links",
+      "credit": "Visit Estonia / Pärnu Bay Golf Links — specific photographer to be confirmed per asset",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://visitestonia.com/en/media",
+      "notes": "Candidate: Pärnu Bay Golf Links clubhouse or a links hole, ideally sourced directly from parnubay.com if they hold their own rights-cleared photography."
+    },
+    {
+      "storyId": "around-story-estonia-48-hours",
+      "role": "inline",
+      "sourceUrl": "https://visitestonia.com/en/traveltrade/estonia-photo-gallery",
+      "credit": "Visit Estonia — specific photographer to be confirmed per asset",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://visitestonia.com/en/media",
+      "notes": "Candidate: the road/coastal landscape between Tallinn and Pärnu, for the '128 kilometers south' section."
+    },
+    {
+      "storyId": "around-story-manifest-golf-is-where-it-starts",
+      "role": "hero",
+      "sourceUrl": null,
+      "credit": null,
+      "rightsStatus": "placeholder_only",
+      "termsUrl": null,
+      "notes": "The Manifest is AROUND's own editorial voice piece, not tied to one operator's property. Recommend original AROUND photography (matching the credit convention already used for Reit im Winkl, e.g. 'Tobias Hennecke') rather than sourcing third-party imagery for the flagship brand piece. No external candidate is proposed here on purpose."
+    }
+  ]
+}

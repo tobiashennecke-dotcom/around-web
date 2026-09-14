@@ -9,6 +9,7 @@ import { BayernSeedTool } from "./sanity/tools/BayernSeedTool";
 import { PlayV2SeedTool } from "./sanity/tools/PlayV2SeedTool";
 import { StayV2SeedTool } from "./sanity/tools/StayV2SeedTool";
 import { ExperienceV2SeedTool } from "./sanity/tools/ExperienceV2SeedTool";
+import { EditorialPilotSeedTool } from "./sanity/tools/EditorialPilotSeedTool";
 
 export default defineConfig({
   name: "around",
@@ -32,7 +33,8 @@ export default defineConfig({
     { name: "reit-winkl-seed", title: "Reit im Winkl Seed 02", component: ReitWinklSeedTool },
     { name: "play-v2-seed", title: "PLAY V2 Seed", component: PlayV2SeedTool },
     { name: "stay-v2-seed", title: "STAY V2 Seed", component: StayV2SeedTool },
-    { name: "experience-v2-seed", title: "EXPERIENCE V2 Seed", component: ExperienceV2SeedTool }
+    { name: "experience-v2-seed", title: "EXPERIENCE V2 Seed", component: ExperienceV2SeedTool },
+    { name: "editorial-pilot-pack-seed", title: "Editorial Pilot Pack v0.1", component: EditorialPilotSeedTool }
   ],
   schema: { types: schemaTypes }
 });
