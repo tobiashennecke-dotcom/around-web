@@ -2061,6 +2061,13 @@ img{display:block;max-width:100%}
 .aroundCheckMove{border:0;background:transparent;padding:0;color:var(--around-blue);font:800 8px/1 Arial,Helvetica,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .aroundCheckMove:hover{color:var(--around-ink)}
 
+/* AROUND v1.24f — Unplanned Smart Add: same positive lime language as AROUND
+   FIT (not the blue Conflict styling) - this is a suggestion, not a warning. */
+.aroundFitHint--suggest strong{width:100%}
+.aroundFitDay{color:rgba(33,35,34,.55);font-weight:700}
+.aroundSuggestAdd{border:0;background:transparent;padding:0;color:var(--around-ink);font:800 8px/1 Arial,Helvetica,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:underline;text-decoration-color:var(--around-lime);text-decoration-thickness:2px;text-underline-offset:3px;cursor:pointer}
+.aroundSuggestAdd:hover{opacity:.7}
+
 /* AROUND v1.24d — Best Day: "BEST ON DAY X" is readable but secondary to the
    context label itself (muted vs. the ink-solid context strong). */
 .tripQuickAddFitDay{color:rgba(33,35,34,.55);font-weight:700}

@@ -381,11 +381,12 @@ export function TripDetailClient({ id }: { id: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripIntelligenceKey, trip?.destinationSourceId]);
 
-  // Conflict Intelligence V0: ONE additional Best Day batch for every assigned
-  // regular Place item (not just currently-ineligible ones - simpler than a
-  // follow-up request, and still a single call). TripItemRow decides per-item
-  // whether this is actually an actionable conflict resolution (current fit
-  // ineligible + this Best Day eligible on a different day) or just unused data.
+  // Best Day batch: every regular Place item, both assigned AND unplanned
+  // (NOCH OFFEN) - one shared request, not a follow-up. TripItemRow decides per
+  // item which of three states this data means: an assigned item's ineligible
+  // current fit + this Best Day eligible elsewhere is a MOVE conflict
+  // resolution; an unplanned item's eligible Best Day is a SUGGESTS placement;
+  // an assigned+eligible item just keeps its existing AROUND FIT.
   useEffect(() => {
     if (!trip || dayCount <= 0) {
       setBestDayResults({});
@@ -393,7 +394,7 @@ export function TripDetailClient({ id }: { id: string }) {
     }
 
     const placeItems = trip.items.filter(
-      item => item.sourceType === "place" && normalizeContentRole(item.sourceRole) !== "stay" && item.dayIndex !== undefined
+      item => item.sourceType === "place" && normalizeContentRole(item.sourceRole) !== "stay"
     );
     if (!placeItems.length) {
       setBestDayResults({});
@@ -1143,6 +1144,13 @@ function TripItemRow({
       ? formatBlockerLabel(tripFitResult.blockerCodes)
       : undefined;
   const conflictTargetDayIndex = conflictLabel ? bestDayResult!.dayIndex : undefined;
+  // Unplanned Smart Add: a NOCH OFFEN item (no current day, so no current-day
+  // AROUND FIT is possible at all) with an eligible Best Day gets a placement
+  // suggestion instead. Three distinct states, never mixed: assigned+eligible
+  // stays AROUND FIT, assigned+ineligible+resolvable is AROUND CHECK above, and
+  // this is unplanned+eligible only.
+  const suggestLabel = dayIndex === undefined && bestDayResult?.fit.eligible ? formatTripFitLabel(bestDayResult.fit) : undefined;
+  const suggestTargetDayIndex = suggestLabel ? bestDayResult!.dayIndex : undefined;
   const [note, setNote] = useState(item.note || "");
   const type = plannerType(item);
   const itemSlot = (item.slot || "flex") as TripSlot;
@@ -1221,6 +1229,20 @@ function TripItemRow({
               // Planner mutation path as the "Tag" selector below).
               onClick={() => void onChange(item.sourceId, { dayIndex: conflictTargetDayIndex })}
             >MOVE TO DAY {conflictTargetDayIndex + 1} →</button>
+          </div>
+        ) : suggestLabel && suggestTargetDayIndex !== undefined ? (
+          <div className="aroundFitHint aroundFitHint--suggest">
+            <b>AROUND SUGGESTS</b>
+            <span className="aroundFitDay">BEST ON DAY {suggestTargetDayIndex + 1}</span>
+            <strong>{suggestLabel}</strong>
+            <button
+              type="button"
+              className="aroundSuggestAdd"
+              // Only assigns the day - fixedTime, duration, isFixed, bookingState
+              // and slot are all preserved exactly as they are (same mutation
+              // path as the "Tag" selector below and the MOVE action above).
+              onClick={() => void onChange(item.sourceId, { dayIndex: suggestTargetDayIndex })}
+            >ADD TO DAY {suggestTargetDayIndex + 1} →</button>
           </div>
         ) : null}
       </div>
