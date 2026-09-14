@@ -270,6 +270,27 @@ function matchDaypartForSlot(slot: { startMinutes: number; endMinutes: number },
   return null;
 }
 
+/**
+ * Explicit-time fallback, used only when no allowed daypart fully contains the
+ * whole slot (matchDaypartForSlot found nothing) - e.g. a real 08:30 tee time
+ * whose 270-minute round runs past "morning"'s 11:30 end. A known ACTUAL start
+ * time can still validate the daypart on its own: if the start itself falls
+ * inside an allowed window, that daypart is a valid match even though the full
+ * activity extends beyond it. Never used when no explicit time is known (the
+ * search path always requires full-slot containment via findQualifyingSlot).
+ * Prefers candidate.suggestedDaypart when it's among the matches, so an
+ * overlapping-window start time doesn't get an arbitrary classification.
+ */
+function matchDaypartForStartTime(startMinutes: number, dayparts: TripFitDaypart[], preferredDaypart: TripFitDaypart | undefined): TripFitDaypart | null {
+  const matches = dayparts.filter(daypart => {
+    const range = DAYPART_WINDOWS[daypart];
+    return startMinutes >= range.start && startMinutes <= range.end;
+  });
+  if (!matches.length) return null;
+  if (preferredDaypart && matches.includes(preferredDaypart)) return preferredDaypart;
+  return matches[0];
+}
+
 // ---------------------------------------------------------------------------
 // Context detection (after_golf / before_dinner)
 // ---------------------------------------------------------------------------
@@ -414,7 +435,13 @@ export function evaluateTripFit(input: TripFitInput): TripFitResult {
     if (!containingWindow) {
       return emptyResult(["TIME_CONFLICT"]);
     }
-    const daypartMatch = matchDaypartForSlot({ startMinutes: candidateStartMinutes, endMinutes: slotEnd }, dayparts);
+    // Full-slot containment is still the first choice (e.g. Winklmoos 14:00-18:00
+    // matching "afternoon" exactly). Only when that finds nothing does an actual
+    // start time get to validate the daypart on its own - never for the search
+    // path below, which always requires the whole chosen slot to fit.
+    const daypartMatch =
+      matchDaypartForSlot({ startMinutes: candidateStartMinutes, endMinutes: slotEnd }, dayparts) ??
+      matchDaypartForStartTime(candidateStartMinutes, dayparts, candidate.suggestedDaypart);
     if (dayparts.length && !daypartMatch) {
       return emptyResult(["DAYPART_MISMATCH"]);
     }
