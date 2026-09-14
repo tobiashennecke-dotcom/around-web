@@ -17,6 +17,8 @@ import {
   type UserTrip
 } from "@/lib/supabase/trips";
 import { formatTripFitLabel, type TripFitResult } from "@/lib/trip-fit";
+import type { TripBestDayResult } from "@/lib/trip-fit-adapter";
+import { formatBlockerLabel } from "@/lib/trip-conflict";
 
 const slotLabels: Record<TripSlot, string> = {
   flex: "Flexibel",
@@ -251,6 +253,7 @@ export function TripDetailClient({ id }: { id: string }) {
     | null
   >(null);
   const [tripFitResults, setTripFitResults] = useState<Record<string, TripFitResult>>({});
+  const [bestDayResults, setBestDayResults] = useState<Record<string, TripBestDayResult>>({});
   const autosaveReady = useRef(false);
 
   async function load() {
@@ -375,6 +378,76 @@ export function TripDetailClient({ id }: { id: string }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripFitItemsKey]);
+
+  // Conflict Intelligence V0: ONE additional Best Day batch for every assigned
+  // regular Place item (not just currently-ineligible ones - simpler than a
+  // follow-up request, and still a single call). TripItemRow decides per-item
+  // whether this is actually an actionable conflict resolution (current fit
+  // ineligible + this Best Day eligible on a different day) or just unused data.
+  useEffect(() => {
+    if (!trip || dayCount <= 0) {
+      setBestDayResults({});
+      return;
+    }
+
+    const placeItems = trip.items.filter(
+      item => item.sourceType === "place" && normalizeContentRole(item.sourceRole) !== "stay" && item.dayIndex !== undefined
+    );
+    if (!placeItems.length) {
+      setBestDayResults({});
+      return;
+    }
+
+    let cancelled = false;
+    const candidateStartTimes: Record<string, string> = {};
+    const candidateDurationMinutes: Record<string, number> = {};
+    for (const item of placeItems) {
+      // Actual fixedTime only - never 09:00/14:00/19:00 role defaults or suggestedTime.
+      if (item.isFixed && item.fixedTime) candidateStartTimes[item.sourceId] = item.fixedTime;
+      if (typeof item.durationMinutes === "number" && item.durationMinutes > 0) {
+        candidateDurationMinutes[item.sourceId] = item.durationMinutes;
+      }
+    }
+    const tripItemsPayload = trip.items.map(item => ({
+      sourceId: item.sourceId,
+      sourceType: item.sourceType,
+      sourceRole: item.sourceRole,
+      dayIndex: item.dayIndex,
+      isFixed: item.isFixed,
+      fixedTime: item.fixedTime,
+      durationMinutes: item.durationMinutes
+    }));
+    const tripDestinationId = trip.destinationSourceId;
+
+    (async () => {
+      try {
+        const response = await fetch("/api/trip-fit/best-day", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            candidateIds: placeItems.map(item => item.sourceId),
+            dayIndexes: Array.from({ length: dayCount }, (_, index) => index),
+            tripItems: tripItemsPayload,
+            tripDestinationId,
+            candidateStartTimes: Object.keys(candidateStartTimes).length ? candidateStartTimes : undefined,
+            candidateDurationMinutes: Object.keys(candidateDurationMinutes).length ? candidateDurationMinutes : undefined
+          })
+        });
+        if (cancelled) return;
+        const data = await response.json();
+        if (cancelled) return;
+        setBestDayResults(data?.results && typeof data.results === "object" ? data.results : {});
+      } catch {
+        // Best Day must never break the Planner - simply no Conflict Intelligence.
+        if (!cancelled) setBestDayResults({});
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tripFitItemsKey, dayCount, trip?.destinationSourceId]);
 
   useEffect(() => {
     if (!autosaveReady.current || !trip || loading || savingMeta || !title.trim()) return;
@@ -720,6 +793,7 @@ export function TripDetailClient({ id }: { id: string }) {
               isOpen
               isDragTarget={dragTargetDay === "open"}
               tripFitResults={tripFitResults}
+              bestDayResults={bestDayResults}
               onChange={changeItem}
               onRemove={remove}
               onMove={moveItem}
@@ -743,6 +817,7 @@ export function TripDetailClient({ id }: { id: string }) {
               dayCount={dayCount}
               isDragTarget={dragTargetDay === day.dayIndex}
               tripFitResults={tripFitResults}
+              bestDayResults={bestDayResults}
               onChange={changeItem}
               onRemove={remove}
               onMove={moveItem}
@@ -959,6 +1034,7 @@ function TripDayBlock({
   isOpen = false,
   isDragTarget,
   tripFitResults,
+  bestDayResults,
   onChange,
   onRemove,
   onMove,
@@ -978,6 +1054,7 @@ function TripDayBlock({
   isOpen?: boolean;
   isDragTarget: boolean;
   tripFitResults: Record<string, TripFitResult>;
+  bestDayResults: Record<string, TripBestDayResult>;
   onChange: (sourceId: string, patch: TripItemPatch) => Promise<void>;
   onRemove: (sourceId: string) => Promise<void>;
   onMove: (sourceId: string, currentDay: number | undefined, direction: -1 | 1) => Promise<void>;
@@ -1011,6 +1088,7 @@ function TripDayBlock({
               dayIndex={dayIndex}
               dayCount={dayCount}
               tripFitResult={tripFitResults[item.sourceId]}
+              bestDayResult={bestDayResults[item.sourceId]}
               onChange={onChange}
               onRemove={onRemove}
               onMove={onMove}
@@ -1034,6 +1112,7 @@ function TripItemRow({
   dayIndex,
   dayCount,
   tripFitResult,
+  bestDayResult,
   onChange,
   onRemove,
   onMove,
@@ -1044,6 +1123,7 @@ function TripItemRow({
   dayIndex: number | undefined;
   dayCount: number;
   tripFitResult?: TripFitResult;
+  bestDayResult?: TripBestDayResult;
   onChange: (sourceId: string, patch: TripItemPatch) => Promise<void>;
   onRemove: (sourceId: string) => Promise<void>;
   onMove: (sourceId: string, currentDay: number | undefined, direction: -1 | 1) => Promise<void>;
@@ -1051,6 +1131,16 @@ function TripItemRow({
   onDragEnd: () => void;
 }) {
   const fitLabel = tripFitResult?.eligible ? formatTripFitLabel(tripFitResult) : undefined;
+  // Conflict Intelligence V0: solution-oriented only. An ineligible current fit
+  // only gets a panel when a DIFFERENT day is a verified (engine-eligible)
+  // resolution - otherwise the existing Planner UI stays exactly as it is, no
+  // new warning wall. ALREADY_IN_TRIP is structurally impossible here (the
+  // adapter always excludes this item's own TripItem before evaluating it).
+  const conflictLabel =
+    tripFitResult && !tripFitResult.eligible && bestDayResult?.fit.eligible && bestDayResult.dayIndex !== dayIndex
+      ? formatBlockerLabel(tripFitResult.blockerCodes)
+      : undefined;
+  const conflictTargetDayIndex = conflictLabel ? bestDayResult!.dayIndex : undefined;
   const [note, setNote] = useState(item.note || "");
   const type = plannerType(item);
   const itemSlot = (item.slot || "flex") as TripSlot;
@@ -1116,6 +1206,19 @@ function TripItemRow({
           <div className="aroundFitHint">
             <b>AROUND FIT</b>
             <strong>{fitLabel}</strong>
+          </div>
+        ) : conflictLabel && conflictTargetDayIndex !== undefined ? (
+          <div className="aroundCheckHint">
+            <b>AROUND CHECK</b>
+            <strong>{conflictLabel}</strong>
+            <button
+              type="button"
+              className="aroundCheckMove"
+              // Only the day changes - fixedTime, duration, isFixed, bookingState
+              // and slot are all preserved exactly as they are (reuses the same
+              // Planner mutation path as the "Tag" selector below).
+              onClick={() => void onChange(item.sourceId, { dayIndex: conflictTargetDayIndex })}
+            >MOVE TO DAY {conflictTargetDayIndex + 1} →</button>
           </div>
         ) : null}
       </div>

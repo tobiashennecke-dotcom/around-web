@@ -2052,6 +2052,15 @@ img{display:block;max-width:100%}
 .tripQuickAddFitHint b,.aroundFitHint b{color:var(--around-lime);background:color-mix(in srgb,var(--around-ink) 92%,transparent)}
 .tripQuickAddFitHint strong,.aroundFitHint strong{color:var(--around-ink);font-weight:800}
 
+/* AROUND v1.24e — Conflict Intelligence: guidance, not an alarm. Blue accent
+   (not red), same compact structure as AROUND FIT so it never makes the row
+   dramatically taller - editorial/utility tone, not an error state. */
+.aroundCheckHint{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px;padding-left:9px;border-left:2px solid var(--around-blue)}
+.aroundCheckHint b{color:var(--around-blue);font:800 8px/1 Arial,Helvetica,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.aroundCheckHint strong{color:var(--around-ink);font:800 8px/1 Arial,Helvetica,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.aroundCheckMove{border:0;background:transparent;padding:0;color:var(--around-blue);font:800 8px/1 Arial,Helvetica,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.aroundCheckMove:hover{color:var(--around-ink)}
+
 /* AROUND v1.24d — Best Day: "BEST ON DAY X" is readable but secondary to the
    context label itself (muted vs. the ink-solid context strong). */
 .tripQuickAddFitDay{color:rgba(33,35,34,.55);font-weight:700}
