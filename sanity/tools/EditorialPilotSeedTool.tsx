@@ -72,6 +72,14 @@ function slugOf(current: string) {
   return {_type: "slug", current};
 }
 
+function fact(label: string, value: string) {
+  return {_type: "fact", _key: nextKey("f"), label, value};
+}
+
+function geo(lat: number, lng: number) {
+  return {_type: "geopoint", lat, lng};
+}
+
 // ============================================================
 // DESTINATIONS — minimal graph/reference objects
 // ============================================================
@@ -85,7 +93,9 @@ const destinations = [
     kicker: "EGYPT / RED SEA",
     summary: "Eine Halbinsel am Roten Meer, auf der Wüste, Golf, Tauchen und Kitesurfen aufeinandertreffen.",
     country: "Egypt",
-    coordinates: {_type: "geopoint", lat: 26.8456, lng: 33.9711},
+    coordinates: geo(26.8456, 33.9711),
+    whyGo: "Weil hier Wüste und Rotes Meer auf einer einzigen Halbinsel aufeinandertreffen – und Golf nur einer von mehreren guten Gründen ist, zu bleiben.",
+    aroundTake: "Eine Destination, die nicht nur einen Golfplatz anbietet, sondern eine ganze Halbinsel aus Kontrasten: Wüste, Meer, Tauchen, Wind und Ruhe in unmittelbarer Nähe zueinander.",
     bestFor: ["Golf & Meer", "Tauchen", "Kitesurfen"],
     featured: false,
     aroundSelected: false,
@@ -99,7 +109,9 @@ const destinations = [
     kicker: "TIROL / AUSTRIA",
     summary: "Ein Dorf vor der Kulisse des Wilder Kaiser – schroffe Gipfel auf der einen, sanfte Almwiesen auf der anderen Seite.",
     country: "Austria",
-    coordinates: {_type: "geopoint", lat: 47.50361, lng: 12.19194},
+    coordinates: geo(47.50361, 12.19194),
+    whyGo: "Weil ein Dorf vor der Kulisse des Wilder Kaiser mehr zu bieten hat als Après-Ski – schroffe Gipfel auf der einen, sanfte Almwiesen auf der anderen Seite desselben Gebirgszugs.",
+    aroundTake: "Ein Basecamp muss nicht abgelegen sein, um zu funktionieren. Söll zeigt, dass die Mitte eines echten Dorfes oft der bessere Ausgangspunkt ist.",
     bestFor: ["Alpine Basecamps", "Familie", "Wandern"],
     featured: false,
     aroundSelected: false,
@@ -113,7 +125,9 @@ const destinations = [
     kicker: "PORTUGAL / COSTA DE PRATA",
     summary: "Atlantikküste nördlich von Lissabon, geprägt von Dünen, Kiefernwäldern und Linksgolf.",
     country: "Portugal",
-    coordinates: {_type: "geopoint", lat: 39.35806, lng: -9.15778},
+    coordinates: geo(39.35806, -9.15778),
+    whyGo: "Weil an dieser Atlantikküste nördlich von Lissabon Golfarchitektur entstanden ist, die sich der Landschaft unterordnet statt sie zu dominieren.",
+    aroundTake: "Dünen, Kiefern und Atlantik – eine Küste, an der Zurückhaltung im Design zum eigentlichen Argument geworden ist.",
     bestFor: ["Links Golf", "Atlantik", "Golfarchitektur"],
     featured: false,
     aroundSelected: false,
@@ -127,7 +141,9 @@ const destinations = [
     kicker: "ESTONIA",
     summary: "Mittelalterliche Altstadt an der Ostsee – UNESCO-Welterbe und Ausgangspunkt Richtung Pärnu.",
     country: "Estonia",
-    coordinates: {_type: "geopoint", lat: 59.4370, lng: 24.7536},
+    coordinates: geo(59.4370, 24.7536),
+    whyGo: "Weil eine der am besten erhaltenen mittelalterlichen Altstädte Nordeuropas der ungewöhnlichste Ausgangspunkt für eine Golfreise im Baltikum ist.",
+    aroundTake: "Eine Stadt, die zeigt, dass eine Golfreise nicht am Flughafen beginnen muss, sondern in einer Altstadt, die seit 1997 UNESCO-Welterbe ist.",
     bestFor: ["City & Golf", "Kultur", "Roadtrip"],
     featured: false,
     aroundSelected: false,
@@ -141,7 +157,9 @@ const destinations = [
     kicker: "ESTONIA",
     summary: "Estlands Sommerhauptstadt: Bäderkultur seit 1838, Sandstrand und Linksgolf vor der Küste.",
     country: "Estonia",
-    coordinates: {_type: "geopoint", lat: 58.3859, lng: 24.4971},
+    coordinates: geo(58.3859, 24.4971),
+    whyGo: "Weil Estlands Sommerhauptstadt eine fast 200 Jahre alte Bäderkultur mit Sandstrand und einem echten Linkskurs vor der Küste verbindet.",
+    aroundTake: "Der Ort, an dem sich ein Golftrip vom reinen Programm in echten Urlaub verwandelt.",
     bestFor: ["Links Golf", "Spa", "Roadtrip"],
     featured: false,
     aroundSelected: false,
@@ -165,6 +183,14 @@ const places = [
     destination: ref(DEST.somaBay),
     address: "Soma Bay, Red Sea Governorate, Egypt",
     website: "https://somabaygolf.com/",
+    whyWeLikeIt: "Sechs Bahnen verlaufen direkt an der Küste des Roten Meeres, der Rest schneidet sich durch Wüstenterrain vor einer Bergkulisse. Kaum ein Platz wechselt seinen Charakter von Bahn zu Bahn so deutlich.",
+    aroundTake: "Golf als Bühne für einen Landschaftskontrast, den man sonst nirgends auf derselben Runde bekommt – Wüste und Meer, ohne dass eines das andere dominiert.",
+    holes: 18,
+    par: 72,
+    courseCharacter: "Wüste trifft Rotes Meer",
+    season: "Ganzjährig bespielbar",
+    // Coordinates intentionally omitted: no confidently precise, course-specific
+    // pin found distinct from the general Soma Bay area - see README.
     featured: false,
     aroundSelected: false,
     priority: 55
@@ -179,6 +205,15 @@ const places = [
     placeType: "stay",
     destination: ref(DEST.somaBay),
     website: "https://thecascadeshotel.com/",
+    whyWeLikeIt: "The Cascades liegt am höchsten Punkt der Soma-Bay-Halbinsel, mit direktem Blick auf den hauseigenen Golfplatz und das Rote Meer dahinter – ein Haus, das seine Lage konsequent nutzt.",
+    aroundTake: "Ein Hotel, das seinen eigenen Golfplatz nicht nur anbietet, sondern von der besten Position der Halbinsel aus zeigt.",
+    stayCharacter: "Golf Resort & Spa",
+    goodToKnow: [
+      fact("Zimmer", "166 Zimmer"),
+      fact("Lage", "Höchster Punkt der Soma-Bay-Halbinsel"),
+      fact("Golf", "Direkter Zugang zum Gary Player Championship Course")
+    ],
+    // Coordinates intentionally omitted - see note on Somabay Golf above.
     featured: false,
     aroundSelected: false,
     priority: 50
@@ -194,6 +229,16 @@ const places = [
     destination: ref(DEST.soell),
     address: "Dorf 82, 6306 Söll, Austria",
     website: "https://www.derpostwirt.at/",
+    whyWeLikeIt: "Der Postwirt liegt nicht am Ortsrand, sondern mitten in Söll – ein Haus, das seit 1281 dokumentiert ist und heute als modernes Wellnesshotel geführt wird, ohne seine Geschichte zu verstecken.",
+    aroundTake: "Der Beweis, dass ein gutes Basecamp nicht abgelegen sein muss: mitten im Dorf, mit direktem Zugang zu echtem Alltag statt einer isolierten Anlage.",
+    stayCharacter: "Traditionshaus im Ortskern",
+    goodToKnow: [
+      fact("Geschichte", "Urkundlich erstmals 1281 erwähnt"),
+      fact("Familie", "Geführt von Familie Bliem"),
+      fact("Spa", "Adults-only Panorama-Spa mit Infinity Sunset Pool")
+    ],
+    // Coordinates intentionally omitted: no confidently precise pin found for
+    // this address beyond the village-level location - see README.
     featured: false,
     aroundSelected: false,
     priority: 55
@@ -209,6 +254,12 @@ const places = [
     destination: ref(DEST.silverCoast),
     address: "Estrada do Rio Cortiço, Vau, 2510 Óbidos, Portugal",
     website: "https://westcliffs.com/en/west-cliffs-golf-course/",
+    whyWeLikeIt: "West Cliffs verändert kaum das vorgefundene Gelände: Dünen, Küstenvegetation und Kiefern blieben erhalten, statt einer Landschaft eine fremde Form aufzuzwingen.",
+    aroundTake: "Ein Platz, der aussieht, als hätte es ihn schon immer gegeben – und genau deshalb zu den bemerkenswertesten Neubauten der letzten Jahre in Europa zählt.",
+    holes: 18,
+    par: 72,
+    courseCharacter: "Dünen-Links am Atlantik",
+    coordinates: geo(39.41708, -9.24097),
     featured: false,
     aroundSelected: false,
     priority: 55
@@ -224,6 +275,13 @@ const places = [
     destination: ref(DEST.parnu),
     address: "Klubi tee 1, Reiu, Häädemeeste vald, Pärnu County, Estonia",
     website: "https://parnubay.com/",
+    whyWeLikeIt: "Der erste echte Linkskurs der baltischen Staaten, entworfen von Lassi Pekka Tilander mit Mick McShane als leitendem Shaper – direkt an der Bucht von Pärnu, ergänzt um fünf zusätzliche Par-3-Bahnen.",
+    aroundTake: "Ein Linkskurs, der in seiner eigenen Region ohne Vergleich ist – und genau deshalb Estland zu einer echten golferischen Entdeckung macht.",
+    holes: 18,
+    par: 72,
+    courseCharacter: "Erster Linkskurs des Baltikums",
+    season: "April–Oktober (Winter nur nach Vereinbarung)",
+    coordinates: geo(58.331308, 24.582076),
     featured: false,
     aroundSelected: false,
     priority: 55
@@ -242,7 +300,7 @@ const storySomaBayWorthTheTrip = {
   format: "worth-the-trip",
   kicker: "EGYPT / RED SEA",
   deck: "Ein Golfplatz zwischen Wüste und Meer – und warum Soma Bay als Destination mehr kann als eine einzelne Runde.",
-  publishedAt: "2026-02-03T08:00:00.000Z",
+  publishedAt: "2026-09-04T08:00:00.000Z",
   readingTime: 4,
   featured: false,
   aroundSelected: false,
@@ -255,9 +313,9 @@ const storySomaBayWorthTheTrip = {
     block("EIN PLATZ VON GARY PLAYER, SECHS BAHNEN AM MEER", "h2"),
     block("Der Gary Player Championship Course liegt auf einer Halbinsel rund 45 Kilometer südlich des Flughafens Hurghada. 18 Bahnen, Par 72, entworfen von Gary Player – und mit sechs Löchern, die direkt an der Küste des Roten Meeres verlaufen. Der Platz schlängelt sich durch Wüstenterrain, vorbei an Bergkulissen im Hintergrund und immer wieder mit direktem Blick auf das Wasser. Auf der eigenen Website wird der Platz gern mit Pebble Beach verglichen – ein großer Vergleich, aber einer, der zumindest die Idee richtig trifft: Golf als Bühne für Landschaft, nicht als Ablenkung von ihr."),
     block("Die eigentliche Wirkung entsteht im Wechsel: Auf einer Bahn schneidet das Fairway durch beigefarbenen Wüstensand, auf der nächsten öffnet sich der Blick auf tiefblaues Wasser. Kaum ein Golfplatz verändert seinen optischen Charakter innerhalb weniger Minuten so stark wie dieser – und genau dieser Kontrast ist es, der aus einer Runde mehr macht als eine sportliche Übung."),
-    block("Neben dem Championship Course gehört ein separater Par-3-Kurs zur Anlage – zusammen ergibt das 36 Spielbahnen auf der Halbinsel, bevor der zweite große Platz überhaupt fertig ist. Wer übt, tut das auf einer 300 Meter langen, beleuchteten Doppel-Driving-Range und in einer rund 5.000 Quadratmeter großen Short-Game-Arena, gestaltet vom britischen Büro EDI Golf. Ein zweiter Championship-Platz, entworfen von Tim Lobb (Lobb + Partners), befindet sich im Bau, ein dritter Kurs namens Hidden Coves soll im Januar 2027 eröffnen. Das ist relevant für die Frage, warum Soma Bay einen mehrtägigen Aufenthalt rechtfertigt: Hier wächst gerade etwas, statt zu stagnieren."),
+    block("Neben dem Championship Course gehört ein separates Par-3-Angebot zur Anlage, gedacht für das kurze Spiel. Wer übt, tut das auf einer 300 Meter langen, beleuchteten Doppel-Driving-Range und in einer rund 5.000 Quadratmeter großen Short-Game-Arena, gestaltet vom britischen Büro EDI Golf. Dazu kommt Hidden Coves, ein neuer 18-Loch-Championship-Platz von Lobb & Partners: Die ersten neun Bahnen sind seit November 2025 spielbar, die vollen 18 Löcher sollen Ende 2026 oder Anfang 2027 folgen. Der Anspruch dahinter ist erklärtermaßen kein zusätzlicher schwieriger Meisterschaftsplatz, sondern ein besonders zugänglicher – die Anlage folgt bewusst dem vorhandenen Gelände, statt es sich zu unterwerfen. Das ist relevant für die Frage, warum Soma Bay einen mehrtägigen Aufenthalt rechtfertigt: Hier wächst gerade etwas, statt zu stagnieren."),
     block("THE CASCADES, GANZ OBEN AUF DER HALBINSEL", "h2"),
-    block("The Cascades liegt am höchsten Punkt der Halbinsel – 166 Zimmer, mit Blick auf den hauseigenen Golfplatz und das Meer dahinter. Es ist eines von insgesamt sechs Hotels, die sich die Landzunge von Soma Bay teilen, von der großen Kempinski-Anlage mit 325 Zimmern bis zur auf Tauchen spezialisierten Breakers. Diese Dichte an unterschiedlichen Häusern auf engem Raum ist Teil dessen, was die Destination interessant macht: Man bucht nicht nur ein Zimmer, sondern eine bestimmte Version von Soma Bay."),
+    block("The Cascades liegt am höchsten Punkt der Halbinsel – 166 Zimmer, mit Blick auf den hauseigenen Golfplatz und das Meer dahinter. Es ist eines von mehreren Hotels und Resorts, die sich die Landzunge von Soma Bay teilen, von der großen Kempinski-Anlage mit 325 Zimmern bis zur auf Tauchen spezialisierten Breakers. Diese Dichte an unterschiedlichen Häusern auf engem Raum ist Teil dessen, was die Destination interessant macht: Man bucht nicht nur ein Zimmer, sondern eine bestimmte Version von Soma Bay."),
     block("Diese Bandbreite ist kein Zufall. Die Sheraton-Anlage liegt mit 326 Zimmern direkt an 800 Metern Strand, die Robinson Soma Bay richtet sich mit eigenen Familienzimmern gezielt an Familien, und die auf Tauchen spezialisierte Breakers bedient noch einmal eine andere Zielgruppe. Golfer sind auf der Halbinsel also nicht die einzige Klientel – sie sind eine von mehreren, die sich denselben Küstenstreifen teilen."),
     block("MEHR ALS EINE RUNDE", "h2"),
     block("Was Soma Bay von vielen anderen Wüsten-Golfdestinationen unterscheidet, ist, dass Golf nur einer von mehreren ernstzunehmenden Gründen ist, hierher zu reisen. Direkt vor der Küste liegt ein Hausriff, das die Region zu einem der zugänglichsten Tauchgebiete am Roten Meer macht. Wind und Exposition der Halbinsel machen sie gleichzeitig zu einem der bekannteren Kitesurf-Spots Ägyptens – mit eigenen Kite-Häusern und Ausrüstern direkt vor Ort. Wer diese beiden Fakten zusammen betrachtet, versteht schnell, warum ein einziger Tag in Soma Bay nicht ausreicht."),
@@ -275,7 +333,7 @@ const storySomaBayAfter18 = {
   format: "after-18",
   kicker: "EGYPT / RED SEA",
   deck: "Golf ist in Soma Bay der Anfang des Tages, nicht der ganze Trip. Was nach der 18. Bahn übrig bleibt.",
-  publishedAt: "2026-02-05T08:00:00.000Z",
+  publishedAt: "2026-09-06T08:00:00.000Z",
   readingTime: 3,
   featured: false,
   aroundSelected: false,
@@ -294,11 +352,11 @@ const storySomaBayAfter18 = {
     block("FÜR REISENDE MIT UNTERSCHIEDLICHEN INTERESSEN", "h2"),
     block("Diese Dichte an Möglichkeiten hat noch einen praktischen Vorteil: Wer mit jemandem reist, der selbst nicht golft, muss in Soma Bay keine Kompromisse eingehen. Während die eine Hälfte der Reisegruppe auf dem Platz unterwegs ist, kann die andere tauchen, kiten oder im Spa Zeit verbringen – und beide treffen sich am Nachmittag am selben Pool wieder."),
     block("SPA STATT NOCH EINER RUNDE", "h2"),
-    block("Nicht jeder Nachmittag muss aktiv sein. Auf der Halbinsel betreibt Soma Bay eines der größten Thalasso-Spa-Zentren weltweit – mit rund 65 Behandlungsräumen auf über 7.500 Quadratmetern. Das ist kein Wellnessbereich im Nebenraum, sondern eine eigenständige Einrichtung, die genauso viel Aufmerksamkeit verdient wie der Golfplatz selbst. Für einen Golftrip, der nicht nur aus Golf bestehen soll, ist das ein wichtiger Unterschied."),
+    block("Nicht jeder Nachmittag muss aktiv sein. Auf der Halbinsel betreibt Soma Bay eines der größten Thalasso-Spa-Zentren der Region – mit einer eigenen Hydrotherapie-Wasserwelt und einer Fläche, die deutlich über das hinausgeht, was man in einem klassischen Hotel-Spa erwarten würde. Das ist kein Wellnessbereich im Nebenraum, sondern eine eigenständige Einrichtung, die genauso viel Aufmerksamkeit verdient wie der Golfplatz selbst. Für einen Golftrip, der nicht nur aus Golf bestehen soll, ist das ein wichtiger Unterschied."),
     block("Wie ernst Soma Bay diesen Teil des Angebots nimmt, zeigt allein die Größe der Anlage: Ein Thalasso-Zentrum dieser Dimension baut niemand als Nebensache. Es ist ein eigenständiges Argument für die Destination, unabhängig vom Golfplatz."),
     block("ODER EINFACH NICHTS", "h2"),
     block("Die vielleicht unterschätzteste Option in Soma Bay ist, nach der Runde schlicht nichts zu tun. Sechs Hotels teilen sich die Halbinsel, jedes mit eigenem Charakter und eigener Poollandschaft mit Blick auf Wüste oder Meer – genug Raum, um den Nachmittag einfach verstreichen zu lassen, bevor am Abend eines der mehreren Restaurants der Anlage übernimmt."),
-    block("Am Abend übernehmen die Restaurants der sechs Hotels – von einfacher Küche bis zum größeren Dinner-Moment –, bevor der nächste Morgen wieder mit einer Golfrunde beginnen kann, falls gewünscht. Zwang besteht dazu allerdings nicht: Ein Tag ganz ohne Golf ist auf dieser Halbinsel genauso plausibel wie einer mit zwei Runden. Diese Offenheit – Golf ja, aber nicht zwingend – ist es, die Soma Bay von reinen Golfresorts unterscheidet, in denen der Tagesablauf implizit um den Platz herum organisiert ist."),
+    block("Am Abend übernehmen die Restaurants der mehreren Hotels und Resorts auf der Halbinsel – von einfacher Küche bis zum größeren Dinner-Moment –, bevor der nächste Morgen wieder mit einer Golfrunde beginnen kann, falls gewünscht. Zwang besteht dazu allerdings nicht: Ein Tag ganz ohne Golf ist auf dieser Halbinsel genauso plausibel wie einer mit zwei Runden. Diese Offenheit – Golf ja, aber nicht zwingend – ist es, die Soma Bay von reinen Golfresorts unterscheidet, in denen der Tagesablauf implizit um den Platz herum organisiert ist."),
     block("Golf ist hier der erste Termin des Tages – nicht der einzige.", "pullQuote"),
     block("Wer Soma Bay nur als Golfziel bucht, verpasst genau das, was die Halbinsel besonders macht: die Möglichkeit, einen Tag zwischen Wüste und Meer so zu bauen, wie es gerade passt – mit Golf am Anfang und allem anderen danach.")
   ]
@@ -312,7 +370,7 @@ const storyPostwirtSoell = {
   format: "story",
   kicker: "TIROL / WILDER KAISER",
   deck: "Ein Haus mitten in Söll, seit 1281 dokumentiert – und warum genau diese Lage den Postwirt zur interessanten Basis macht.",
-  publishedAt: "2026-02-08T08:00:00.000Z",
+  publishedAt: "2026-09-08T08:00:00.000Z",
   readingTime: 5,
   featured: false,
   aroundSelected: false,
@@ -351,7 +409,7 @@ const storyWestCliffs = {
   format: "course-correction",
   kicker: "PORTUGAL / SILVER COAST",
   deck: "Muss ein großartiger Golfplatz aussehen, als wäre er gebaut worden? West Cliffs beantwortet die Frage mit Zurückhaltung.",
-  publishedAt: "2026-02-11T08:00:00.000Z",
+  publishedAt: "2026-09-10T08:00:00.000Z",
   readingTime: 4,
   featured: false,
   aroundSelected: false,
@@ -365,11 +423,11 @@ const storyWestCliffs = {
     block("Entworfen wurde West Cliffs von Cynthia Dye ASGCA für die Dye Designs Group. Auf der offiziellen Website wird das Ziel des Designs mit dem Bild beschrieben, die Kräfte der Natur zu zähmen, statt sie zu überschreiben. In der Praxis heißt das: vorhandene Dünen wurden erhalten, natives Küstengehölz blieb stehen, natürliche Sandflächen wurden in das Spielfeld integriert statt eingeebnet."),
     block("Die Dye Designs Group steht seit Jahrzehnten für einen bestimmten Ansatz im Golfplatzbau: Gelände lesen, bevor man es verändert. Bei West Cliffs zeigt sich das in Details wie den naturbelassenen Randbereichen der Fairways, die bewusst nicht in gepflegten Rasen übergehen, sondern in genau die Vegetation, die schon vor dem Bau des Platzes dort wuchs."),
     block("DÜNEN, KIEFERN, ATLANTIK", "h2"),
-    block("Der Platz liegt an der Costa de Prata bei Óbidos, auf einem Gelände aus sanft gewellten Dünen, durchsetzt mit Küstenvegetation und Kiefernhainen mit Blick auf den Atlantik. 18 Bahnen, Par 70 – eine Reihenfolge unterschiedlicher Lochlängen, die sich der Topografie unterordnet statt sie zu dominieren. Die Löcher wechseln zwischen offenen Dünenabschnitten und Passagen durch die Kiefern, immer mit dem Meer als Referenzpunkt am Horizont."),
+    block("Der Platz liegt an der Costa de Prata bei Óbidos, auf einem Gelände aus sanft gewellten Dünen, durchsetzt mit Küstenvegetation und Kiefernhainen mit Blick auf den Atlantik. 18 Bahnen, Par 72 – eine Reihenfolge unterschiedlicher Lochlängen, die sich der Topografie unterordnet statt sie zu dominieren. Die Löcher wechseln zwischen offenen Dünenabschnitten und Passagen durch die Kiefern, immer mit dem Meer als Referenzpunkt am Horizont."),
     block("Der Wind vom Atlantik ist dabei mehr als Kulisse: Er verändert je nach Tageszeit die Anspielung nahezu jeder Bahn – ein Faktor, der zu jedem Linkskurs am Meer gehört und den West Cliffs nicht zu kaschieren versucht, sondern bewusst in sein Layout einbezieht."),
     block("West Cliffs liegt in unmittelbarer Nachbarschaft zum älteren Praia D'El Rey Golf & Beach Resort und wird als dessen Partneranlage geführt. Für die Silberküste als Ganzes bedeutet das: Zwei Linkskurse mit unterschiedlichem Charakter liegen praktisch nebeneinander, beide mit direktem Bezug zum Atlantik, aber mit spürbar unterschiedlicher Handschrift."),
     block("AUSZEICHNUNGEN, DIE DIE ZURÜCKHALTUNG BESTÄTIGEN", "h2"),
-    block("Seit seiner Eröffnung 2017 hat West Cliffs eine bemerkenswerte Reihe an Auszeichnungen gesammelt: World's Best New Course bei den World Golf Awards 2017, 2018 unter den zwei besten Plätzen Portugals, 2019 als Golf Development of the Year – und in der Rangliste von Top 100 Golf Courses aktuell auf Platz zwei des Landes. Für einen Platz, dessen erklärtes Ziel Zurückhaltung war, ist das eine bemerkenswerte Bilanz: Er wurde nicht trotz, sondern wegen seiner Unauffälligkeit ausgezeichnet."),
+    block("Seit seiner Eröffnung 2017 hat West Cliffs eine bemerkenswerte Reihe an Auszeichnungen gesammelt: World's Best New Course bei den World Golf Awards 2017, 2018 unter den zwei besten Plätzen Portugals, 2019 als Golf Development of the Year. Für einen Platz, dessen erklärtes Ziel Zurückhaltung war, ist das eine bemerkenswerte Bilanz: Er wurde nicht trotz, sondern wegen seiner Unauffälligkeit ausgezeichnet."),
     block("Dass ein einzelner Platz innerhalb weniger Jahre nach Eröffnung World's Best New Course, eine Top-2-Platzierung in Portugal und die Auszeichnung als Golf Development of the Year sammelt, ist ungewöhnlich selbst für ein golferisch etabliertes Land wie Portugal. Die Auszeichnungen kamen dabei nicht für Länge oder Schwierigkeit, sondern explizit für die Art, wie der Platz in die Landschaft eingebettet ist."),
     block("STRATEGIE STATT SPEKTAKEL", "h2"),
     block("Das bedeutet nicht, dass West Cliffs einfach ist. Natürliche Sandflächen, erhaltene Dünenkanten und Wasserhindernisse an den Schlusslöchern sorgen für genug strategische Fragen, um erfahrene Golfer zu fordern. Der Unterschied liegt darin, wie diese Herausforderung entsteht: nicht durch nachträglich geformte Hindernisse, sondern durch ein Gelände, das schon vor dem ersten Spatenstich genau diese Fragen aufgeworfen hätte."),
@@ -388,7 +446,7 @@ const storyEstonia = {
   format: "48-hours",
   kicker: "ESTONIA",
   deck: "Altstadt, Ostseeküste, ein Linkskurs im Baltikum: eine kompakte Route, die sich wie eine Entdeckung anfühlt.",
-  publishedAt: "2026-02-14T08:00:00.000Z",
+  publishedAt: "2026-09-12T08:00:00.000Z",
   readingTime: 5,
   featured: false,
   aroundSelected: false,
@@ -426,7 +484,7 @@ const storyManifest = {
   format: "manifest",
   kicker: "AROUND / MANIFEST",
   deck: "Golf ist dort, wo die Reise beginnt – warum eine gute Golfreise nie nur aus Abschlagszeiten besteht.",
-  publishedAt: "2026-02-17T08:00:00.000Z",
+  publishedAt: "2026-09-14T08:00:00.000Z",
   readingTime: 4,
   featured: true,
   aroundSelected: false,
@@ -496,13 +554,27 @@ export function EditorialPilotSeedTool() {
 
   async function upsertStory(doc: Record<string, unknown>, addLogFn: LogFn) {
     const id = doc._id as string;
+    const before = await client.fetch(`*[_id == $id][0]{"hasBody": defined(body)}`, {id});
+    const bodyAlreadyPresent = Boolean(before?.hasBody);
     await client.createIfNotExists(doc as any);
     const {_id, _type, body, ...fields} = doc;
     await client.patch(id).set(fields).commit();
     // body is intentionally setIfMissing-only: a human may enrich it with
     // rights-cleared editorial images later - a reseed must never wipe that.
+    // Trade-off: this also means a FACTUAL CORRECTION to `body` in this file
+    // (like the v0.1.1 West Cliffs/Soma Bay fixes) only reaches a document
+    // whose body is still empty. If this story was already seeded once
+    // before, its body is already non-empty and this call is a no-op for
+    // it - the corrected text is skipped, not applied. That is deliberate:
+    // we cannot tell a stale auto-seeded body apart from a hand-edited one,
+    // so we never guess and never silently overwrite. See the tool's log
+    // and docs/editorial-pilot-pack/README.md for what to do in that case.
     await client.patch(id).setIfMissing({body}).commit();
-    addLogFn(`✓ story „${doc.title}“ (${id}) angelegt/aktualisiert (Body nur gesetzt, falls leer).`);
+    addLogFn(
+      bodyAlreadyPresent
+        ? `⚠ story „${doc.title}“ (${id}): Body war bereits gesetzt - NICHT überschrieben. Falls dieses Dokument die alten Fakten (Par 70, "36 Bahnen", genaue Spa-Zahlen, "sechs Hotels") enthält, im Studio manuell korrigieren oder das body-Feld einmalig leeren und diesen Seed erneut ausführen.`
+        : `✓ story „${doc.title}“ (${id}) angelegt, Body inkl. Fakten-Korrekturen v0.1.1 geschrieben.`
+    );
   }
 
   async function runSeed() {
