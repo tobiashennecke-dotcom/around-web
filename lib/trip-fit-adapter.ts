@@ -133,21 +133,20 @@ async function prepareTripContext(request: SharedRequestFields): Promise<Prepare
 /**
  * Builds the evaluation context for every candidate.
  *
- * When `dayIndex` is omitted (evaluateTripFitBatch's single-day path), geography
- * is resolved exactly as before: every OTHER trip Place, any day, is a valid
- * anchor. This behavior is unchanged.
- *
- * When `dayIndex` is supplied (evaluateTripBestDays), geography is resolved
- * PER DAY instead, because Best Day asks "which specific day fits?" - a Place
- * near a Day 3 anchor must not make the candidate equally plausible for Day 1.
- * Anchor preference for that day:
+ * Both callers now always supply a `dayIndex` - evaluateTripFitBatch asks "does
+ * this fit THIS day?" and evaluateTripBestDays asks "which day fits best?", and
+ * both need the same day-aware geography: a Place near a Day 3 anchor must not
+ * make a candidate equally plausible for Day 1. Anchor preference for that day:
  *   1. OTHER Place items actually assigned to this same day
  *   2. trip-level STAY/base Place anchors (sourceRole "stay"), which
  *      legitimately span multiple days rather than belonging to one
  *   3. the trip destination, only when neither of the above exists
  * A Place item assigned exclusively to a different day is never used as
- * evidence for this one. Duration overrides still resolve once per candidate,
- * independent of day, exactly as before.
+ * evidence for this one. `dayIndex` stays optional on this function only so a
+ * hypothetical future day-agnostic caller remains possible without a second
+ * implementation - omitting it falls back to "every other trip Place, any day"
+ * (the pre-v1.24e.1 single-day behavior), which no current caller uses. Duration
+ * overrides still resolve once per candidate, independent of day.
  */
 function buildCandidateEvalContexts(request: SharedRequestFields, prepared: PreparedTripContext, dayIndex?: number): CandidateEvalContext[] {
   const contexts: CandidateEvalContext[] = [];
@@ -273,7 +272,11 @@ export async function evaluateTripFitBatch(request: TripFitAdapterRequest): Prom
   const prepared = await prepareTripContext(request);
   if (!prepared) return results;
 
-  for (const context of buildCandidateEvalContexts(request, prepared)) {
+  // "Does this Place fit THIS DAY?" needs day-aware geography, same as Best
+  // Day - otherwise a Place on another day could act as geographic evidence
+  // for this one. Reuses the exact same anchor/distance builder, just for a
+  // single day instead of a loop over several.
+  for (const context of buildCandidateEvalContexts(request, prepared, request.dayIndex)) {
     results[context.id] = evaluateTripFit({
       candidate: context.candidate,
       dayIndex: request.dayIndex,

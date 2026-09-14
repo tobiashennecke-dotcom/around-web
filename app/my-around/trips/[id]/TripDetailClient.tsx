@@ -282,23 +282,25 @@ export function TripDetailClient({ id }: { id: string }) {
 
   const dayCount = useMemo(() => daysBetween(startDate, endDate), [startDate, endDate]);
 
-  // Trip Fit: evaluate only regular Place items that are actually assigned to a
-  // day - never unplanned ("Offen") items, never STAY items, never non-Place
-  // content. Recalculates when the relevant trip-item fields actually change.
-  const tripFitItemsKey = useMemo(() => {
+  // Trip Fit / Best Day candidates are always regular, assigned, non-STAY Place
+  // items - but the ENGINE/ADAPTER also depend on other trip items for context:
+  // STAY/base Places are geo anchors (v1.24d.1), and any actual fixed TripItem -
+  // Place or not - shapes a day's available time windows. So the recalculation
+  // trigger must cover ALL trip items' relevant fields, not just the candidate
+  // set, or adding/removing a STAY or changing a non-Place fixed point's time
+  // could leave stale AROUND FIT / AROUND CHECK results on screen.
+  const tripIntelligenceKey = useMemo(() => {
     if (!trip) return "";
     return JSON.stringify(
-      trip.items
-        .filter(item => item.sourceType === "place" && normalizeContentRole(item.sourceRole) !== "stay")
-        .map(item => ({
-          sourceId: item.sourceId,
-          sourceType: item.sourceType,
-          sourceRole: item.sourceRole,
-          dayIndex: item.dayIndex,
-          isFixed: item.isFixed,
-          fixedTime: item.fixedTime,
-          durationMinutes: item.durationMinutes
-        }))
+      trip.items.map(item => ({
+        sourceId: item.sourceId,
+        sourceType: item.sourceType,
+        sourceRole: item.sourceRole,
+        dayIndex: item.dayIndex,
+        isFixed: item.isFixed,
+        fixedTime: item.fixedTime,
+        durationMinutes: item.durationMinutes
+      }))
     );
   }, [trip]);
 
@@ -377,7 +379,7 @@ export function TripDetailClient({ id }: { id: string }) {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tripFitItemsKey]);
+  }, [tripIntelligenceKey, trip?.destinationSourceId]);
 
   // Conflict Intelligence V0: ONE additional Best Day batch for every assigned
   // regular Place item (not just currently-ineligible ones - simpler than a
@@ -447,7 +449,7 @@ export function TripDetailClient({ id }: { id: string }) {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tripFitItemsKey, dayCount, trip?.destinationSourceId]);
+  }, [tripIntelligenceKey, dayCount, trip?.destinationSourceId]);
 
   useEffect(() => {
     if (!autosaveReady.current || !trip || loading || savingMeta || !title.trim()) return;
