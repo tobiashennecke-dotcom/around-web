@@ -2187,3 +2187,67 @@ img{display:block;max-width:100%}
   .storiesEdition{flex-direction:column;gap:8px}
 }
 
+/* ==========================================================
+   AROUND v1.25c — Story → Place → Trip bridge (Story Detail)
+   ========================================================== */
+
+/* Compact "IN THIS STORY" index, sidebar on desktop */
+.storyRelationIndex{margin-top:32px;padding-top:22px;border-top:1px solid var(--around-line)}
+.storyRelationIndex ul{list-style:none;margin:14px 0 0;padding:0}
+.storyRelationIndex li a{display:flex;flex-direction:column;gap:3px;padding:10px 0;border-bottom:1px solid var(--around-line)}
+.storyRelationType{font:800 9px/1 Arial,Helvetica,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--around-blue)}
+.storyRelationTitle{font:700 14px/1.3 Arial,Helvetica,sans-serif}
+
+/* Story → Place bridge */
+.storyPlaceBridgeTitle{margin:14px 0 8px;font-size:clamp(40px,5vw,72px)}
+.storyPlaceBridgeIntro{margin:0 0 8px;font-size:17px;line-height:1.5;color:var(--around-muted);max-width:60ch}
+.storyPlaceBridgeGrid--single,.storyPlaceBridgeGrid--duo,.storyPlaceBridgeGrid--multi{margin-top:28px}
+.storyPlaceBridgeGrid--duo{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.storyPlaceBridgeGrid--multi{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.storyPlaceBridgeGrid--multi .storyPlaceCard--large{grid-column:span 2}
+
+.storyPlaceCard{position:relative;background:#fff;border:1px solid var(--around-line);display:flex;flex-direction:column;height:100%}
+.storyPlaceCardMedia{display:block;aspect-ratio:4/3;overflow:hidden;background:var(--around-ink);position:relative}
+.storyPlaceCardMedia img{width:100%;height:100%;object-fit:cover}
+.storyPlaceCardTypographic{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--around-ink);color:var(--around-warm);padding:20px;text-align:center}
+.storyPlaceCardTypographic span{font:900 clamp(16px,2vw,22px)/1.2 Arial,Helvetica,sans-serif;letter-spacing:-.01em;text-transform:uppercase}
+.storyPlaceCardBody{padding:20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.storyPlaceCardBody h3{margin:0;font-size:26px;line-height:1;text-transform:uppercase;letter-spacing:-.02em}
+.storyPlaceCardBody p{margin:0;color:#5e625e;line-height:1.45;font-size:15px}
+.storyPlaceCardActions{margin-top:auto;padding-top:14px;border-top:1px solid var(--around-line);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.storyPlaceCardView{font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:underline;text-decoration-color:var(--around-lime);text-underline-offset:4px}
+.storyPlaceCardControls{display:flex;align-items:center;gap:10px}
+
+.storyPlaceCard--wide{flex-direction:row}
+.storyPlaceCard--wide .storyPlaceCardMedia{width:45%;flex-shrink:0;aspect-ratio:auto}
+.storyPlaceCard--wide .storyPlaceCardBody{flex:1;padding:28px 28px 28px 36px;justify-content:center}
+.storyPlaceCard--wide .storyPlaceCardBody h3{font-size:clamp(28px,3.4vw,40px)}
+.storyPlaceCard--large .storyPlaceCardBody h3{font-size:30px}
+
+/* KEEP EXPLORING / PEOPLE TO KNOW continuations */
+.storyKeepExploring,.storyPeopleContinuation{padding:56px 0}
+.storyKeepExploringList,.storyPeopleList{margin-top:18px;display:flex;flex-direction:column}
+.storyKeepExploringItem,.storyPeopleItem{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 0;border-top:1px solid var(--around-line);font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:-.01em}
+.storyKeepExploringList a:last-child,.storyPeopleList a:last-child{border-bottom:1px solid var(--around-line)}
+.storyKeepExploringCta,.storyPeopleCta{font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--around-muted);flex-shrink:0}
+
+@media(max-width:900px){
+  /* The existing aside becomes a horizontal flex row (author + Save) at this
+     breakpoint - wrap it so the relation index drops to its own full-width
+     row below that pair instead of squeezing into the row. */
+  .article>aside{flex-wrap:wrap}
+  .storyRelationIndex{flex-basis:100%;order:3;margin-top:18px;padding-top:18px}
+
+  .storyPlaceCard--wide{flex-direction:column}
+  .storyPlaceCard--wide .storyPlaceCardMedia{width:100%;aspect-ratio:4/3}
+  .storyPlaceCard--wide .storyPlaceCardBody{padding:22px}
+  .storyPlaceBridgeGrid--duo,.storyPlaceBridgeGrid--multi{grid-template-columns:1fr}
+  .storyPlaceBridgeGrid--multi .storyPlaceCard--large{grid-column:auto}
+}
+
+@media(max-width:620px){
+  .storyPlaceCardActions{flex-direction:column;align-items:flex-start;gap:14px}
+  .storyPlaceCardControls{width:100%;justify-content:space-between}
+  .storyKeepExploringItem,.storyPeopleItem{font-size:18px;gap:12px}
+}
+

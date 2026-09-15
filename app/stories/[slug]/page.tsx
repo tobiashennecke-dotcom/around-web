@@ -4,13 +4,10 @@ import Link from "next/link";
 import { getStory } from "@/lib/content";
 import { SaveButton } from "@/components/SaveButton";
 import { StoryBody } from "@/components/StoryBody";
+import { StoryRelationIndex } from "@/components/StoryRelationIndex";
+import { StoryPlaceBridge } from "@/components/StoryPlaceBridge";
 import { contentHref } from "@/components/ContentCard";
-import type { ContentCard } from "@/lib/types";
-import { contentTypeLabel } from "@/lib/content-role";
-
-function typeLabel(item: ContentCard) {
-  return contentTypeLabel(item.type, item.placeType);
-}
+import { splitStoryRelations } from "@/lib/story-relations";
 
 function formatDate(value?:string){
   if(!value) return null;
@@ -32,6 +29,7 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
   const story = await getStory(slug);
   if (!story) notFound();
   const related = story.related || [];
+  const { places, destinations, people } = splitStoryRelations(related);
   const date=formatDate(story.publishedAt);
 
   return (
@@ -62,23 +60,46 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
           <div style={{marginTop:22}}>
             <SaveButton sourceId={story.id} sourceType={story.type} title={story.title} slug={story.slug} label="Story merken" />
           </div>
+          <StoryRelationIndex related={related} />
         </aside>
         <article className="articleBody">
           <StoryBody value={story.body} />
-
-          {related.length > 0 && (
-            <div className="inStory">
-              <div className="eyebrow lime">IN THIS STORY</div>
-              <h3 style={{fontSize:32}}>Weiterentdecken</h3>
-              {related.map(item => (
-                <p key={item.id}>
-                  <Link href={contentHref(item)}>{item.title} <span>· {typeLabel(item)} →</span></Link>
-                </p>
-              ))}
-            </div>
-          )}
         </article>
       </div>
+
+      <StoryPlaceBridge places={places} />
+
+      {destinations.length > 0 && (
+        <section className="section storyKeepExploring">
+          <div className="container">
+            <div className="eyebrow lime">KEEP EXPLORING.</div>
+            <div className="storyKeepExploringList">
+              {destinations.map(destination => (
+                <Link key={destination.id} href={contentHref(destination)} className="storyKeepExploringItem">
+                  <span>{destination.title}</span>
+                  <span className="storyKeepExploringCta">Explore the destination →</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {people.length > 0 && (
+        <section className="section storyPeopleContinuation">
+          <div className="container">
+            <div className="eyebrow pink">PEOPLE TO KNOW</div>
+            <div className="storyPeopleList">
+              {people.map(person => (
+                <Link key={person.id} href={contentHref(person)} className="storyPeopleItem">
+                  <span>{person.title}</span>
+                  <span className="storyPeopleCta">VIEW PROFILE →</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 }
