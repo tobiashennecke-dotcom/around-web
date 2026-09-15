@@ -75,7 +75,7 @@ export default async function StoriesPage() {
         <section className="section storiesExploreByPlace">
           <div className="container">
             <div className="eyebrow lime">EXPLORE BY PLACE</div>
-            <h2 className="sectionTitle storiesExploreByPlaceTitle">Where the Story Graph becomes visible.</h2>
+            <h2 className="sectionTitle storiesExploreByPlaceTitle">READ THE PLACE.</h2>
             <div className="destinationExploreGrid">
               {hub.featuredDestinations.map(destination => (
                 <DestinationExploreCard key={destination.id} destination={destination} />
