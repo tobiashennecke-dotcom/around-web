@@ -1,5 +1,97 @@
 import { defineField, defineType } from "sanity";
 
+function stripDraftPrefix(id?: string) {
+  return id ? id.replace(/^drafts\./, "") : id;
+}
+
+/** IDs of every Place already present in the Story's canonical related[] - the only Places a placeModule may reference. */
+function relatedPlaceIds(document: any): string[] {
+  const refs = Array.isArray(document?.related) ? document.related : [];
+  return refs
+    .map((ref: any) => stripDraftPrefix(ref?._ref))
+    .filter((id: string | undefined): id is string => Boolean(id));
+}
+
+/**
+ * Studio-preview-only role label so an editor sees PLAY/STAY/EAT/DO in the
+ * block list, matching what readers see. The canonical mapping used for all
+ * actual rendering lives in lib/content-role.ts - this is a deliberately
+ * tiny, Studio-only duplicate, not a second source of truth for the app.
+ */
+function previewRoleLabel(placeType?: string) {
+  const value = (placeType || "").toLowerCase();
+  if (value === "course" || value === "play") return "PLAY";
+  if (value === "stay") return "STAY";
+  if (value === "eat" || value === "drink") return "EAT";
+  if (value === "do" || value === "culture") return "DO";
+  return placeType ? placeType.toUpperCase() : "PLACE";
+}
+
+const placeModule = {
+  type: "object",
+  name: "placeModule",
+  title: "AROUND Place Module",
+  fields: [
+    defineField({
+      name: "place",
+      title: "Place",
+      type: "reference",
+      to: [{ type: "place" }],
+      description: "Only Places already connected under IN THIS STORY can be selected. Add the Place under IN THIS STORY first.",
+      options: {
+        filter: ({ document }: any) => {
+          const ids = relatedPlaceIds(document);
+          return {
+            filter: `_type == "place" && _id in $ids`,
+            params: { ids: ids.length ? ids : ["__none__"] }
+          };
+        }
+      },
+      validation: r => r.required().custom((value: any, context: any) => {
+        if (!value?._ref) return true;
+        const ids = relatedPlaceIds(context.document);
+        if (!ids.includes(stripDraftPrefix(value._ref) || "")) {
+          return "Dieser Place muss zuerst unter IN THIS STORY mit der Story verknüpft werden.";
+        }
+        return true;
+      })
+    }),
+    defineField({
+      name: "layout",
+      title: "Display",
+      type: "string",
+      options: {
+        list: [
+          { title: "Auto", value: "auto" },
+          { title: "Feature", value: "feature" },
+          { title: "Compact", value: "compact" }
+        ],
+        layout: "radio"
+      },
+      initialValue: "auto"
+    }),
+    defineField({
+      name: "editorialLine",
+      title: "Editorial line",
+      type: "string",
+      description: "Optional short contextual line written specifically for this point in the Story. Do not repeat the Place description.",
+      validation: r => r.max(120)
+    })
+  ],
+  preview: {
+    select: { placeTitle: "place.title", placeType: "place.placeType", layout: "layout" },
+    prepare({ placeTitle, placeType, layout }: any) {
+      if (!placeTitle) {
+        return { title: "AROUND PLACE MODULE", subtitle: "Place auswählen" };
+      }
+      return {
+        title: "AROUND PLACE MODULE",
+        subtitle: `${placeTitle} · ${previewRoleLabel(placeType)} · ${(layout || "auto").toUpperCase()}`
+      };
+    }
+  }
+};
+
 export const story = defineType({
   name:"story",
   title:"Story",
@@ -106,7 +198,8 @@ export const story = defineType({
               return {title:"Editorial Gallery",subtitle:`${count} ${count===1?"Bild":"Bilder"}`,media:images?.[0]};
             }
           }
-        }
+        },
+        placeModule
       ]
     }),
 

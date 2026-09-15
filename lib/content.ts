@@ -425,6 +425,14 @@ export async function getStory(slug: string): Promise<Story | null> {
     const doc = await sanity.fetch(STORY_QUERY, { slug });
     if (doc) {
       const related = compactCards(doc.related as any[] | undefined);
+      // Inline placeModule body blocks reference a raw Place doc (CARD_FIELDS
+      // shape) - map it through the same toCard() used everywhere else so
+      // StoryInlinePlaceModule gets an ordinary ContentCard, not a second
+      // shape to special-case. A broken/removed relation simply maps to
+      // undefined, which the renderer treats as "render nothing".
+      const body = Array.isArray(doc.body)
+        ? doc.body.map((block: any) => (block?._type === "placeModule" ? { ...block, place: toCard(block.place) || undefined } : block))
+        : [];
       return {
         id: doc._id,
         type: "story",
@@ -439,7 +447,7 @@ export async function getStory(slug: string): Promise<Story | null> {
         priority: typeof doc.priority === "number" ? doc.priority : undefined,
         format: doc.format || undefined,
         deck: doc.deck || "",
-        body: Array.isArray(doc.body) ? doc.body : [],
+        body,
         author: doc.author ? {
           id: doc.author._id,
           title: doc.author.title,

@@ -196,6 +196,11 @@ export const STORY_QUERY = defineQuery(`
           "height": asset->metadata.dimensions.height,
           "aspectRatio": asset->metadata.dimensions.aspectRatio
         }
+      },
+      _type == "placeModule" => {
+        layout,
+        editorialLine,
+        "place": place->{${CARD_FIELDS}}
       }
     },
     "author": author->{_id,title,slug,role,"image":portrait.asset->url},

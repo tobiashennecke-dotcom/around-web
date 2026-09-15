@@ -1,5 +1,6 @@
 import { PortableText } from "@portabletext/react";
 import { MediaGallery } from "@/components/MediaGallery";
+import { StoryInlinePlaceModule } from "@/components/StoryInlinePlaceModule";
 import type { MediaItem } from "@/lib/types";
 
 function toMediaItem(raw: any): MediaItem | null {
@@ -50,7 +51,10 @@ const components: any = {
           </div>
         </figure>
       );
-    }
+    },
+    placeModule: ({value}: any) => (
+      <StoryInlinePlaceModule place={value?.place} layout={value?.layout} editorialLine={value?.editorialLine} />
+    )
   },
   block: {
     h2: ({children}: any) => <h2>{children}</h2>,
