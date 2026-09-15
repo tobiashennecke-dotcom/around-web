@@ -73,9 +73,10 @@ const placeModule = {
     defineField({
       name: "editorialLine",
       title: "Editorial line",
-      type: "string",
-      description: "Optional short contextual line written specifically for this point in the Story. Do not repeat the Place description.",
-      validation: r => r.max(120)
+      type: "text",
+      rows: 3,
+      description: "Optional, hand-written contextual copy for this exact point in the Story - not a second Place description, and never AI-generated. Works best as 1-2 short sentences.",
+      validation: r => r.max(240).warning("Die Editorial Line funktioniert am besten als 1–2 kurze Sätze.")
     })
   ],
   preview: {
