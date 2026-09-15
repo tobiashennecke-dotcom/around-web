@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getDestination } from "@/lib/content";
 import { SaveButton } from "@/components/SaveButton";
 import { ContentCard } from "@/components/ContentCard";
+import { StoryRail } from "@/components/StoryRail";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
@@ -70,17 +71,11 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
         </div>
       </section>
 
-      <section className="section">
-        <div className="container">
-          <div className="eyebrow blue">STORIES</div>
-          <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>Mehr als Reiseführer.</h2>
-          {linkedStories.length > 0 ? (
-            <div className="cardGrid">{linkedStories.map(item => <ContentCard key={item.id} item={item}/>)}</div>
-          ) : (
-            <p>Noch keine Stories mit dieser Destination verknüpft.</p>
-          )}
-        </div>
-      </section>
+      <StoryRail
+        stories={linkedStories}
+        eyebrow="STORIES FROM HERE"
+        title="READ THE PLACE."
+      />
     </main>
   );
 }

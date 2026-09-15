@@ -10,6 +10,27 @@ const CARD_FIELDS = `
   "image": coalesce(heroImage.asset->url, portrait.asset->url, image.asset->url)
 `;
 
+/**
+ * Minimal Story-card projection for contextual rails (Place/Destination/Person
+ * pages) - enough for ContentCard/StoryRail, deliberately no Story body.
+ */
+const STORY_CARD_FIELDS = `
+  _id,_type,title,slug,kicker,
+  "summary": coalesce(deck, ""),
+  format,publishedAt,readingTime,featured,aroundSelected,priority,
+  "image": heroImage.asset->url
+`;
+
+/** Stories whose related[] references any of $ids - the reverse Story Graph edge. */
+export const STORIES_RELATED_TO_IDS_QUERY = defineQuery(`
+  *[_type == "story" && references($ids)]{${STORY_CARD_FIELDS}}
+`);
+
+/** Place ids belonging to a Destination - used to roll up Place-level Stories transitively. */
+export const PLACE_IDS_FOR_DESTINATION_QUERY = defineQuery(`
+  *[_type == "place" && references($destinationId)]._id
+`);
+
 export const HOME_QUERY = defineQuery(`
   {
     "featured": *[

@@ -7,10 +7,12 @@ import {
   DISCOVER_QUERY,
   HOME_QUERY,
   PERSON_QUERY,
+  PLACE_IDS_FOR_DESTINATION_QUERY,
   PLACE_QUERY,
   PLACE_RELEVANCE_CANDIDATES_QUERY,
   PLACES_BY_IDS_QUERY,
   PRODUCT_QUERY,
+  STORIES_RELATED_TO_IDS_QUERY,
   STORY_QUERY
 } from "@/lib/sanity/queries";
 import {
@@ -82,6 +84,9 @@ function toCard(doc: any): ContentCard | null {
     destinationId: doc.destinationId || undefined,
     latitude: doc.coordinates?.lat,
     longitude: doc.coordinates?.lng,
+    storyFormat: type === "story" ? (doc.format || undefined) : undefined,
+    publishedAt: type === "story" ? (doc.publishedAt || undefined) : undefined,
+    readingTime: type === "story" && typeof doc.readingTime === "number" ? doc.readingTime : undefined,
     accent: accentFor(type, doc.placeType),
     image: doc.image || undefined,
     featured: Boolean(doc.featured),
@@ -92,6 +97,80 @@ function toCard(doc: any): ContentCard | null {
 
 function compactCards(items: any[] | null | undefined): ContentCard[] {
   return (items || []).map(toCard).filter((item): item is ContentCard => Boolean(item));
+}
+
+/**
+ * Editorial ordering for automatically-discovered Stories: featured/priority/
+ * recency only. Commercial state (commercialPartner, bookingUrl, Trip Fit
+ * score, geo distance, paid placement) must never influence Story distribution.
+ */
+function sortStoryCards(cards: ContentCard[]): ContentCard[] {
+  return [...cards].sort((a, b) => {
+    if (Boolean(b.featured) !== Boolean(a.featured)) return Boolean(b.featured) ? 1 : -1;
+    const priorityDiff = (b.priority ?? 0) - (a.priority ?? 0);
+    if (priorityDiff !== 0) return priorityDiff;
+    const aTime = a.publishedAt ? Date.parse(a.publishedAt) : 0;
+    const bTime = b.publishedAt ? Date.parse(b.publishedAt) : 0;
+    return bTime - aTime;
+  });
+}
+
+/**
+ * Reverse Story Graph lookup: every Story whose canonical story.related[]
+ * references any of the given entity ids. This is the single primitive
+ * getStoriesForPlace/getStoriesForPerson/getStoriesForDestination all share -
+ * no duplicated query/merge logic per entity type.
+ */
+async function getStoriesForEntity(ids: string[], limit?: number): Promise<ContentCard[]> {
+  if (!sanity || !ids.length) return [];
+  const docs = await sanity.fetch(STORIES_RELATED_TO_IDS_QUERY, { ids });
+  const sorted = sortStoryCards(compactCards(docs as any[] | undefined));
+  return typeof limit === "number" ? sorted.slice(0, limit) : sorted;
+}
+
+/** Direct Story Graph edge only: Stories whose related[] references this Place. Max 3. */
+export async function getStoriesForPlace(placeId: string): Promise<ContentCard[]> {
+  return getStoriesForEntity([placeId], 3);
+}
+
+/** Direct Story Graph edge only: Stories whose related[] references this Person. Max 3. */
+export async function getStoriesForPerson(personId: string): Promise<ContentCard[]> {
+  return getStoriesForEntity([personId], 3);
+}
+
+/**
+ * Direct + transitive Story Graph edges for a Destination: Stories referencing
+ * the Destination directly, OR referencing a Place whose destination is this
+ * Destination. Deliberately one-directional - a Destination-level Story never
+ * expands back out to that Destination's individual Places (no reverse leak).
+ */
+export async function getAutomaticStoriesForDestination(destinationId: string): Promise<ContentCard[]> {
+  if (!sanity) return [];
+  const placeIds = await sanity.fetch(PLACE_IDS_FOR_DESTINATION_QUERY, { destinationId });
+  const ids = [destinationId, ...((placeIds as string[] | undefined) || [])];
+  return getStoriesForEntity(ids);
+}
+
+/**
+ * Curated destination.stories[] first (manual editorial order preserved),
+ * then automatic Story Graph matches, deduped by id, capped at max.
+ */
+function mergeStoryCards(curated: ContentCard[], automatic: ContentCard[], max: number): ContentCard[] {
+  const seen = new Set<string>();
+  const merged: ContentCard[] = [];
+  for (const card of [...curated, ...automatic]) {
+    if (seen.has(card.id)) continue;
+    seen.add(card.id);
+    merged.push(card);
+    if (merged.length >= max) break;
+  }
+  return merged;
+}
+
+/** Curated destination.stories[] + automatic Story Graph matches, merged/deduped/capped at 6. */
+export async function getStoriesForDestination(destinationId: string, curatedStories: ContentCard[]): Promise<ContentCard[]> {
+  const automatic = await getAutomaticStoriesForDestination(destinationId);
+  return mergeStoryCards(curatedStories, automatic, 6);
 }
 
 type RelevanceCandidateDoc = AroundItCandidate & { doc: any };
@@ -186,7 +265,8 @@ export async function getDestination(slug: string): Promise<Destination | null> 
     const doc = await sanity.fetch(DESTINATION_QUERY, { slug });
     if (doc) {
       const linkedPlaces = compactCards(doc.places as any[] | undefined);
-      const linkedStories = compactCards(doc.stories as any[] | undefined);
+      const curatedStories = compactCards(doc.stories as any[] | undefined);
+      const linkedStories = await getStoriesForDestination(doc._id, curatedStories);
 
       return {
         id: doc._id,
@@ -233,6 +313,7 @@ export async function getPlace(slug: string): Promise<Place | null> {
       const candidates = await fetchRelevanceCandidates(doc._id);
       const aroundIt = getAroundItFromCandidates(doc, destination?.id, candidates);
       const nearbyCourses = doc.placeType === "stay" ? getNearbyCoursesFromCandidates(doc, destination?.id, candidates) : undefined;
+      const storiesForPlace = await getStoriesForPlace(doc._id);
       return {
         id: doc._id,
         type: "place",
@@ -322,6 +403,7 @@ export async function getPlace(slug: string): Promise<Place | null> {
         longitude: doc.coordinates?.lng,
         aroundIt,
         nearbyCourses,
+        stories: storiesForPlace,
         seoTitle: doc.seoTitle || undefined,
         seoDescription: doc.seoDescription || undefined,
         socialImage: doc.socialImage || undefined
@@ -387,13 +469,17 @@ export async function getStory(slug: string): Promise<Story | null> {
 export async function getPerson(slug: string): Promise<Person | null> {
   if (sanity) {
     const doc = await sanity.fetch(PERSON_QUERY, {slug});
-    if (doc) return {
-      id:doc._id,type:"person",slug:doc.slug.current,title:doc.title,
-      kicker:doc.role || "People to Know",description:doc.summary || "",accent:"pink",
-      image:doc.image || undefined,featured:Boolean(doc.featured),priority:doc.priority,
-      role:doc.role || undefined,location:doc.location || undefined,bio:Array.isArray(doc.bio)?doc.bio:[],
-      website:doc.website || undefined,instagram:doc.instagram || undefined
-    };
+    if (doc) {
+      const storiesForPerson = await getStoriesForPerson(doc._id);
+      return {
+        id:doc._id,type:"person",slug:doc.slug.current,title:doc.title,
+        kicker:doc.role || "People to Know",description:doc.summary || "",accent:"pink",
+        image:doc.image || undefined,featured:Boolean(doc.featured),priority:doc.priority,
+        role:doc.role || undefined,location:doc.location || undefined,bio:Array.isArray(doc.bio)?doc.bio:[],
+        website:doc.website || undefined,instagram:doc.instagram || undefined,
+        stories: storiesForPerson
+      };
+    }
   }
   const item = content.find(x=>x.type === "person" && x.slug === slug);
   return item ? {...item,type:"person"} as Person : null;

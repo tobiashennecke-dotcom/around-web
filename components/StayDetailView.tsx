@@ -3,6 +3,7 @@ import { SaveButton } from "@/components/SaveButton";
 import { TripPicker } from "@/components/TripPicker";
 import { ContentCard } from "@/components/ContentCard";
 import { PlaceGallery } from "@/components/PlaceGallery";
+import { StoryRail } from "@/components/StoryRail";
 import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
 import type { Place } from "@/lib/types";
 
@@ -240,6 +241,13 @@ export function StayDetailView({ place }: { place: Place }) {
           </div>
         </section>
       )}
+
+      <StoryRail
+        stories={place.stories || []}
+        eyebrow="STORIES FROM HERE"
+        title="MORE THAN A HOTEL."
+        className="staySection"
+      />
 
       {hasOfficialInfo ? (
         <section className="section staySection">

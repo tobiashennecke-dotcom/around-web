@@ -43,6 +43,10 @@ export type ContentCard = {
   destinationId?: string;
   latitude?: number;
   longitude?: number;
+  /** Story-only metadata for contextual rails (StoryRail). Absent for non-Story cards. */
+  storyFormat?: string;
+  publishedAt?: string;
+  readingTime?: number;
 };
 
 export type SeoFields = {
@@ -117,6 +121,8 @@ export type Place = ContentCard & SeoFields & {
   aroundIt?: ContentCard[];
   /** STAY only - nearby PLAY courses sorted by straight-line distance, for WHY IT WORKS FOR GOLF. Never invented drive times. */
   nearbyCourses?: (ContentCard & { distanceKm: number })[];
+  /** Stories editorially related to this Place via story.related[] - direct Story Graph edge, not geographic proximity. */
+  stories?: ContentCard[];
 
   /** WHY PLAY IT - independent AROUND editorial judgement, never operator-controlled. */
   theFeel?: string[];
@@ -193,6 +199,8 @@ export type Person = ContentCard & {
   bio?: unknown[];
   website?: string;
   instagram?: string;
+  /** Stories editorially related to this Person via story.related[]. */
+  stories?: ContentCard[];
 };
 
 export type Product = ContentCard & {

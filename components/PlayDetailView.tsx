@@ -3,6 +3,7 @@ import { SaveButton } from "@/components/SaveButton";
 import { TripPicker } from "@/components/TripPicker";
 import { ContentCard } from "@/components/ContentCard";
 import { PlaceGallery } from "@/components/PlaceGallery";
+import { StoryRail } from "@/components/StoryRail";
 import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
 import type { Place } from "@/lib/types";
 
@@ -197,6 +198,13 @@ export function PlayDetailView({ place }: { place: Place }) {
           </div>
         </section>
       )}
+
+      <StoryRail
+        stories={place.stories || []}
+        eyebrow="STORIES / PLAY"
+        title="THE STORY BEHIND THE PLACE."
+        className="playSection"
+      />
 
       {planFacts.length ? (
         <section className="section playSection">
