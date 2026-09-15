@@ -21,14 +21,25 @@ const STORY_CARD_FIELDS = `
   "image": heroImage.asset->url
 `;
 
-/** Stories whose related[] references any of $ids - the reverse Story Graph edge. */
+/**
+ * Stories whose related[] references any of $ids - the reverse Story Graph edge.
+ * Deliberately checks related[]._ref membership only, NOT document-wide
+ * references($ids): a Story also references its author (a person) and may
+ * carry other reference fields in future, and none of those may drive Story
+ * distribution - only the canonical related[] field may.
+ */
 export const STORIES_RELATED_TO_IDS_QUERY = defineQuery(`
-  *[_type == "story" && references($ids)]{${STORY_CARD_FIELDS}}
+  *[_type == "story" && count(related[_ref in $ids]) > 0]{${STORY_CARD_FIELDS}}
 `);
 
-/** Place ids belonging to a Destination - used to roll up Place-level Stories transitively. */
+/**
+ * Place ids belonging to a Destination - used to roll up Place-level Stories
+ * transitively. Checks the explicit destination._ref field only, not
+ * document-wide references($destinationId), so this can never widen to match
+ * an unrelated reference field on Place.
+ */
 export const PLACE_IDS_FOR_DESTINATION_QUERY = defineQuery(`
-  *[_type == "place" && references($destinationId)]._id
+  *[_type == "place" && destination._ref == $destinationId]._id
 `);
 
 export const HOME_QUERY = defineQuery(`
