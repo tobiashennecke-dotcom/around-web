@@ -60,7 +60,7 @@ function normalizeType(type: string): ContentType | null {
   return null;
 }
 
-function toCard(doc: any): ContentCard | null {
+export function toCard(doc: any): ContentCard | null {
   if (!doc?._id || !doc?.title || !doc?.slug?.current) return null;
   const type = normalizeType(doc._type);
   if (!type) return null;

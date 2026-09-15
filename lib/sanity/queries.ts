@@ -42,6 +42,42 @@ export const PLACE_IDS_FOR_DESTINATION_QUERY = defineQuery(`
   *[_type == "place" && destination._ref == $destinationId]._id
 `);
 
+/**
+ * Everything /stories needs in one round trip: every Story card (no body),
+ * minimal Story Graph context per Story (just enough to compute direct +
+ * transitive Destination matches - never full Place documents), the
+ * storiesHub singleton (editorial curation, may not exist yet), and every
+ * Destination (minimal fields) as the fallback pool for "Explore by Place"
+ * when no/insufficient curation exists. Deliberately one query rather than
+ * fetching every Story body and filtering in React.
+ */
+export const STORIES_HUB_QUERY = defineQuery(`
+  {
+    "stories": *[_type == "story" && defined(slug.current)]{
+      _id,_type,title,slug,kicker,
+      "summary": coalesce(deck, ""),
+      format,publishedAt,readingTime,featured,aroundSelected,priority,
+      "image": heroImage.asset->url,
+      "relatedRefs": related[]->{
+        "type": _type,
+        "id": _id,
+        "destinationId": destination->_id
+      }
+    },
+    "hub": *[_type == "storiesHub" && _id == "around-stories-hub"][0]{
+      editionLabel,
+      intro,
+      "leadStoryId": leadStory->_id,
+      "secondaryStoryIds": secondaryStories[]->_id,
+      "featuredDestinationIds": featuredDestinations[]->_id
+    },
+    "allDestinations": *[_type == "destination" && defined(slug.current)]{
+      _id,title,slug,kicker,country,priority,
+      "image": heroImage.asset->url
+    }
+  }
+`);
+
 export const HOME_QUERY = defineQuery(`
   {
     "featured": *[

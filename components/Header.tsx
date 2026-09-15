@@ -12,7 +12,7 @@ export function Header() {
         <nav className="desktopNav" aria-label="Hauptnavigation">
           <Link href="/discover">Entdecken</Link>
           <Link href="/search?type=destination">Reisen</Link>
-          <Link href="/search?type=story">Stories</Link>
+          <Link href="/stories">Stories</Link>
           <Link href="/search?type=person">Menschen</Link>
           <Link href="/search?type=product">Ideen</Link>
         </nav>
