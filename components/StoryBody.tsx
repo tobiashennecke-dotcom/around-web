@@ -54,7 +54,11 @@ const components: any = {
     },
     placeModule: ({value}: any) => (
       <StoryInlinePlaceModule place={value?.place} layout={value?.layout} editorialLine={value?.editorialLine} />
-    )
+    ),
+    // v1.26a: placement metadata for a future Premium wall. There is no
+    // active paywall yet - this must render nothing and never affect
+    // surrounding content, SEO, or reader access.
+    premiumGate: () => null
   },
   block: {
     h2: ({children}: any) => <h2>{children}</h2>,

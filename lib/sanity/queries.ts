@@ -177,6 +177,7 @@ export const DESTINATION_GEO_QUERY = defineQuery(`
 export const STORY_QUERY = defineQuery(`
   *[_type == "story" && slug.current == $slug][0]{
     _id,title,slug,kicker,deck,format,publishedAt,readingTime,featured,aroundSelected,priority,
+    accessTier,
     seoTitle,seoDescription,
     "image": heroImage.asset->url,
     "socialImage": socialImage.asset->url,
@@ -201,6 +202,9 @@ export const STORY_QUERY = defineQuery(`
         layout,
         editorialLine,
         "place": place->{${CARD_FIELDS}}
+      },
+      _type == "premiumGate" => {
+        _type
       }
     },
     "author": author->{_id,title,slug,role,"image":portrait.asset->url},

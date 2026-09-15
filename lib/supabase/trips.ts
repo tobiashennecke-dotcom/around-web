@@ -1,6 +1,7 @@
 import { createClient } from "./client";
 import type { SavePayload } from "./saves";
 import { normalizeContentRole } from "@/lib/content-role";
+import { trackUserEvent } from "@/lib/analytics/user-events";
 
 export type TripStatus = "idea" | "planning" | "booked" | "completed";
 export type TripSlot = "flex" | "morning" | "midday" | "afternoon" | "evening" | "stay";
@@ -350,6 +351,7 @@ export async function createUserTrip(
   });
   if (error) throw error;
   notifyTripChange();
+  void trackUserEvent({ eventName: "trip_created", tripId: trip.id });
   return trip;
 }
 
@@ -406,6 +408,13 @@ export async function updateUserTrip(
   if (error) throw error;
   if (!data) throw new Error("Trip konnte im Account nicht gespeichert werden.");
   notifyTripChange();
+  if (patch.startDate !== undefined || patch.endDate !== undefined) {
+    void trackUserEvent({
+      eventName: "trip_dates_set",
+      tripId: id,
+      metadata: { startDate: patch.startDate ?? null, endDate: patch.endDate ?? null }
+    });
+  }
 }
 
 export async function deleteUserTrip(id: string) {
@@ -497,6 +506,13 @@ export async function addItemToTrip(
 
   await supabase.from("trips").update({ updated_at: now, plan_ready: false }).eq("id", tripId).eq("user_id", user.id);
   notifyTripChange();
+  void trackUserEvent({
+    eventName: "content_added_to_trip",
+    tripId,
+    sourceId: item.sourceId,
+    sourceType: dbType(item.sourceType),
+    sourceRole: item.sourceRole
+  });
 }
 
 export async function updateTripItem(

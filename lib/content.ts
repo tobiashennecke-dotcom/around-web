@@ -1,5 +1,6 @@
 import { sanity } from "@/lib/sanity/client";
 import { normalizeContentRole } from "@/lib/content-role";
+import { normalizeStoryAccessTier } from "@/lib/story-access";
 import {
   COLLECTION_QUERY,
   DESTINATION_GEO_QUERY,
@@ -457,6 +458,7 @@ export async function getStory(slug: string): Promise<Story | null> {
         } : undefined,
         publishedAt: doc.publishedAt || undefined,
         readingTime: typeof doc.readingTime === "number" ? doc.readingTime : undefined,
+        accessTier: normalizeStoryAccessTier(doc.accessTier),
         relatedIds: related.map(x => x.id),
         related,
         seoTitle: doc.seoTitle || undefined,

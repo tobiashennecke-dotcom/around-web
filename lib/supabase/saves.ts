@@ -1,5 +1,6 @@
 import { createClient } from "./client";
 import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
+import { trackUserEvent } from "@/lib/analytics/user-events";
 
 export type SavePayload = {
   sourceId: string;
@@ -215,6 +216,12 @@ export async function toggleSave(payload: SavePayload) {
     const { error } = await supabase.from("saved_items").delete().eq("id", existing.id);
     if (error) throw error;
     notifySaveChange();
+    void trackUserEvent({
+      eventName: "content_unsaved",
+      sourceId: payload.sourceId,
+      sourceType: dbType(payload.sourceType),
+      sourceRole: payload.sourceRole
+    });
     return { saved: false, mode: "account" as const };
   }
 
@@ -229,6 +236,12 @@ export async function toggleSave(payload: SavePayload) {
   if (error) throw error;
 
   notifySaveChange();
+  void trackUserEvent({
+    eventName: "content_saved",
+    sourceId: payload.sourceId,
+    sourceType: dbType(payload.sourceType),
+    sourceRole: payload.sourceRole
+  });
   return { saved: true, mode: "account" as const };
 }
 

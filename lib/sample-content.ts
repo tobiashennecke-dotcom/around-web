@@ -70,6 +70,7 @@ export const stories: Story[] = [
       "Lissabon ist interessant, weil sich diese Logik hier leicht brechen lässt. Atlantik und Stadt liegen nah genug beieinander, dass Golf nicht jede Stunde übernehmen muss.",
       "Genau dort liegt die Produktidee von AROUND: Ein Artikel endet nicht nach dem letzten Absatz. Er öffnet Orte, Menschen und Dinge, die man speichern und weiterverfolgen kann."
     ],
+    accessTier: "free",
     relatedIds: ["destination-lisbon", "place-oitavos", "place-prado"]
   }
 ];

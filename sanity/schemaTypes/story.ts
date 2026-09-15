@@ -93,6 +93,29 @@ const placeModule = {
   }
 };
 
+const premiumGate = {
+  type: "object",
+  name: "premiumGate",
+  title: "AROUND Premium Gate",
+  description: "Marks the editorial point where a future Premium wall would appear. Placement metadata only - there is no active paywall yet, and this block currently renders nothing on the site.",
+  fields: [
+    defineField({
+      name: "note",
+      title: "Internal note (optional)",
+      type: "string",
+      description: "Optional internal note about this gate placement. Never shown to readers."
+    })
+  ],
+  preview: {
+    prepare() {
+      return {
+        title: "AROUND PREMIUM GATE",
+        subtitle: "Paywall position · currently inactive"
+      };
+    }
+  }
+};
+
 export const story = defineType({
   name:"story",
   title:"Story",
@@ -200,8 +223,15 @@ export const story = defineType({
             }
           }
         },
-        placeModule
-      ]
+        placeModule,
+        premiumGate
+      ],
+      validation: r => r.custom((blocks: any) => {
+        if (!Array.isArray(blocks)) return true;
+        const gateCount = blocks.filter((block: any) => block?._type === "premiumGate").length;
+        if (gateCount > 1) return "Eine Story darf maximal ein AROUND Premium Gate enthalten.";
+        return true;
+      })
     }),
 
     defineField({
@@ -215,6 +245,18 @@ export const story = defineType({
     defineField({name:"featured",title:"Featured",type:"boolean",group:"publishing",initialValue:false}),
     defineField({name:"aroundSelected",title:"AROUND Selected",type:"boolean",group:"publishing",initialValue:false}),
     defineField({name:"priority",title:"Editorial priority",type:"number",group:"publishing",initialValue:50,validation:r=>r.min(0).max(100)}),
+    defineField({
+      name:"accessTier",title:"Access tier",type:"string",group:"publishing",
+      description:"Controls a future reader access gate only. This is NOT AROUND Selected, and Premium does not mean higher editorial quality - it only marks a Story for a future Premium wall. Stories without this field behave as Free.",
+      options:{list:[{title:"Free",value:"free"},{title:"Premium",value:"premium"}],layout:"radio"},
+      initialValue:"free",
+      validation: r => r.custom((value: any, context: any) => {
+        if (value !== "premium") return true;
+        const body = Array.isArray((context?.document as any)?.body) ? (context.document as any).body : [];
+        const hasGate = body.some((block: any) => block?._type === "premiumGate");
+        return hasGate ? true : "Premium Stories haben normalerweise ein AROUND Premium Gate im Body.";
+      }).warning()
+    }),
 
     defineField({name:"seoTitle",title:"SEO title",type:"string",group:"seo",validation:r=>r.max(60)}),
     defineField({name:"seoDescription",title:"SEO description",type:"text",rows:3,group:"seo",validation:r=>r.max(160)}),

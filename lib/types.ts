@@ -1,3 +1,5 @@
+import type { StoryAccessTier } from "@/lib/story-access";
+
 export type ContentType =
   | "destination"
   | "place"
@@ -227,6 +229,8 @@ export type Story = ContentCard & SeoFields & {
   author?: StoryAuthor;
   publishedAt?: string;
   readingTime?: number;
+  /** Controls a future reader access gate only - not editorial quality, not AROUND Selected. */
+  accessTier: StoryAccessTier;
   relatedIds: string[];
   related?: ContentCard[];
 };
