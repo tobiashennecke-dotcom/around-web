@@ -1,0 +1,161 @@
+{
+  "version": "0.2",
+  "generatedFor": "AROUND Editorial Pilot Pack v0.2 (Stories 7-12)",
+  "policy": "Same strict policy as v0.1's media-manifest.json: an item is only eligible for automatic ingestion once ALL three are true - (1) the source explicitly permits editorial reuse, (2) the exact required credit/photographer is known, (3) the intended use complies with the source's terms. None of the candidates below currently satisfy all three with full confidence, so every item is 'permission_required' or 'placeholder_only'. See README.md for the reasoning per source.",
+  "items": [
+    {
+      "storyId": "around-story-golfclub-reit-im-winkl-two-countries",
+      "role": "hero",
+      "sourceUrl": null,
+      "downloadUrl": null,
+      "credit": "Tobias Hennecke",
+      "rightsStatus": "cleared_editorial",
+      "termsUrl": null,
+      "notes": "IMPORTED. Not sourced externally - this is AROUND's own existing photo (Sanity asset image-f162c296aab7962dc3813dc3dd9cfc999b124ab5-1536x2048-jpg), already live on the Golfclub Reit im Winkl-Kössen Place gallery (uploaded via sanity/tools/BayernSeedTool.tsx), alt text 'Grenzschild am Weg zu Tee 18 zwischen Österreich und Deutschland'. A thematically exact match for this Story, so EditorialPilotV02SeedTool.tsx re-references the same asset as this Story's heroImage rather than sourcing anything new. This is the only image actually live in Sanity for the v0.2 pack."
+    },
+    {
+      "storyId": "around-story-golfclub-reit-im-winkl-two-countries",
+      "role": "gallery",
+      "sourceUrl": "https://www.reitimwinkl.de/en/golfplatz-reit-im-winkl-koessen",
+      "credit": "Reit im Winkl Tourismus — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.reitimwinkl.de/",
+      "notes": "Candidate: a wide shot showing the Kaisergebirge backdrop from the course."
+    },
+    {
+      "storyId": "around-story-golfclub-reit-im-winkl-two-countries",
+      "role": "gallery",
+      "sourceUrl": "https://www.gcreit.de/",
+      "credit": "Golfclub Reit im Winkl e.V. — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.gcreit.de/",
+      "notes": "Candidate: the clubhouse at Moserbergweg, Kössen (Austria side)."
+    },
+    {
+      "storyId": "around-story-reit-im-winkl-48-hours",
+      "role": "hero",
+      "sourceUrl": "https://www.gutsteinbach.de/",
+      "credit": "Gut Steinbach (official site) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.gutsteinbach.de/",
+      "notes": "Official hotel site, sourcing reference only. Reuse existing AROUND-owned Gut Steinbach photography (see sanity/tools/BayernSeedTool.tsx asset references, credited 'Tobias Hennecke' / 'Tiberio Sorvillo') where a suitable image already exists in the asset library, rather than sourcing new external imagery for a Story that only reuses existing Places."
+    },
+    {
+      "storyId": "around-story-reit-im-winkl-48-hours",
+      "role": "gallery",
+      "sourceUrl": "https://www.reitimwinkl.de/en/winklmoos-alm",
+      "credit": "Reit im Winkl Tourismus — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.reitimwinkl.de/",
+      "notes": "Candidate: Winklmoos-Alm plateau, daytime."
+    },
+    {
+      "storyId": "around-story-reit-im-winkl-48-hours",
+      "role": "gallery",
+      "sourceUrl": "http://www.alteschmiede.de/",
+      "credit": "Grillhaus Alte Schmiede — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "http://www.alteschmiede.de/",
+      "notes": "Candidate: the historic building / grill kitchen interior for the Day 1 evening section."
+    },
+    {
+      "storyId": "around-story-winklmoos-alm-nights",
+      "role": "hero",
+      "sourceUrl": "https://www.sternenpark-winklmoosalm.de/",
+      "credit": "Sternenpark Winklmoos-Alm (official site) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.sternenpark-winklmoosalm.de/",
+      "notes": "Official Dark Sky Park site, sourcing reference only. A genuine night-sky/star-trail photo of the Alm is the ideal hero; night astrophotography of this specific site is unlikely to be freely reusable, so a licensed or commissioned image is the safer path."
+    },
+    {
+      "storyId": "around-story-winklmoos-alm-nights",
+      "role": "gallery",
+      "sourceUrl": "https://www.ale-oberbayern.bayern.de/357857/index.php",
+      "credit": "Amt für Ländliche Entwicklung Oberbayern (Bavarian state authority) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.ale-oberbayern.bayern.de/",
+      "notes": "A Bavarian state-government page about the Sternenpark; government sites sometimes carry more permissive reuse terms than private operators, but no explicit grant was found on this page - verify before use."
+    },
+    {
+      "storyId": "around-story-winklmoos-alm-nights",
+      "role": "gallery",
+      "sourceUrl": "https://www.reitimwinkl.de/en/dark-sky-park",
+      "credit": "Reit im Winkl Tourismus — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.reitimwinkl.de/",
+      "notes": "Candidate: daytime plateau shot, to caption honestly as the same location shown by day, for context alongside a night image."
+    },
+    {
+      "storyId": "around-story-cynthia-dye-mcgarey",
+      "role": "hero",
+      "sourceUrl": "https://asgca.org/architect/cmcgarey/",
+      "credit": "ASGCA (American Society of Golf Course Architects) member profile — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://asgca.org/",
+      "notes": "ASGCA's member profile is the most authoritative source for a portrait, but no explicit reuse grant was found. The ideal path is requesting a portrait directly from Dye Designs Group (dyedesignsgroup.com) for use as both the Story hero and this Person's portrait field."
+    },
+    {
+      "storyId": "around-story-cynthia-dye-mcgarey",
+      "role": "gallery",
+      "sourceUrl": "https://westcliffs.com/en/gallery/",
+      "credit": "West Cliffs (official gallery) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://westcliffs.com/en/west-cliffs-golf-course/",
+      "notes": "Candidate: a West Cliffs course photo to illustrate her design work, same rights status as already recorded for West Cliffs in v0.1's manifest - still not cleared."
+    },
+    {
+      "storyId": "around-story-gut-steinbach-80-80",
+      "role": "hero",
+      "sourceUrl": "https://www.gutsteinbach.de/kulinarik/restaurant-heimat/",
+      "credit": "Gut Steinbach / Restaurant HEIMAT (official site) — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.gutsteinbach.de/",
+      "notes": "Official site, sourcing reference only. As with Story 8, check the existing AROUND asset library first (BayernSeedTool.tsx references a credited 'schnitzel.webp' / 'Tobias Hennecke' Restaurant HEIMAT image) before sourcing anything new externally."
+    },
+    {
+      "storyId": "around-story-gut-steinbach-80-80",
+      "role": "gallery",
+      "sourceUrl": "https://www.gutsteinbach.de/kulinarik/",
+      "credit": "Gut Steinbach — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://www.gutsteinbach.de/",
+      "notes": "Candidate: the estate's own herb garden."
+    },
+    {
+      "storyId": "around-story-gut-steinbach-80-80",
+      "role": "gallery",
+      "sourceUrl": "https://guide.michelin.com/de/de/bayern/reit-im-winkl/restaurant/gut-steinbach",
+      "credit": "MICHELIN Guide listing — photographer not identified",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://guide.michelin.com/",
+      "notes": "MICHELIN Guide restaurant listing page, useful to verify the Green Star status but not a cleared image source."
+    },
+    {
+      "storyId": "around-story-estonia-next-road-trip",
+      "role": "hero",
+      "sourceUrl": "https://visitestonia.com/en/media",
+      "credit": "Visit Estonia / Enterprise Estonia (EAS) — specific photographer to be confirmed per asset",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://visitestonia.com/en/media",
+      "notes": "Same source and same caveat already recorded in v0.1: Visit Estonia's terms allow editorial promotion with credit but forbid use in advertising/marketing directed at selling a product or service - still worth a direct confirmation from brand@estonia.ee given AROUND's Trip/booking features, and no single asset + named photographer was pinned down in this pass either. Most promising path of the sources checked in v0.2."
+    },
+    {
+      "storyId": "around-story-estonia-next-road-trip",
+      "role": "gallery",
+      "sourceUrl": "https://visitestonia.com/en/traveltrade/estonia-photo-gallery",
+      "credit": "Visit Estonia — specific photographer to be confirmed per asset",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://visitestonia.com/en/media",
+      "notes": "Candidate: a wide shot combining Tallinn's skyline with the Baltic coastline, to visually reinforce the 'city + coast' argument this Story makes."
+    },
+    {
+      "storyId": "around-story-estonia-next-road-trip",
+      "role": "gallery",
+      "sourceUrl": "https://visitestonia.com/en/parnu-bay-golf-links",
+      "credit": "Visit Estonia / Pärnu Bay Golf Links — specific photographer to be confirmed per asset",
+      "rightsStatus": "permission_required",
+      "termsUrl": "https://visitestonia.com/en/media",
+      "notes": "Candidate: a links hole distinct from any image already used for Story 5, so the two Estonia Stories don't visually duplicate."
+    }
+  ]
+}

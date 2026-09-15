@@ -10,6 +10,7 @@ import { PlayV2SeedTool } from "./sanity/tools/PlayV2SeedTool";
 import { StayV2SeedTool } from "./sanity/tools/StayV2SeedTool";
 import { ExperienceV2SeedTool } from "./sanity/tools/ExperienceV2SeedTool";
 import { EditorialPilotSeedTool } from "./sanity/tools/EditorialPilotSeedTool";
+import { EditorialPilotV02SeedTool } from "./sanity/tools/EditorialPilotV02SeedTool";
 
 export default defineConfig({
   name: "around",
@@ -34,7 +35,8 @@ export default defineConfig({
     { name: "play-v2-seed", title: "PLAY V2 Seed", component: PlayV2SeedTool },
     { name: "stay-v2-seed", title: "STAY V2 Seed", component: StayV2SeedTool },
     { name: "experience-v2-seed", title: "EXPERIENCE V2 Seed", component: ExperienceV2SeedTool },
-    { name: "editorial-pilot-pack-seed", title: "Editorial Pilot Pack v0.1", component: EditorialPilotSeedTool }
+    { name: "editorial-pilot-pack-seed", title: "Editorial Pilot Pack v0.1", component: EditorialPilotSeedTool },
+    { name: "editorial-pilot-pack-v02-seed", title: "Editorial Pilot Pack v0.2", component: EditorialPilotV02SeedTool }
   ],
   schema: { types: schemaTypes }
 });
