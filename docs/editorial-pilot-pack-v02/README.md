@@ -22,6 +22,51 @@ all use `.setIfMissing()`, so a human's later edits or uploads are never
 overwritten. The tool logs, per document, whether each of these was written
 fresh or left untouched because it was already present.
 
+## v0.2.1 — final editorial hardening
+
+A follow-up pass fixed a factual overstatement, a hero/copy contradiction, two
+unsupported comparative claims, a future-dated `publishedAt`, and three
+over-length `seoTitle` values:
+
+1. **Story 11's 80:80 claim was overstated.** The original copy said "80
+   Kilometer sind eine harte Grenze… was diese Distanz nicht hergibt, kommt
+   nicht auf den Teller," which implies a 100% rule. Gut Steinbach's actual
+   published credo is **80% of ingredients from within 80km** — the
+   remaining 20% may come from elsewhere. Rewritten so the editorial point
+   (regionality is measurable because the house publicly commits to a
+   specific share and radius) survives without implying absoluteness. Also
+   corrected: the Story no longer implies the 2021 Michelin Green Star was
+   awarded specifically for the 80:80 rule — it recognizes the restaurant's
+   broader sustainability approach, of which regional sourcing is one part.
+2. **Story 7's opening contradicted its own hero image.** The hero is
+   AROUND's real photo of the border sign at tee 18 ("Grenzschild am Weg zu
+   Tee 18"), but the opening line said "Kein Schlagbaum, kein Schild, kein
+   Pass." Rewritten to "Kein Schlagbaum, kein Pass. Nur ein kleines
+   Grenzschild am Weg zu Tee 18 verrät, dass man gerade das Land gewechselt
+   hat." The closing line's "ohne dafür jemals den Golfwagen zu verlassen"
+   was also replaced with "ohne dafür die Runde zu unterbrechen," since not
+   every golfer at this course uses a cart.
+3. **Two unsupported comparative superlatives removed**: "eine der
+   dichtesten Golf- und Bergregionen im gesamten Alpenraum" (Story 7) → "eine
+   dichte Golf- und Bergregion"; "Tallinns Flughafen gilt als einer der am
+   besten angebundenen und kompaktesten Europas" (Story 12) → "Tallinns
+   Flughafen liegt nur wenige Minuten vom Zentrum entfernt." Neither claim
+   had a cited authoritative source behind the comparative ranking, unlike
+   the already-verified claims (cross-border course, 12/6 hole split, Dark
+   Sky Park since 2018, 80:80, Pärnu Bay as the Baltics' first true links
+   course), all of which were left untouched.
+4. **Story 12's `publishedAt` moved from 2026-09-16 to 2026-09-15** — the
+   former was a date not yet reached at the time of this pass; see
+   "Editorial priority and publishing dates" below.
+5. **Three `seoTitle` values exceeded the schema's 60-character limit** and
+   were shortened — see the table in "SEO title validation" below. All six
+   are now within limit; no `seoDescription` was shortened or weakened.
+6. **Word-count framing corrected** in this README: the original v0.2 pass
+   undershot the pilot brief's 700–1,300-word target (~580–660 actual), and
+   rather than padding the Stories to hit that number, this pass keeps them
+   sharp and updates the README to say so plainly instead of implying the
+   original target was met. See "The six new Stories" below.
+
 ## The six new Stories
 
 | # | Format | Title | Subject |
@@ -33,8 +78,13 @@ fresh or left untouched because it was already present.
 | 11 | The Good Stuff | 80 KILOMETER. 80 PROZENT. | Gut Steinbach / Restaurant HEIMAT — regionality as a measurable number |
 | 12 | Next | IS ESTONIA GOLF'S NEXT GREAT ROAD TRIP? | Estonia — a forward-looking argument, not a repeat of Story 5's itinerary |
 
-Word counts range ~585–660 (checked via the same block-text word count used
-for v0.1, which landed in a comparable 650–785 range). Formats deliberately use different rhythms: Story 7 opens
+Word counts range ~580–660. The pilot brief's original target was
+700–1,300 words; these six pieces land under that on purpose after the
+v0.2.1 hardening pass — every paragraph earns its place with a verified
+fact, a genuine editorial turn, or a needed correction, and none was added
+just to move a word counter. A sharp ~600-word AROUND piece reads better
+than a padded 900-word one, so this range is the intended outcome here, not
+a shortfall to apologize for. Formats deliberately use different rhythms: Story 7 opens
 mid-scene rather than with a place-name lede; Story 8 is chronological
 (Ankunft → Tag 1 → Tag 2, appropriate for a 48 Hours piece); Story 9 is
 built as one continuous reflective voice with few, longer sections rather
@@ -104,7 +154,7 @@ their existing IDs inside the new Stories' `related[]` arrays.
 - **Golfclub Reit im Winkl-Kössen (Story 7, 8)**: [gcreit.de](https://www.gcreit.de/) (club site — confirms Bavaria/Tyrol location, does not itself state the "first/only" claim); first-party confirmation of "the first and only cross-border golf course in Europe" comes from the destination tourism board, [reitimwinkl.de/en/golfplatz-reit-im-winkl-koessen](https://www.reitimwinkl.de/en/golfplatz-reit-im-winkl-koessen). The 12 Bavaria / 6 Tyrol hole split and clubhouse address (Moserbergweg, Kössen) were already verified and in production from the v1.24 Bayern/PLAY V2 seed content. **Checked: 2026-09-15.**
 - **Winklmoos-Alm Dark Sky Park (Story 8, 9)**: first-party [sternenpark-winklmoosalm.de](https://www.sternenpark-winklmoosalm.de/) — certification by DarkSky International (formerly International Dark-Sky Association), 2018, fourth Sternenpark in Germany and first in the Alps, ~1,170m altitude (matching the figure already used for Winklmoos-Alm elsewhere in the product), 30–70km to Salzburg/Rosenheim/Traunstein. **Potentially volatile**: the exact star count differs between sources (this site says up to 6,000; a secondary source said ~5,000) — the Story deliberately says "mehrere tausend" (several thousand) rather than committing to either number. **Checked: 2026-09-15.**
 - **Cynthia Dye McGarey (Story 10)**: first-party [ASGCA member profile](https://asgca.org/architect/cmcgarey/) for family background, career timeline, 2001 Dye Designs Group founding, White Horse Golf Club (2007), and notable project list (Dreamland Baku, Ferrum Korea, Foison China, Sheraton New Caledonia). EIGCA membership and official Dye Designs Group site (`dyedesignsgroup.com`) found via web search and cross-checked. Alice Dye / Jan Bel Jan / Vicki Martz context comes from an ASGCA obituary page for Alice Dye. No quote is presented as something she personally said in an interview; the one design-philosophy line paraphrased from her ASGCA profile is attributed as "auf ihrem offiziellen Profil beschreibt sie…", not framed as spoken dialogue. **Checked: 2026-09-15.**
-- **Gut Steinbach / Restaurant HEIMAT 80:80 (Story 11)**: first-party [gutsteinbach.de/en/cuisine](https://www.gutsteinbach.de/en/cuisine/) and [gutsteinbach.de/kulinarik/restaurant-heimat](https://www.gutsteinbach.de/kulinarik/restaurant-heimat/) for the exact "80% of ingredients within 80km" credo (quoted on-site almost verbatim), the estate's own herb garden and game breeding, and the Bioland organic-farm certification. The 2021 Michelin Green Star award (chef Achim Hack) was corroborated by multiple secondary sources referencing the Guide Michelin listing; the Guide Michelin page itself returned a 403 on direct fetch, so the award is stated as reported rather than directly quoted from Michelin. Relais & Châteaux membership confirmed on the official site. **Not included**: a specific hectare figure and the estate owner's name, found only on a single secondary blog without first-party corroboration — omitted per the "omit rather than guess" rule. **Checked: 2026-09-15.**
+- **Gut Steinbach / Restaurant HEIMAT 80:80 (Story 11)**: first-party [gutsteinbach.de/en/cuisine](https://www.gutsteinbach.de/en/cuisine/) and [gutsteinbach.de/kulinarik/restaurant-heimat](https://www.gutsteinbach.de/kulinarik/restaurant-heimat/) for the exact "80% of ingredients within a maximum of 80km" credo (quoted on-site almost verbatim — **80%, not 100%**; the remaining 20% may come from elsewhere, corrected in the v0.2.1 pass after the Story initially implied an absolute radius), the estate's own herb garden and game breeding, and the Bioland organic-farm certification. The 2021 Michelin Green Star award (chef Achim Hack) was corroborated by multiple secondary sources referencing the Guide Michelin listing; the Guide Michelin page itself returned a 403 on direct fetch, so the award is stated as reported rather than directly quoted from Michelin. The Story frames the Green Star as recognizing the restaurant's broader sustainability approach, of which regional sourcing is one component — not as an award for the 80:80 credo specifically, since no source ties the award to that one metric alone. Relais & Châteaux membership confirmed on the official site. **Not included**: a specific hectare figure and the estate owner's name, found only on a single secondary blog without first-party corroboration — omitted per the "omit rather than guess" rule. **Checked: 2026-09-15.**
 - **Estonia (Story 12)**: reuses the same verified facts as v0.1's Story 5 (Tallinn UNESCO listing since 1997, Pärnu "Summer Capital" since 1996, Pärnu Bay Golf Links as the Baltic states' first true links course) — no new facts were needed for this forward-looking argument piece, only a different editorial angle. No trend/market claims ("booming," "the next Portugal," visitor-number growth) are made anywhere in the Story; it explicitly states that no reliable data for such a claim was found. **Checked: 2026-09-15.**
 
 ## Editorial priority and publishing dates
@@ -116,13 +166,34 @@ their existing IDs inside the new Stories' `related[]` arrays.
 | 9 — Winklmoos Nights | local-knowledge | — | 58 | 2026-09-09 |
 | 10 — Cynthia Dye McGarey | people-to-know | — | 60 | 2026-09-11 |
 | 11 — 80km/80% | the-good-stuff | — | 62 | 2026-09-13 |
-| 12 — Estonia Next | next | — | 55 | 2026-09-16 |
+| 12 — Estonia Next | next | — | 55 | 2026-09-15 |
 
 Exactly 2 of the 6 new Stories are featured, per the brief's cap. Dates
 interleave with v0.1's existing sequence (2026-09-04 through 2026-09-14) on
-odd days, extending one day past it (09-16) for Story 12, so `publishedAt
-DESC` automatic ordering has a realistic, non-identical sequence across all
-12 Stories to exercise Story Hub / Story Graph ranking in v1.25b.
+odd days. Story 12 was corrected in the v0.2.1 pass from 2026-09-16 (a date
+not yet reached) to 2026-09-15 — `publishedAt` is metadata read by Story
+Graph/Story Hub ordering, not a publication gate, but a seeded pilot Story
+should not carry a date in the future until AROUND has explicit
+scheduled-publishing logic. `publishedAt DESC` automatic ordering still has
+a realistic, non-identical sequence across all 12 Stories to exercise Story
+Hub / Story Graph ranking in v1.25b.
+
+## SEO title validation
+
+The `story` schema requires `seoTitle` ≤ 60 characters. All six were checked
+programmatically after the v0.2.1 pass; three were originally over the limit
+and have been shortened:
+
+| Story | seoTitle | Length |
+|---|---|---|
+| 7 — Two Countries | Reit im Winkl-Kössen: Golf über zwei Länder \| AROUND | 52 (was 79) |
+| 8 — 48 Hours | 48 Stunden in Reit im Winkl: Stay, Play, Do, Eat \| AROUND | 57 (unchanged) |
+| 9 — Winklmoos Nights | Winklmoos-Alm bei Nacht: Sternenpark im Chiemgau \| AROUND | 57 (unchanged) |
+| 10 — Cynthia Dye McGarey | Cynthia Dye McGarey & West Cliffs \| AROUND | 42 (was 64) |
+| 11 — 80km/80% | Gut Steinbach: Das 80:80-Prinzip \| AROUND | 41 (was 61) |
+| 12 — Estonia Next | Estland als nächste Golfdestination Europas? \| AROUND | 53 (unchanged) |
+
+No `seoDescription` was shortened or otherwise weakened in this pass.
 
 ## STORY HUB READINESS — format inventory after v0.2
 

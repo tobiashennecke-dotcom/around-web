@@ -147,10 +147,10 @@ const storyTwoCountries = {
   priority: 72,
   related: [ref(EXISTING_PLACE.golfclubReitImWinkl), ref(EXISTING_DEST.reitImWinkl)],
   heroImage: img(EXISTING_ASSET.reitImWinklBorderSign, "Grenzschild am Weg zu Tee 18 zwischen Österreich und Deutschland", "Tobias Hennecke"),
-  seoTitle: "Reit im Winkl-Kössen: Europas einziger grenzüberschreitender Golfplatz | AROUND",
+  seoTitle: "Reit im Winkl-Kössen: Golf über zwei Länder | AROUND",
   seoDescription: "Warum der Golfclub Reit im Winkl-Kössen als Europas erster und einziger grenzüberschreitender Golfplatz mehr Reisegeschichte als Golfkuriosität ist.",
   body: [
-    block("Irgendwo zwischen einer Bahn in Bayern und der nächsten in Tirol überquert man eine Staatsgrenze. Kein Schlagbaum, kein Schild, kein Pass – nur ein Punkt auf der Karte, den man auf der Runde selbst kaum bemerkt. Golfclub Reit im Winkl-Kössen gilt nach vielfach bestätigter Aussage als erster und einziger grenzüberschreitender Golfplatz Europas: zwölf Bahnen liegen in Bayern, sechs in Tirol. Für eine Runde Golf ist das ungewöhnlich genug, um daraus eine Reisegeschichte zu machen – nicht nur eine Platzbeschreibung."),
+    block("Irgendwo zwischen einer Bahn in Bayern und der nächsten in Tirol überquert man eine Staatsgrenze. Kein Schlagbaum, kein Pass. Nur ein kleines Grenzschild am Weg zu Tee 18 verrät, dass man gerade das Land gewechselt hat. Golfclub Reit im Winkl-Kössen gilt nach vielfach bestätigter Aussage als erster und einziger grenzüberschreitender Golfplatz Europas: zwölf Bahnen liegen in Bayern, sechs in Tirol. Für eine Runde Golf ist das ungewöhnlich genug, um daraus eine Reisegeschichte zu machen – nicht nur eine Platzbeschreibung."),
     block("EINE GRENZE, DIE MAN SPIELT, NICHT ÜBERQUERT", "h2"),
     block("Was diesen Platz von einem gewöhnlichen Grenzort unterscheidet, ist, dass die Grenze hier kein Hindernis ist, sondern Teil des Layouts. Bayern und Tirol teilen sich nicht zwei Golfplätze, sondern einen einzigen – 18 Bahnen, die sich über die Landesgrenze hinweg durch das Kaiserwinkl ziehen, mit Blick auf die Chiemgauer Alpen auf der einen und das Kaisergebirge auf der anderen Seite. Die politische Grenze zwischen Deutschland und Österreich verläuft mitten durch das Gelände, ohne dass sich am Spiel selbst etwas ändert."),
     block("ZWEI LANDSCHAFTEN, EINE RUNDE", "h2"),
@@ -159,11 +159,11 @@ const storyTwoCountries = {
     block("Der Platz selbst ist dabei keine flache Resort-Runde. Höhenunterschiede und Hanglagen prägen mehrere Bahnen, dazu kommen Biotope und Gräben als natürliche Hindernisse. Wer zum ersten Mal hier spielt, profitiert mehr von einer durchdachten Strategie als von reiner Länge – die Landesgrenze ist damit nicht das Einzige auf dieser Runde, das man nicht unterschätzen sollte."),
     block("WARUM DAS MEHR IST ALS EIN KURIOSUM", "h2"),
     block("Grenzüberschreitende Sehenswürdigkeiten gibt es viele – Brücken, Wanderwege, Aussichtspunkte. Ein Golfplatz, der eine internationale Grenze als Teil seines Spielflusses integriert, bleibt selten. Genau deshalb gehört Reit im Winkl-Kössen eher in eine Reisegeschichte als in einen reinen Platzführer: Die Runde selbst wird zum Beleg dafür, dass diese Region – Chiemgau und Kaiserwinkl – landschaftlich nie wirklich zwei Länder war, sondern eine zusammenhängende alpine Landschaft mit einer Verwaltungsgrenze mittendurch."),
-    block("Das Kaiserwinkl auf österreichischer und der Chiemgau auf bayerischer Seite bilden zusammen eine der dichtesten Golf- und Bergregionen im gesamten Alpenraum – mit Reit im Winkl-Kössen als vielleicht deutlichstem Beweis dafür, dass diese Grenze eher verwaltungstechnisch als landschaftlich existiert."),
+    block("Das Kaiserwinkl auf österreichischer und der Chiemgau auf bayerischer Seite bilden zusammen eine dichte Golf- und Bergregion – mit Reit im Winkl-Kössen als vielleicht deutlichstem Beweis dafür, dass diese Grenze eher verwaltungstechnisch als landschaftlich existiert."),
     block("Wer den Platz spielen will, braucht dafür kein Sonderarrangement: Gastspiel ist möglich, die Saison reicht von April bis in den frühen November hinein. Das macht die grenzüberschreitende Runde nicht zu einem einmaligen Erlebnis für Insider, sondern zu einem regulären Teil eines Chiemgau- oder Kaiserwinkl-Trips."),
     block("International gibt es nur eine Handvoll Golfplätze, die überhaupt über eine Landesgrenze hinweg gebaut wurden – die meisten davon außerhalb Europas. Innerhalb der EU, mit offener Grenze und freiem Personenverkehr im Schengen-Raum, bleibt Reit im Winkl-Kössen nach verbreiteter Einschätzung ein Einzelfall: ein Platz, der von der Reisefreiheit zwischen Deutschland und Österreich ebenso profitiert wie von seiner Landschaft. Das mag administrativ klingen, verändert aber tatsächlich, wie sich die Runde anfühlt: kein Grenzkontrollpunkt, kein Umweg, keine Formalität - nur eine Bahn, die in einem Land beginnt und im nächsten weiterspielt."),
     block("Der interessanteste Teil dieser Runde ist nicht der Score. Es ist der Moment, in dem man merkt, dass man gerade das Land gewechselt hat, ohne es zu bemerken.", "pullQuote"),
-    block("Wer nach Reit im Winkl oder Kössen kommt, um diesen Platz zu spielen, bekommt am Ende beides: 18 Löcher Golf und eine der wenigen Gelegenheiten, eine internationale Grenze zu überqueren, ohne dafür jemals den Golfwagen zu verlassen.")
+    block("Wer nach Reit im Winkl oder Kössen kommt, um diesen Platz zu spielen, bekommt am Ende beides: 18 Löcher Golf und eine der wenigen Gelegenheiten, eine internationale Grenze zu überqueren, ohne dafür die Runde zu unterbrechen.")
   ]
 };
 
@@ -262,7 +262,7 @@ const storyCynthiaDye = {
   aroundSelected: false,
   priority: 60,
   related: [ref(PERSON.cynthiaDyeMcGarey), ref(EXISTING_PLACE.westCliffs), ref(EXISTING_DEST.silverCoast)],
-  seoTitle: "Cynthia Dye McGarey: Die Architektin hinter West Cliffs | AROUND",
+  seoTitle: "Cynthia Dye McGarey & West Cliffs | AROUND",
   seoDescription: "Cynthia Dye McGarey wuchs in der Dye-Familie der Golfarchitektur auf und entwickelte mit der Dye Designs Group eine eigene, zurückhaltendere Handschrift - sichtbar bei West Cliffs.",
   body: [
     block("Es gibt Golfplatzarchitekten, die mit einem eigenen Namen beginnen. Cynthia Dye McGarey begann mit einem, den die Golfwelt bereits kannte - und musste selbst entscheiden, was sie damit macht."),
@@ -297,12 +297,12 @@ const storyGutSteinbach8080 = {
   aroundSelected: false,
   priority: 62,
   related: [ref(EXISTING_PLACE.gutSteinbach), ref(EXISTING_PLACE.restaurantHeimat), ref(EXISTING_DEST.reitImWinkl)],
-  seoTitle: "Gut Steinbach: Das 80:80-Credo von Restaurant HEIMAT | AROUND",
+  seoTitle: "Gut Steinbach: Das 80:80-Prinzip | AROUND",
   seoDescription: "80 Prozent aller Zutaten aus maximal 80 Kilometern: wie Küchenchef Achim Hack im Restaurant HEIMAT auf Gut Steinbach Regionalität nachprüfbar macht.",
   body: [
     block("80 Prozent aller Lebensmittel aus maximal 80 Kilometern Entfernung. Das ist kein Slogan, sondern eine Zahl, an der sich Küchenchef Achim Hack im Restaurant HEIMAT auf Gut Steinbach tatsächlich messen lässt. Für ein Wort wie „regional“, das in der Gastronomie beinahe bedeutungslos geworden ist, ist das ein ungewöhnlich konkretes Versprechen."),
     block("EINE ZAHL STATT EINES ADJEKTIVS", "h2"),
-    block("Das 80:80-Credo von Gut Steinbach lässt sich nicht schönreden: 80 Kilometer sind eine harte Grenze, keine ungefähre Richtung. Was diese Distanz nicht hergibt, kommt nicht auf den Teller - unabhängig davon, wie gut es sich in der Küche gemacht hätte. Diese Selbstverpflichtung wurde 2021 mit dem Grünen Stern des Guide Michelin honoriert, einer Auszeichnung, die explizit für nachhaltige Gastronomie vergeben wird, nicht für klassische kulinarische Kriterien."),
+    block("80 Prozent und 80 Kilometer sind konkrete Größen, an denen sich das Regionalitätsversprechen messen lässt - keine ungefähre Richtung, sondern ein öffentlich kommunizierter Anteil und Radius. Das heißt auch: Die verbleibenden 20 Prozent dürfen von außerhalb kommen, wenn es die Küche verlangt. Genau diese Ehrlichkeit unterscheidet eine Zahl von einem Versprechen, das keine Ausnahmen zugibt und ihnen dadurch weniger glaubwürdig wird. Restaurant HEIMAT wurde 2021 mit dem Grünen Stern des Guide Michelin ausgezeichnet - für seinen gesamten Nachhaltigkeitsansatz, von dem die regionale Beschaffung ein Baustein unter mehreren ist, nicht als Auszeichnung für das 80:80-Credo allein."),
     block("Gut Steinbach selbst gehört der Relais & Châteaux-Vereinigung an, einem internationalen Zusammenschluss unabhängiger Hotels und Restaurants mit eigenem Qualitätsanspruch. Für ein Haus, das ohnehin schon an strengen externen Kriterien gemessen wird, ist das 80:80-Credo eine zusätzliche, selbst auferlegte Messlatte - keine, die von außen verlangt wurde."),
     block("WAS VOM EIGENEN GUT KOMMT", "h2"),
     block("Ein Teil der Antwort auf die 80-Kilometer-Frage liegt direkt auf dem Gelände von Gut Steinbach: Kräuter aus dem eigenen Garten, Wild aus eigener Zucht. Der Betrieb selbst ist als Bioland-Betrieb zertifiziert - eine weitere Zahl, die sich überprüfen lässt, statt sich auf ein Gefühl zu verlassen. Wer im Restaurant HEIMAT isst, bekommt laut eigener Aussage des Hauses genau erklärt, woher das kommt, was auf dem Teller liegt: aus dem eigenen Garten, aus eigener Jagd, von Erzeugern aus der unmittelbaren Umgebung."),
@@ -326,7 +326,7 @@ const storyEstoniaNext = {
   format: "next",
   kicker: "ESTONIA / GOLF",
   deck: "Nicht die Frage, wie eine Golfreise durch Estland funktioniert - sondern warum diese Art von Destination als Nächstes wichtig werden könnte.",
-  publishedAt: "2026-09-16T08:00:00.000Z",
+  publishedAt: "2026-09-15T08:00:00.000Z",
   readingTime: 4,
   featured: false,
   aroundSelected: false,
@@ -341,7 +341,7 @@ const storyEstoniaNext = {
     block("Diese Kompaktheit hat einen praktischen Vorteil, den größere Destinationen strukturell nicht bieten können: Es gibt kaum Entscheidungsdruck. Wer nach Portugal oder Spanien zum Golfen reist, wählt zwangsläufig zwischen Dutzenden Plätzen und Regionen. Wer nach Estland reist, trifft diese Entscheidung praktisch nicht - die Substanz liegt bereits fest, nicht verstreut."),
     block("STADT UND KÜSTE, NICHT NUR KÜSTE", "h2"),
     block("Was Estland von reinen Küsten-Golfzielen unterscheidet, ist Tallinn: eine seit 1997 als UNESCO-Welterbe gelistete Altstadt, die einer Golfreise eine kulturelle Dimension gibt, die viele etablierte Ziele so nicht bieten. Pärnu wiederum trägt seit 1996 offiziell den Titel „Estlands Sommerhauptstadt“ und eine Bäderkultur, die bis 1838 zurückreicht - Golf trifft hier auf eigenständige Reiseziele, nicht auf reine Resort-Infrastruktur."),
-    block("Tallinns Flughafen gilt zudem als einer der am besten angebundenen und kompaktesten Europas, was die Anreise selbst zu einem kleineren Hindernis macht, als der geografische Abstand vermuten lässt."),
+    block("Tallinns Flughafen liegt zudem nur wenige Minuten vom Zentrum entfernt, was die Anreise selbst zu einem kleineren Hindernis macht, als der geografische Abstand vermuten lässt."),
     block("Estlands Identität ist dabei eher nordisch als kontinentaleuropäisch geprägt - geografisch und kulturell näher an Finnland und Skandinavien als an den etablierten Golfdestinationen Mittel- und Südeuropas. Das erklärt auch, warum sich eine Reise hierher anders anfühlt als ein weiterer Trip an eine der immer gleichen Küsten."),
     block("EIN LINKSKURS, DER FÜR SICH STEHT", "h2"),
     block("Der Pärnu Bay Golf Links ist nach eigener und vielfach zitierter Beschreibung der erste echte Linkskurs des Baltikums - kein Nebenprodukt eines größeren Resorts, sondern ein eigenständiges golferisches Argument. Das ist relevant für die Frage nach der Zukunft: Eine Destination, die golferisch etwas Eigenständiges zu bieten hat, funktioniert unabhängig von kurzfristigen Trends."),
