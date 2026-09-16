@@ -87,6 +87,8 @@ img{display:block;max-width:100%}
 .tag.blue{background:var(--around-blue);color:#fff}.tag.pink{background:var(--around-pink)}
 .storyRailSection .sectionTitle{margin:14px 0 40px}
 .storyRailIntro{font-size:16px;line-height:1.5;color:#5e625e;max-width:640px;margin:-20px 0 32px}
+.tripStoryCard{display:flex;flex-direction:column;gap:10px}
+.tripStoryMatch{margin:0;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--around-blue)}
 .saveButton{
   width:42px;height:42px;border:1px solid var(--around-ink);border-radius:50%;background:transparent;cursor:pointer;position:relative
 }

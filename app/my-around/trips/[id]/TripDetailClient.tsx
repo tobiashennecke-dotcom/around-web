@@ -19,6 +19,8 @@ import {
 import { formatTripFitLabel, type TripFitResult } from "@/lib/trip-fit";
 import type { TripBestDayResult } from "@/lib/trip-fit-adapter";
 import { formatBlockerLabel } from "@/lib/trip-conflict";
+import { TripStoryRail } from "@/components/TripStoryRail";
+import type { TripStoryRecommendation } from "@/lib/trip-stories";
 
 const slotLabels: Record<TripSlot, string> = {
   flex: "Flexibel",
@@ -254,6 +256,7 @@ export function TripDetailClient({ id }: { id: string }) {
   >(null);
   const [tripFitResults, setTripFitResults] = useState<Record<string, TripFitResult>>({});
   const [bestDayResults, setBestDayResults] = useState<Record<string, TripBestDayResult>>({});
+  const [tripStoryRecommendations, setTripStoryRecommendations] = useState<TripStoryRecommendation[]>([]);
   const autosaveReady = useRef(false);
 
   async function load() {
@@ -451,6 +454,56 @@ export function TripDetailClient({ id }: { id: string }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripIntelligenceKey, dayCount, trip?.destinationSourceId]);
+
+  // READ BEFORE YOU GO (v1.26c): the Story Graph only cares WHICH Places/
+  // Destinations are actually in the Trip, never day assignment, timing,
+  // booking state, notes or Trip dates/status - so this key only changes
+  // when Place/Destination membership itself changes. Sorted so reordering
+  // (drag/day moves) never spuriously changes the key.
+  const tripStoryContextKey = useMemo(() => {
+    if (!trip) return "";
+    const placeIds = trip.items.filter(item => item.sourceType === "place").map(item => item.sourceId).sort();
+    const destinationIds = trip.items.filter(item => item.sourceType === "destination").map(item => item.sourceId).sort();
+    return JSON.stringify({ placeIds, destinationIds, tripDestinationId: trip.destinationSourceId || null });
+  }, [trip]);
+
+  useEffect(() => {
+    if (!trip) {
+      setTripStoryRecommendations([]);
+      return;
+    }
+
+    const placeIds = trip.items.filter(item => item.sourceType === "place").map(item => item.sourceId);
+    const destinationIds = trip.items.filter(item => item.sourceType === "destination").map(item => item.sourceId);
+    if (trip.destinationSourceId) destinationIds.push(trip.destinationSourceId);
+
+    if (!placeIds.length && !destinationIds.length) {
+      setTripStoryRecommendations([]);
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch("/api/trip-stories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ placeIds, destinationIds })
+        });
+        const data = await response.json();
+        if (cancelled) return;
+        setTripStoryRecommendations(Array.isArray(data?.recommendations) ? data.recommendations : []);
+      } catch {
+        // READ BEFORE YOU GO must never break the Planner - silently omit the module.
+        if (!cancelled) setTripStoryRecommendations([]);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tripStoryContextKey]);
 
   useEffect(() => {
     if (!autosaveReady.current || !trip || loading || savingMeta || !title.trim()) return;
@@ -833,6 +886,8 @@ export function TripDetailClient({ id }: { id: string }) {
           ))}
         </div>
       </section>
+
+      <TripStoryRail recommendations={tripStoryRecommendations} />
 
       <TripQuickAddDrawer
         open={Boolean(quickAdd)}

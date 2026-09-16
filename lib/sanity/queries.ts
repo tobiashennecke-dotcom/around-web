@@ -33,6 +33,20 @@ export const STORIES_RELATED_TO_IDS_QUERY = defineQuery(`
 `);
 
 /**
+ * READ BEFORE YOU GO (v1.26c): same reverse Story Graph edge as
+ * STORIES_RELATED_TO_IDS_QUERY, plus the raw related[] ref ids so the caller
+ * can compute exactly which Trip Places/Destinations a Story matches and
+ * rank accordingly. Kept as its own query rather than widening the general
+ * one, since relatedRefs is only needed for Trip-aware match explanation.
+ */
+export const TRIP_STORIES_RELATED_TO_IDS_QUERY = defineQuery(`
+  *[_type == "story" && count(related[_ref in $ids]) > 0]{
+    ${STORY_CARD_FIELDS},
+    "relatedRefs": related[]._ref
+  }
+`);
+
+/**
  * Place ids belonging to a Destination - used to roll up Place-level Stories
  * transitively. Checks the explicit destination._ref field only, not
  * document-wide references($destinationId), so this can never widen to match
