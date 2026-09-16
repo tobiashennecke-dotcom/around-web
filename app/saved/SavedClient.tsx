@@ -2,46 +2,26 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { CollectionPicker } from "@/components/CollectionPicker";
-import { TripPicker } from "@/components/TripPicker";
+import { SavedLibraryItem } from "@/components/SavedLibraryItem";
 import type { SaveMode, SavePayload } from "@/lib/supabase/saves";
-import { contentTypeLabel } from "@/lib/content-role";
 import {
   listSaves,
   removeSave,
   SAVES_CHANGED_EVENT
 } from "@/lib/supabase/saves";
-
-type Filter = "all" | "destination" | "place" | "story" | "person" | "product" | "collection";
-
-function hrefFor(item: SavePayload) {
-  if (item.sourceType === "destination") return `/destinations/${item.slug}`;
-  if (item.sourceType === "place") return `/places/${item.slug}`;
-  if (item.sourceType === "story") return `/stories/${item.slug}`;
-  if (item.sourceType === "person") return `/people/${item.slug}`;
-  if (item.sourceType === "product" || item.sourceType === "object") return `/objects/${item.slug}`;
-  if (item.sourceType === "collection") return `/collections/${item.slug}`;
-  return "/discover";
-}
-
-function labelFor(item: SavePayload) {
-  return contentTypeLabel(item.sourceType, item.sourceRole);
-}
-
-const filters: { value: Filter; label: string }[] = [
-  { value: "all", label: "Alle" },
-  { value: "destination", label: "Reisen" },
-  { value: "place", label: "Places" },
-  { value: "story", label: "Stories" },
-  { value: "person", label: "Menschen" },
-  { value: "product", label: "Objects" }
-];
+import {
+  matchesSavedLibraryFilter,
+  savedLibraryFilterEmptyMessage,
+  savedLibraryFilterForItem,
+  SAVED_LIBRARY_FILTERS,
+  type SavedLibraryFilter
+} from "@/lib/saved-content";
 
 export function SavedClient() {
   const [items, setItems] = useState<SavePayload[]>([]);
   const [mode, setMode] = useState<SaveMode>("guest");
   const [userEmail, setUserEmail] = useState<string | undefined>();
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<SavedLibraryFilter>("all");
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
 
@@ -67,13 +47,26 @@ export function SavedClient() {
     };
   }, []);
 
-  const visible = useMemo(() => {
-    if (filter === "all") return items;
-    return items.filter(item => {
-      if (filter === "product") return item.sourceType === "product" || item.sourceType === "object";
-      return item.sourceType === filter;
-    });
-  }, [items, filter]);
+  const counts = useMemo(() => {
+    const result: Record<SavedLibraryFilter, number> = {
+      all: items.length,
+      story: 0,
+      place: 0,
+      destination: 0,
+      person: 0,
+      object: 0
+    };
+    for (const item of items) {
+      const bucket = savedLibraryFilterForItem(item);
+      if (bucket) result[bucket] += 1;
+    }
+    return result;
+  }, [items]);
+
+  const visible = useMemo(
+    () => items.filter(item => matchesSavedLibraryFilter(item, filter)),
+    [items, filter]
+  );
 
   async function remove(sourceId: string) {
     setRemovingId(sourceId);
@@ -108,51 +101,46 @@ export function SavedClient() {
       <div className="savedStatusBar">
         <div>
           <span className={`syncDot ${mode === "account" ? "syncDot--account" : ""}`} />
-          <strong>{mode === "account" ? "Synchronisiert" : "Auf diesem Gerät"}</strong>
+          <strong>{mode === "account" ? "Synchronisiert mit MY AROUND" : "Auf diesem Gerät gespeichert"}</strong>
           {mode === "account" && userEmail ? <span>{userEmail}</span> : <span>{items.length} gespeichert</span>}
         </div>
         <div className="savedStatusLinks">{mode === "guest" && <Link href="/account">Auf allen Geräten sichern →</Link>}<Link href="/my-around/planen">Planen →</Link></div>
       </div>
 
       <div className="savedFilters" role="tablist" aria-label="Gespeicherte Inhalte filtern">
-        {filters.map(item => (
-          <button
-            type="button"
-            key={item.value}
-            className={filter === item.value ? "active" : ""}
-            onClick={() => setFilter(item.value)}
-          >
-            {item.label}
-          </button>
-        ))}
+        {SAVED_LIBRARY_FILTERS.map(item => {
+          const count = counts[item.value];
+          return (
+            <button
+              type="button"
+              role="tab"
+              key={item.value}
+              className={filter === item.value ? "active" : ""}
+              aria-selected={filter === item.value}
+              data-empty={count === 0}
+              onClick={() => setFilter(item.value)}
+            >
+              {item.label}
+              <span className="saveCount savedFilterCount">{count}</span>
+            </button>
+          );
+        })}
       </div>
 
       {visible.length ? (
         <div className="savedListV14">
           {visible.map((item, index) => (
-            <article className="savedRowV14" key={item.sourceId}>
-              <div className="savedRowIndex">{String(index + 1).padStart(2, "0")}</div>
-              <div className="savedRowType">{labelFor(item)}</div>
-              <h3><Link href={hrefFor(item)}>{item.title}</Link></h3>
-              <div className="savedRowActions">
-                <CollectionPicker item={item} compact />
-                <TripPicker item={item} compact />
-                <Link href={hrefFor(item)} className="savedOpen" aria-label={`${item.title} öffnen`}>Öffnen ↗</Link>
-                <button
-                  type="button"
-                  className="savedRemove"
-                  onClick={() => remove(item.sourceId)}
-                  disabled={removingId === item.sourceId}
-                  aria-label={`${item.title} aus MY AROUND entfernen`}
-                >
-                  {removingId === item.sourceId ? "…" : "×"}
-                </button>
-              </div>
-            </article>
+            <SavedLibraryItem
+              key={item.sourceId}
+              item={item}
+              index={index}
+              removing={removingId === item.sourceId}
+              onRemove={remove}
+            />
           ))}
         </div>
       ) : (
-        <div className="savedFilterEmpty">In dieser Kategorie hast du noch nichts gespeichert.</div>
+        <div className="savedFilterEmpty">{savedLibraryFilterEmptyMessage(filter)}</div>
       )}
     </div>
   );

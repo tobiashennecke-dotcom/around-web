@@ -485,6 +485,9 @@ img{display:block;max-width:100%}
   flex:0 0 auto;background:transparent;border:1px solid var(--around-ink);padding:9px 12px;font-size:9px;text-transform:uppercase;letter-spacing:.09em;font-weight:800;cursor:pointer
 }
 .savedFilters button.active{background:var(--around-ink);color:var(--around-warm)}
+.savedFilters button{display:inline-flex;align-items:center;gap:0}
+.savedFilters button[data-empty="true"]:not(.active){opacity:.45}
+.savedFilterCount{margin-left:8px}
 .savedListV14{border-top:4px solid var(--around-ink)}
 .savedRowV14{
   display:grid;grid-template-columns:56px 130px minmax(0,1fr) auto;gap:22px;align-items:center;
@@ -493,6 +496,8 @@ img{display:block;max-width:100%}
 .savedRowV14:hover{background:#ebe8e1;padding-inline:12px}
 .savedRowIndex,.savedRowType{font-size:9px;text-transform:uppercase;letter-spacing:.1em}
 .savedRowType{font-weight:900;color:var(--around-muted)}
+.savedRowV14[data-content-type="story"] .savedRowType{color:var(--around-blue)}
+.savedRowV14[data-content-type="person"] .savedRowType{color:var(--around-pink)}
 .savedRowV14 h3{font-size:clamp(28px,3vw,48px);line-height:.9;letter-spacing:-.04em;text-transform:uppercase;margin:0}
 .savedRowV14 h3 a:hover{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
 .savedRowActions{display:flex;align-items:center;gap:15px}
@@ -535,7 +540,7 @@ img{display:block;max-width:100%}
   .savedEmptyV14{grid-template-columns:1fr;gap:28px;padding:36px 26px}.savedEmptyV14 p{font-size:19px}.drop--empty{width:64px;height:64px;border-width:5px}.drop--empty:after{width:20px;height:20px;right:-9px;top:-9px}
   .savedStatusBar{align-items:flex-start;flex-direction:column;gap:12px}
   .savedRowV14{grid-template-columns:34px minmax(0,1fr) auto;gap:10px;padding:19px 0;min-height:0}
-  .savedRowIndex{grid-column:1}.savedRowType{grid-column:2;font-size:8px}.savedRowV14 h3{grid-column:2;font-size:31px;margin-top:3px}.savedRowActions{grid-column:3;grid-row:1/3}.savedOpen{display:none}.savedRemove{width:36px;height:36px}
+  .savedRowIndex{grid-column:1}.savedRowType{grid-column:2;font-size:8px}.savedRowV14 h3{grid-column:2;font-size:31px;margin-top:3px}.savedRowActions{grid-column:3;grid-row:1/3;align-self:start}.savedOpen{display:none}.savedRemove{width:36px;height:36px}
   .myAroundContinue{align-items:flex-start;flex-direction:column}
   .saveCount--header{position:absolute;right:-5px;top:-6px;border:2px solid var(--around-ink)}
 }
