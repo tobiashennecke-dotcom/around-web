@@ -231,6 +231,12 @@ alter table public.user_events drop constraint if exists user_events_source_role
 alter table public.user_events add constraint user_events_source_role_check
   check (source_role is null or source_role in ('play','stay','eat','do'));
 
+alter table public.user_events drop constraint if exists user_events_source_type_check;
+alter table public.user_events add constraint user_events_source_type_check
+  check (source_type is null or source_type in (
+    'destination','place','story','person','object','collection'
+  ));
+
 -- ==========================================================
 -- Row level security
 -- ==========================================================
@@ -306,12 +312,23 @@ create policy "user_access_select_own" on public.user_access
 create policy "user_entitlements_select_own" on public.user_entitlements
   for select using (auth.uid() = user_id);
 
--- user_events: append-only. Users may select/insert their own events; no
--- update/delete policy exists.
+-- user_events: append-only. Users may select their own events, and may
+-- insert their own events only when the attached Trip (if any) is also
+-- theirs - trip_id must be null or reference a public.trips row they own.
+-- No update/delete policy exists.
 create policy "user_events_select_own" on public.user_events
   for select using (auth.uid() = user_id);
 create policy "user_events_insert_own" on public.user_events
-  for insert with check (auth.uid() = user_id);
+  for insert with check (
+    auth.uid() = user_id
+    and (
+      trip_id is null
+      or exists (
+        select 1 from public.trips t
+        where t.id = trip_id and t.user_id = auth.uid()
+      )
+    )
+  );
 
 -- ==========================================================
 -- Indexes

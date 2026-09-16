@@ -1,7 +1,7 @@
 import { createClient } from "./client";
 import type { SavePayload } from "./saves";
 import { normalizeContentRole } from "@/lib/content-role";
-import { trackUserEvent } from "@/lib/analytics/user-events";
+import { trackUserEvent, toEventSourceType } from "@/lib/analytics/user-events";
 
 export type TripStatus = "idea" | "planning" | "booked" | "completed";
 export type TripSlot = "flex" | "morning" | "midday" | "afternoon" | "evening" | "stay";
@@ -403,7 +403,7 @@ export async function updateUserTrip(
     .update(dbPatch)
     .eq("id", id)
     .eq("user_id", user.id)
-    .select("id")
+    .select("id,start_date,end_date")
     .maybeSingle();
   if (error) throw error;
   if (!data) throw new Error("Trip konnte im Account nicht gespeichert werden.");
@@ -412,7 +412,7 @@ export async function updateUserTrip(
     void trackUserEvent({
       eventName: "trip_dates_set",
       tripId: id,
-      metadata: { startDate: patch.startDate ?? null, endDate: patch.endDate ?? null }
+      metadata: { startDate: data.start_date ?? null, endDate: data.end_date ?? null }
     });
   }
 }
@@ -510,7 +510,7 @@ export async function addItemToTrip(
     eventName: "content_added_to_trip",
     tripId,
     sourceId: item.sourceId,
-    sourceType: dbType(item.sourceType),
+    sourceType: toEventSourceType(dbType(item.sourceType)),
     sourceRole: item.sourceRole
   });
 }

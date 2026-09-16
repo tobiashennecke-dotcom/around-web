@@ -1,6 +1,6 @@
 import { createClient } from "./client";
 import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
-import { trackUserEvent } from "@/lib/analytics/user-events";
+import { trackUserEvent, toEventSourceType } from "@/lib/analytics/user-events";
 
 export type SavePayload = {
   sourceId: string;
@@ -219,7 +219,7 @@ export async function toggleSave(payload: SavePayload) {
     void trackUserEvent({
       eventName: "content_unsaved",
       sourceId: payload.sourceId,
-      sourceType: dbType(payload.sourceType),
+      sourceType: toEventSourceType(dbType(payload.sourceType)),
       sourceRole: payload.sourceRole
     });
     return { saved: false, mode: "account" as const };
@@ -239,7 +239,7 @@ export async function toggleSave(payload: SavePayload) {
   void trackUserEvent({
     eventName: "content_saved",
     sourceId: payload.sourceId,
-    sourceType: dbType(payload.sourceType),
+    sourceType: toEventSourceType(dbType(payload.sourceType)),
     sourceRole: payload.sourceRole
   });
   return { saved: true, mode: "account" as const };

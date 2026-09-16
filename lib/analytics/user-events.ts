@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import type { ContentRole } from "@/lib/content-role";
 
 export type EventName =
   | "account_created"
@@ -10,11 +11,34 @@ export type EventName =
   | "trip_dates_set"
   | "booking_clicked";
 
+/**
+ * DB-facing source type for user_events - matches the
+ * user_events_source_type_check constraint exactly. Note there is no
+ * "product" variant here: callers normalize product -> object (the same
+ * DB normalization saved_items already uses) before tracking an event.
+ */
+export type EventSourceType =
+  | "destination"
+  | "place"
+  | "story"
+  | "person"
+  | "object"
+  | "collection";
+
+const EVENT_SOURCE_TYPES: readonly EventSourceType[] = [
+  "destination", "place", "story", "person", "object", "collection"
+];
+
+/** Narrows an arbitrary string to EventSourceType, or undefined if it isn't one. */
+export function toEventSourceType(value?: string | null): EventSourceType | undefined {
+  return EVENT_SOURCE_TYPES.includes(value as EventSourceType) ? (value as EventSourceType) : undefined;
+}
+
 export type TrackUserEventInput = {
   eventName: EventName;
   sourceId?: string;
-  sourceType?: string;
-  sourceRole?: string;
+  sourceType?: EventSourceType;
+  sourceRole?: ContentRole;
   tripId?: string;
   metadata?: Record<string, unknown>;
 };

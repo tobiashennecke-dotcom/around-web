@@ -163,6 +163,12 @@ alter table public.user_events drop constraint if exists user_events_source_role
 alter table public.user_events add constraint user_events_source_role_check
   check (source_role is null or source_role in ('play','stay','eat','do'));
 
+alter table public.user_events drop constraint if exists user_events_source_type_check;
+alter table public.user_events add constraint user_events_source_type_check
+  check (source_type is null or source_type in (
+    'destination','place','story','person','object','collection'
+  ));
+
 alter table public.user_events enable row level security;
 
 create index if not exists idx_user_events_user_occurred on public.user_events(user_id, occurred_at desc);
@@ -173,9 +179,22 @@ drop policy if exists "user_events_select_own" on public.user_events;
 create policy "user_events_select_own" on public.user_events
   for select using (auth.uid() = user_id);
 
+-- v1.26a.1: a browser user may only attach an event to a Trip they own -
+-- trip_id must be null, or reference a public.trips row whose user_id
+-- matches the inserting user. Prevents cross-account Trip references in
+-- event history.
 drop policy if exists "user_events_insert_own" on public.user_events;
 create policy "user_events_insert_own" on public.user_events
-  for insert with check (auth.uid() = user_id);
+  for insert with check (
+    auth.uid() = user_id
+    and (
+      trip_id is null
+      or exists (
+        select 1 from public.trips t
+        where t.id = trip_id and t.user_id = auth.uid()
+      )
+    )
+  );
 
 -- ==========================================================
 -- 7. Account bootstrap
