@@ -245,11 +245,16 @@ export async function toggleSave(payload: SavePayload) {
   return { saved: true, mode: "account" as const };
 }
 
-export async function removeSave(sourceId: string) {
+/**
+ * Takes the removed item's own SavePayload (not just its id) so the
+ * content_unsaved event can carry the correct sourceType/sourceRole without
+ * reconstructing them after the row is already gone from the DB.
+ */
+export async function removeSave(payload: Pick<SavePayload, "sourceId" | "sourceType" | "sourceRole">) {
   const { supabase, user } = await getAuthenticatedUser();
 
   if (!supabase || !user) {
-    writeLocal(readLocal().filter(item => item.sourceId !== sourceId));
+    writeLocal(readLocal().filter(item => item.sourceId !== payload.sourceId));
     notifySaveChange();
     return;
   }
@@ -258,9 +263,15 @@ export async function removeSave(sourceId: string) {
     .from("saved_items")
     .delete()
     .eq("user_id", user.id)
-    .eq("source_id", sourceId);
+    .eq("source_id", payload.sourceId);
   if (error) throw error;
   notifySaveChange();
+  void trackUserEvent({
+    eventName: "content_unsaved",
+    sourceId: payload.sourceId,
+    sourceType: toEventSourceType(dbType(payload.sourceType)),
+    sourceRole: payload.sourceRole
+  });
 }
 
 export function getGuestSaves() {

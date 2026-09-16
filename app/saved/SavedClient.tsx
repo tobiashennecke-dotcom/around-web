@@ -68,11 +68,11 @@ export function SavedClient() {
     [items, filter]
   );
 
-  async function remove(sourceId: string) {
-    setRemovingId(sourceId);
+  async function remove(item: SavePayload) {
+    setRemovingId(item.sourceId);
     try {
-      await removeSave(sourceId);
-      setItems(current => current.filter(item => item.sourceId !== sourceId));
+      await removeSave(item);
+      setItems(current => current.filter(existing => existing.sourceId !== item.sourceId));
     } finally {
       setRemovingId(null);
     }

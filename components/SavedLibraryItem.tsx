@@ -16,7 +16,7 @@ type Props = {
   item: SavePayload;
   index: number;
   removing: boolean;
-  onRemove: (sourceId: string) => void;
+  onRemove: (item: SavePayload) => void;
 };
 
 /**
@@ -40,7 +40,7 @@ export function SavedLibraryItem({ item, index, removing, onRemove }: Props) {
         <button
           type="button"
           className="savedRemove"
-          onClick={() => onRemove(item.sourceId)}
+          onClick={() => onRemove(item)}
           disabled={removing}
           aria-label={`${item.title} aus MY AROUND entfernen`}
         >

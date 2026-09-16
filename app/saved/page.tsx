@@ -12,7 +12,7 @@ export default function SavedPage() {
           </div>
           <div className="myAroundHeroAside">
             <span className="drop drop--my-around" aria-hidden="true" />
-            <p className="serif">Merken ist kein Endpunkt. Hier beginnt aus einzelnen Funden langsam eine Reise.</p>
+            <p className="serif">Was du nicht verlieren willst, bleibt hier. Stories, Places und Ideen – gesammelt für später.</p>
           </div>
         </div>
       </section>
