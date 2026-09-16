@@ -340,6 +340,8 @@ create index if not exists idx_trips_user on public.trips(user_id, updated_at de
 create index if not exists idx_user_events_user_occurred on public.user_events(user_id, occurred_at desc);
 create index if not exists idx_user_events_name_occurred on public.user_events(event_name, occurred_at desc);
 create index if not exists idx_user_events_source_id on public.user_events(source_id) where source_id is not null;
+create index if not exists idx_trip_items_trip_id on public.trip_items(trip_id);
+create index if not exists idx_user_events_trip_id on public.user_events(trip_id) where trip_id is not null;
 
 -- ==========================================================
 -- Functions & triggers
@@ -347,6 +349,7 @@ create index if not exists idx_user_events_source_id on public.user_events(sourc
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.updated_at = now();
@@ -400,3 +403,9 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_auth_user();
+
+-- handle_new_auth_user must never be publicly callable - it only ever runs
+-- as the trigger owner inside the auth.users insert path.
+revoke execute on function public.handle_new_auth_user() from public;
+revoke execute on function public.handle_new_auth_user() from anon;
+revoke execute on function public.handle_new_auth_user() from authenticated;
