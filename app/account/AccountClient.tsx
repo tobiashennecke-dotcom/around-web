@@ -66,7 +66,7 @@ export function AccountClient() {
           <p className="serif accountSyncCopy">Deine Saves werden geräteübergreifend in MY AROUND gespeichert.</p>
         </div>
         <div className="accountActions">
-          <a className="primary" href="/saved">MY AROUND öffnen →</a>
+          <a className="primary" href="/my-around">MY AROUND öffnen →</a>
           <button className="secondary accountLogout" disabled={busy} onClick={logout}>
             {busy ? "Abmelden …" : "Abmelden"}
           </button>

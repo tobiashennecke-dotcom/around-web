@@ -44,11 +44,42 @@ export type TrackUserEventInput = {
 };
 
 /**
+ * Best-effort, downstream-of-Supabase forward of one canonical user_event
+ * into the v1.26e communication layer (consent-gated Brevo lifecycle
+ * events). Only ever called after the Supabase insert already succeeded -
+ * if this fails, the product action and the canonical event remain
+ * successful regardless.
+ */
+async function forwardCommunicationEvent(payload: {
+  eventName: EventName;
+  sourceId?: string;
+  sourceType?: EventSourceType;
+  sourceRole?: ContentRole;
+  tripId?: string;
+  userEventId: string;
+  occurredAt: string;
+}): Promise<void> {
+  try {
+    await fetch("/api/communication-events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch {
+    // Communication forwarding is best-effort and strictly downstream.
+  }
+}
+
+/**
  * Best-effort product-history write for the signed-in user. v1.26a tracks
  * authenticated users only - guests silently no-op, as does a missing
  * Supabase connection. Never throws: analytics is secondary to the Save/Trip
  * action it is attached to, and a failed event write must never break it.
  * Do not pass email or other PII in metadata.
+ *
+ * v1.26e: after a successful Supabase insert, the canonical event id and
+ * occurred_at are forwarded (fire-and-forget) to the consent-gated
+ * communication layer. A failed Supabase insert never forwards anything.
  */
 export async function trackUserEvent(input: TrackUserEventInput): Promise<void> {
   try {
@@ -58,14 +89,30 @@ export async function trackUserEvent(input: TrackUserEventInput): Promise<void> 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase.from("user_events").insert({
-      user_id: user.id,
-      event_name: input.eventName,
-      source_id: input.sourceId || null,
-      source_type: input.sourceType || null,
-      source_role: input.sourceRole || null,
-      trip_id: input.tripId || null,
-      metadata: input.metadata || {}
+    const { data, error } = await supabase
+      .from("user_events")
+      .insert({
+        user_id: user.id,
+        event_name: input.eventName,
+        source_id: input.sourceId || null,
+        source_type: input.sourceType || null,
+        source_role: input.sourceRole || null,
+        trip_id: input.tripId || null,
+        metadata: input.metadata || {}
+      })
+      .select("id,occurred_at")
+      .single();
+
+    if (error || !data) return;
+
+    void forwardCommunicationEvent({
+      eventName: input.eventName,
+      sourceId: input.sourceId,
+      sourceType: input.sourceType,
+      sourceRole: input.sourceRole,
+      tripId: input.tripId,
+      userEventId: data.id,
+      occurredAt: data.occurred_at
     });
   } catch {
     // Tracking must never surface a failure to the caller.

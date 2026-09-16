@@ -1,4 +1,5 @@
 import { AccountClient } from "./AccountClient";
+import { CommunicationPreferences } from "@/components/CommunicationPreferences";
 
 export default function AccountPage() {
   return (
@@ -10,13 +11,14 @@ export default function AccountPage() {
           <AccountClient />
           <div className="featureCard limeBg">
             <div className="eyebrow">Warum ein Account?</div>
-            <h2 style={{fontSize:48}}>Saves werden zu Reisen.</h2>
+            <h2 style={{fontSize:48}}>DEIN AROUND. ÜBERALL.</h2>
             <p className="serif" style={{fontSize:23}}>
-              Gast-Saves funktionieren sofort. Ein Account macht sie geräteübergreifend
-              und öffnet später Collections und Trips.
+              Saves, Collections und Trips bleiben synchron – ohne dass aus jedem
+              gespeicherten Fundstück automatisch eine Reise werden muss.
             </p>
           </div>
         </div>
+        <CommunicationPreferences />
       </div>
     </main>
   );
