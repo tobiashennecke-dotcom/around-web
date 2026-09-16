@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { DEFAULT_COMMUNICATION_PREFERENCES, type CommunicationPreferences as Preferences } from "@/lib/communication/preferences";
 
@@ -28,48 +28,67 @@ const FIELDS: { key: keyof Preferences; label: string; description: string; comm
   }
 ];
 
+type LoadStatus = "checking" | "guest" | "loading" | "ready" | "error";
+
 /**
  * Signed-in-only. Guests never see this - there is nothing to authenticate
  * a consent write against, and account creation must never imply marketing
  * consent. Self-checks auth so app/account/page.tsx can render it
  * unconditionally.
+ *
+ * v1.26e.1: the form only ever becomes editable after a SUCCESSFUL
+ * canonical GET. A failed read shows a restrained retry state instead of
+ * four unchecked toggles - those would look like real opt-outs and let the
+ * user overwrite existing consent with a fabricated all-false save.
  */
 export function CommunicationPreferences() {
-  const [signedIn, setSignedIn] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState<LoadStatus>("checking");
   const [preferences, setPreferences] = useState<Preferences>(DEFAULT_COMMUNICATION_PREFERENCES);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+
+  const load = useCallback(async () => {
+    setStatus("loading");
+    setMessage("");
+    try {
+      const response = await fetch("/api/communication-preferences");
+      if (!response.ok) {
+        setStatus("error");
+        return;
+      }
+      const body = await response.json();
+      if (!body?.preferences) {
+        setStatus("error");
+        return;
+      }
+      setPreferences(body.preferences);
+      setStatus("ready");
+    } catch {
+      setStatus("error");
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
     const supabase = createClient();
     if (!supabase) {
-      setReady(true);
+      setStatus("guest");
       return;
     }
 
-    supabase.auth.getUser().then(async ({ data }) => {
+    supabase.auth.getUser().then(({ data }) => {
       if (!active) return;
       if (!data.user) {
-        setSignedIn(false);
-        setReady(true);
+        setStatus("guest");
         return;
       }
-      setSignedIn(true);
-      try {
-        const response = await fetch("/api/communication-preferences");
-        const body = await response.json();
-        if (active && response.ok && body?.preferences) setPreferences(body.preferences);
-      } finally {
-        if (active) setReady(true);
-      }
+      load();
     });
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [load]);
 
   function toggle(key: keyof Preferences) {
     setPreferences(current => ({ ...current, [key]: !current[key] }));
@@ -103,7 +122,20 @@ export function CommunicationPreferences() {
     }
   }
 
-  if (!ready || !signedIn) return null;
+  if (status === "checking" || status === "guest") return null;
+
+  if (status === "error") {
+    return (
+      <section className="communicationPreferences" aria-labelledby="communication-preferences-title">
+        <div className="eyebrow lime">MY AROUND / COMMUNICATION</div>
+        <h2 id="communication-preferences-title">WHAT SHOULD AROUND SEND YOU?</h2>
+        <p className="communicationPreferencesError">Kommunikationseinstellungen konnten gerade nicht geladen werden.</p>
+        <button type="button" className="secondary" onClick={load}>RETRY →</button>
+      </section>
+    );
+  }
+
+  if (status === "loading") return null;
 
   return (
     <section className="communicationPreferences" aria-labelledby="communication-preferences-title">

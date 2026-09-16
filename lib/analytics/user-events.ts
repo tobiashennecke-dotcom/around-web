@@ -49,21 +49,19 @@ export type TrackUserEventInput = {
  * events). Only ever called after the Supabase insert already succeeded -
  * if this fails, the product action and the canonical event remain
  * successful regardless.
+ *
+ * v1.26e.1: the browser is not trusted for ANY lifecycle event property -
+ * it only ever supplies the canonical row's own id. The API route looks up
+ * that exact row itself and derives event_name/source_id/source_type/
+ * source_role/trip_id/occurred_at entirely from the DB, never from this
+ * payload.
  */
-async function forwardCommunicationEvent(payload: {
-  eventName: EventName;
-  sourceId?: string;
-  sourceType?: EventSourceType;
-  sourceRole?: ContentRole;
-  tripId?: string;
-  userEventId: string;
-  occurredAt: string;
-}): Promise<void> {
+async function forwardCommunicationEvent(userEventId: string): Promise<void> {
   try {
     await fetch("/api/communication-events", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ userEventId })
     });
   } catch {
     // Communication forwarding is best-effort and strictly downstream.
@@ -105,15 +103,7 @@ export async function trackUserEvent(input: TrackUserEventInput): Promise<void> 
 
     if (error || !data) return;
 
-    void forwardCommunicationEvent({
-      eventName: input.eventName,
-      sourceId: input.sourceId,
-      sourceType: input.sourceType,
-      sourceRole: input.sourceRole,
-      tripId: input.tripId,
-      userEventId: data.id,
-      occurredAt: data.occurred_at
-    });
+    void forwardCommunicationEvent(data.id);
   } catch {
     // Tracking must never surface a failure to the caller.
   }

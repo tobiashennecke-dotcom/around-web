@@ -658,6 +658,7 @@ img{display:block;max-width:100%}
 .communicationPreferenceRow input[type="checkbox"]{width:22px;height:22px;flex-shrink:0;accent-color:var(--around-lime);cursor:pointer}
 .communicationPreferencesActions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:28px}
 .communicationPreferencesMessage{margin:0;font-size:13px;color:var(--around-muted)}
+.communicationPreferencesError{font-size:16px;color:#5e625e;margin:0 0 20px;max-width:520px}
 
 @media(max-width:900px){
   .headerAccountWrap{display:none}

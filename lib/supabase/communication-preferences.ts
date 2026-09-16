@@ -10,8 +10,13 @@ const SELECT_COLUMNS = "around_journal,my_around_updates,trip_intelligence,aroun
 /**
  * Reads the given user's canonical communication preferences. Works with
  * either the browser or server Supabase client - both are protected by the
- * same "select own row only" RLS policy. A missing row (e.g. the bootstrap
- * trigger hasn't run yet) safely resolves to all-false rather than throwing.
+ * same "select own row only" RLS policy.
+ *
+ * "No preference row exists" (a missing row, e.g. the bootstrap trigger
+ * hasn't run yet, no query error) is a safe all-false state. "The database
+ * could not tell us" (an actual query error) is NOT the same thing and must
+ * not be silently treated as all-false - callers need to know consent
+ * couldn't actually be read, so this throws instead.
  */
 export async function getCommunicationPreferences(
   supabase: SupabaseClient,
@@ -23,7 +28,8 @@ export async function getCommunicationPreferences(
     .eq("user_id", userId)
     .maybeSingle();
 
-  if (error || !data) return communicationPreferencesFromRow(null);
+  if (error) throw error;
+  if (!data) return communicationPreferencesFromRow(null);
   return communicationPreferencesFromRow(data);
 }
 

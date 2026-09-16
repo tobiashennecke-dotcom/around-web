@@ -16,46 +16,28 @@ const KNOWN_EVENT_NAMES: EventName[] = [
   "booking_clicked"
 ];
 
-type SanitizedInput = {
-  eventName: EventName | null;
-  sourceId?: string;
-  sourceType?: string;
-  sourceRole?: string;
-  tripId?: string;
-  userEventId?: string;
-  occurredAt?: string;
-};
-
-function sanitizeBody(body: unknown): SanitizedInput {
-  const record = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
-  const eventName = typeof record.eventName === "string" && (KNOWN_EVENT_NAMES as string[]).includes(record.eventName)
-    ? (record.eventName as EventName)
-    : null;
-
-  return {
-    eventName,
-    sourceId: typeof record.sourceId === "string" ? record.sourceId : undefined,
-    sourceType: typeof record.sourceType === "string" ? record.sourceType : undefined,
-    sourceRole: typeof record.sourceRole === "string" ? record.sourceRole : undefined,
-    tripId: typeof record.tripId === "string" ? record.tripId : undefined,
-    userEventId: typeof record.userEventId === "string" ? record.userEventId : undefined,
-    occurredAt: typeof record.occurredAt === "string" ? record.occurredAt : undefined
-  };
+function toEventName(value: unknown): EventName | null {
+  return typeof value === "string" && (KNOWN_EVENT_NAMES as string[]).includes(value) ? (value as EventName) : null;
 }
 
 /**
- * Consent-gated, allowlisted forwarding of a canonical Supabase user_event
- * into Brevo. Never accepts an arbitrary Brevo event name, list id, contact
- * id, or API key from the browser - only canonical AROUND event values.
- * Must never throw into the calling product action: every path below
- * returns a plain JSON result.
+ * Consent-gated, allowlisted forwarding of one canonical Supabase
+ * user_events row into Brevo.
+ *
+ * v1.26e.1: the browser is not trusted for ANY lifecycle event property. It
+ * supplies only the row's own id; every value that reaches Brevo - event
+ * name, source id/type/role, trip id, occurred_at - is looked up from that
+ * exact row, scoped to the authenticated user (both via RLS and an
+ * explicit user_id filter). A userEventId that doesn't exist, or belongs to
+ * someone else, or that RLS would hide, all resolve to the same outcome:
+ * nothing forwarded.
  */
 export async function POST(request: Request) {
   const supabase = await createClient();
   if (!supabase) return NextResponse.json({ forwarded: false, reason: "provider_disabled" });
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || !user.email) {
+  if (!user) {
     return NextResponse.json({ forwarded: false, reason: "unauthorized" }, { status: 401 });
   }
 
@@ -66,39 +48,62 @@ export async function POST(request: Request) {
     return NextResponse.json({ forwarded: false, reason: "invalid_body" }, { status: 400 });
   }
 
-  const input = sanitizeBody(rawBody);
-  if (!input.eventName) {
-    return NextResponse.json({ forwarded: false, reason: "unknown_event" }, { status: 400 });
+  const userEventId = rawBody && typeof rawBody === "object" ? (rawBody as Record<string, unknown>).userEventId : undefined;
+  if (typeof userEventId !== "string" || !userEventId) {
+    return NextResponse.json({ forwarded: false, reason: "invalid_body" }, { status: 400 });
   }
 
-  const policy = getBrevoEventPolicy(input.eventName);
+  const { data: row, error: rowError } = await supabase
+    .from("user_events")
+    .select("id,event_name,source_id,source_type,source_role,trip_id,occurred_at")
+    .eq("id", userEventId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (rowError || !row) {
+    return NextResponse.json({ forwarded: false, reason: "event_not_found" });
+  }
+
+  const eventName = toEventName(row.event_name);
+  if (!eventName) {
+    return NextResponse.json({ forwarded: false, reason: "unknown_event" });
+  }
+
+  const policy = getBrevoEventPolicy(eventName);
   if (!policy) {
     return NextResponse.json({ forwarded: false, reason: "not_forwardable" });
   }
 
-  const preferences = await getCommunicationPreferences(supabase, user.id);
+  let preferences;
+  try {
+    preferences = await getCommunicationPreferences(supabase, user.id);
+  } catch {
+    // "Could not tell us" is not the same as "no consent" - fail closed,
+    // never forward on an unreadable preference state.
+    return NextResponse.json({ forwarded: false, reason: "preferences_unavailable" });
+  }
+
   if (!preferences[policy.requiresPreference]) {
     return NextResponse.json({ forwarded: false, reason: "no_consent" });
   }
 
-  if (!isBrevoConfigured()) {
+  if (!isBrevoConfigured() || !user.email) {
     return NextResponse.json({ forwarded: false, reason: "provider_disabled" });
   }
 
-  const eventProperties: Record<string, string> = {};
-  if (input.sourceId) eventProperties.source_id = input.sourceId;
-  if (input.sourceType) eventProperties.source_type = input.sourceType;
-  if (input.sourceRole) eventProperties.source_role = input.sourceRole;
-  if (input.tripId) eventProperties.trip_id = input.tripId;
-  if (input.userEventId) eventProperties.user_event_id = input.userEventId;
+  const eventProperties: Record<string, string> = { user_event_id: row.id };
+  if (row.source_id) eventProperties.source_id = row.source_id;
+  if (row.source_type) eventProperties.source_type = row.source_type;
+  if (row.source_role) eventProperties.source_role = row.source_role;
+  if (row.trip_id) eventProperties.trip_id = row.trip_id;
 
   const result = await brevoRequest("/events", {
     method: "POST",
     body: {
       event_name: policy.providerEventName,
-      event_date: input.occurredAt || new Date().toISOString(),
+      event_date: row.occurred_at,
       identifiers: { email_id: user.email, ext_id: user.id },
-      ...(Object.keys(eventProperties).length ? { event_properties: eventProperties } : {})
+      event_properties: eventProperties
     }
   });
 

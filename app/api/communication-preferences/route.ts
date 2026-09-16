@@ -18,8 +18,14 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const preferences = await getCommunicationPreferences(supabase, user.id);
-  return NextResponse.json({ preferences });
+  try {
+    const preferences = await getCommunicationPreferences(supabase, user.id);
+    return NextResponse.json({ preferences });
+  } catch {
+    // An actual DB failure is not the same as "no row yet" - never fabricate
+    // an all-false result the caller might mistake for real consent state.
+    return NextResponse.json({ error: "preferences_unavailable" }, { status: 500 });
+  }
 }
 
 export async function PUT(request: Request) {

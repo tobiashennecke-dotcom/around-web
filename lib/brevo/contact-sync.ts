@@ -54,20 +54,8 @@ export async function syncCommunicationPreferencesToBrevo(input: SyncInput): Pro
     return result.ok || result.status === 404 ? "synced" : "failed";
   }
 
-  // At least one true preference: ensure a contact exists carrying exactly
-  // the AROUND-managed list membership implied by current consent.
-  const created = await brevoRequest("/contacts", {
-    method: "POST",
-    body: {
-      email: input.email,
-      ext_id: input.userId,
-      listIds,
-      ...(unlinkListIds.length ? { unlinkListIds } : {})
-    }
-  });
-  if (created.ok) return "synced";
-
-  // Most likely the contact already exists (Brevo: duplicate_parameter) - update instead.
+  // At least one true preference: update-first. A contact may already
+  // exist from an earlier sync, so try PUT before ever considering a create.
   const updated = await brevoRequest(contactUpdatePath(input.email), {
     method: "PUT",
     body: {
@@ -76,5 +64,21 @@ export async function syncCommunicationPreferencesToBrevo(input: SyncInput): Pro
       ...(unlinkListIds.length ? { unlinkListIds } : {})
     }
   });
-  return updated.ok ? "synced" : "failed";
+  if (updated.ok) return "synced";
+
+  // Only a 404 (contact genuinely does not exist yet) justifies creating
+  // one - any other update error must not blindly fall through to create.
+  // A brand-new contact cannot already belong to an AROUND-managed list it
+  // shouldn't, so there is nothing to unlink on creation.
+  if (updated.status !== 404) return "failed";
+
+  const created = await brevoRequest("/contacts", {
+    method: "POST",
+    body: {
+      email: input.email,
+      ext_id: input.userId,
+      listIds
+    }
+  });
+  return created.ok ? "synced" : "failed";
 }
