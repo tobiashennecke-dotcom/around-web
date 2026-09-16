@@ -141,6 +141,48 @@ img{display:block;max-width:100%}
   position:absolute;left:14px;top:14px;z-index:2;background:var(--around-lime);color:var(--around-ink);
   padding:7px 9px;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase
 }
+
+/* ==========================================================
+   AROUND v1.26f - Premium access marker.
+   Deliberately NOT visually related to .selectedBadge (editorial judgment,
+   lime, cannot be bought) - this represents access status only: dark,
+   restrained, plain text, no crown/star/quality language.
+   ========================================================== */
+.premiumBadge{
+  display:inline-flex;align-items:center;background:var(--around-ink);color:var(--around-warm);
+  border:1px solid var(--around-warm);padding:6px 9px;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase
+}
+.cardMedia .premiumBadge,.storyFeatureMedia .premiumBadge{position:absolute;right:12px;top:12px;z-index:2;border-color:rgba(255,255,255,.4)}
+.storyFeatureMedia{position:relative}
+.storyHeroTags{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* Premium Story Gate - inline editorial reading-flow stop, never a modal/viewport takeover. */
+.premiumStoryGate{margin-top:56px;padding-top:40px;border-top:3px solid var(--around-ink);font-family:Arial,Helvetica,sans-serif}
+.premiumStoryGate h2{font-size:clamp(32px,4.5vw,52px);line-height:.95;letter-spacing:-.04em;text-transform:uppercase;margin:10px 0 20px}
+.premiumStoryGate .serif{font-size:20px;line-height:1.5;max-width:640px;margin:0 0 16px;color:var(--around-ink)}
+.premiumStoryGateProposition{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--around-muted);margin:0 0 28px}
+.premiumStoryGateActions{display:flex;flex-wrap:wrap;align-items:center;gap:22px}
+
+/* /premium teaser page */
+.premiumHero{padding-bottom:0}
+.premiumHeroTitle{margin:14px 0 32px}
+.premiumHeroCopy{font-size:22px;line-height:1.4;max-width:760px}
+.premiumPillarGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;border-top:1px solid var(--around-ink);padding-top:36px}
+.premiumPillar{padding-right:20px}
+.premiumPillarIndex{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--around-muted);margin-bottom:14px}
+.premiumPillar h2{font-size:clamp(26px,3vw,36px);line-height:1;letter-spacing:-.03em;text-transform:uppercase;margin:0 0 10px}
+.premiumPillar p{color:#5e625e;font-size:16px;line-height:1.45;margin:0}
+.premiumFoundationNote{max-width:760px;color:var(--around-muted);font-size:14px;line-height:1.5;margin:36px 0 0;padding-top:24px;border-top:1px solid var(--around-line)}
+.premiumPageActions{display:flex;flex-wrap:wrap;align-items:center;gap:24px;margin-top:32px}
+
+@media(max-width:900px){
+  .premiumPillarGrid{grid-template-columns:1fr;gap:32px}
+}
+
+@media(max-width:620px){
+  .premiumStoryGate{margin-top:40px;padding-top:28px}
+  .premiumHeroCopy{font-size:19px}
+}
 .metaPills{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
 .metaPills span{border:1px solid rgba(255,255,255,.4);padding:7px 10px;font-size:9px;letter-spacing:.09em;text-transform:uppercase}
 .factsGrid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--around-line);margin-top:25px}

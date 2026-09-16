@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SaveButton } from "@/components/SaveButton";
+import { PremiumAccessBadge } from "@/components/PremiumAccessBadge";
 import { storyFormatLabel } from "@/lib/story-format";
 import type { ContentCard as ContentCardType } from "@/lib/types";
 
@@ -33,6 +34,7 @@ export function StoryFeature({ story, variant }: Props) {
             <span>{storyFormatLabel(story.storyFormat)}</span>
           </div>
         )}
+        {story.accessTier === "premium" && <PremiumAccessBadge />}
       </Link>
       <div className="storyFeatureBody">
         <div className="storyFeatureMeta">{metaParts.join(" · ")}</div>

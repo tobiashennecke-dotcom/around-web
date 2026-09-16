@@ -49,6 +49,8 @@ export type ContentCard = {
   storyFormat?: string;
   publishedAt?: string;
   readingTime?: number;
+  /** Story-only access status (never editorial quality). Absent for non-Story cards. */
+  accessTier?: StoryAccessTier;
 };
 
 export type SeoFields = {

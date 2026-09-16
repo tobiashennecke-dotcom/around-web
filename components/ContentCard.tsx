@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ContentCard as CardType } from "@/lib/types";
 import { SaveButton } from "./SaveButton";
+import { PremiumAccessBadge } from "./PremiumAccessBadge";
 
 export function contentHref(item: CardType) {
   if (item.type === "destination") return `/destinations/${item.slug}`;
@@ -40,6 +41,7 @@ export function ContentCard({ item }: { item: CardType }) {
           <div className="cardPlaceholder" aria-hidden="true" />
         )}
         {item.aroundSelected && <span className="selectedBadge">AROUND SELECTED</span>}
+        {item.type === "story" && item.accessTier === "premium" && <PremiumAccessBadge />}
         <span className="cardTypeStamp">{typeLabel(item)}</span>
       </Link>
       <div className="cardBody">

@@ -88,6 +88,7 @@ export function toCard(doc: any): ContentCard | null {
     storyFormat: type === "story" ? (doc.format || undefined) : undefined,
     publishedAt: type === "story" ? (doc.publishedAt || undefined) : undefined,
     readingTime: type === "story" && typeof doc.readingTime === "number" ? doc.readingTime : undefined,
+    accessTier: type === "story" ? normalizeStoryAccessTier(doc.accessTier) : undefined,
     accent: accentFor(type, doc.placeType),
     image: doc.image || undefined,
     featured: Boolean(doc.featured),

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SaveButton } from "@/components/SaveButton";
+import { PremiumAccessBadge } from "@/components/PremiumAccessBadge";
 import { storyFormatLabel } from "@/lib/story-format";
 import type { ContentCard as ContentCardType } from "@/lib/types";
 
@@ -27,6 +28,7 @@ export function StoryHubCard({ story }: { story: ContentCardType }) {
             <span>{storyFormatLabel(story.storyFormat)}</span>
           </div>
         )}
+        {story.accessTier === "premium" && <PremiumAccessBadge />}
       </Link>
       <div className="cardBody">
         <span className="tag blue">{storyFormatLabel(story.storyFormat)}</span>

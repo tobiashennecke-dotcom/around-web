@@ -1,7 +1,7 @@
 import { defineQuery } from "next-sanity";
 
 const CARD_FIELDS = `
-  _id,_type,title,slug,kicker,placeType,featured,aroundSelected,priority,
+  _id,_type,title,slug,kicker,placeType,featured,aroundSelected,priority,accessTier,
   defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,
   compatibleDayparts,effortLevel,environment,weatherSensitivity,
   coordinates,
@@ -13,11 +13,13 @@ const CARD_FIELDS = `
 /**
  * Minimal Story-card projection for contextual rails (Place/Destination/Person
  * pages) - enough for ContentCard/StoryRail, deliberately no Story body.
+ * accessTier is metadata only here (drives the card's PREMIUM marker) - it
+ * never affects which Stories are selected or how they're ranked.
  */
 const STORY_CARD_FIELDS = `
   _id,_type,title,slug,kicker,
   "summary": coalesce(deck, ""),
-  format,publishedAt,readingTime,featured,aroundSelected,priority,
+  format,publishedAt,readingTime,featured,aroundSelected,priority,accessTier,
   "image": heroImage.asset->url
 `;
 
@@ -70,7 +72,7 @@ export const STORIES_HUB_QUERY = defineQuery(`
     "stories": *[_type == "story" && defined(slug.current)]{
       _id,_type,title,slug,kicker,
       "summary": coalesce(deck, ""),
-      format,publishedAt,readingTime,featured,aroundSelected,priority,
+      format,publishedAt,readingTime,featured,aroundSelected,priority,accessTier,
       "image": heroImage.asset->url,
       "relatedRefs": related[]->{
         "type": _type,

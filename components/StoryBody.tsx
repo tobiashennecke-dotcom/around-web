@@ -55,9 +55,12 @@ const components: any = {
     placeModule: ({value}: any) => (
       <StoryInlinePlaceModule place={value?.place} layout={value?.layout} editorialLine={value?.editorialLine} />
     ),
-    // v1.26a: placement metadata for a future Premium wall. There is no
-    // active paywall yet - this must render nothing and never affect
-    // surrounding content, SEO, or reader access.
+    // The gate marker itself never has visible content - the actual
+    // locking (v1.26f) happens one level up, in app/stories/[slug]/page.tsx,
+    // which splits the body at this block server-side and never passes
+    // locked content into StoryBody at all. This case only fires for a
+    // Free Story that still carries a gate from editorial preparation - it
+    // must remain invisible there too.
     premiumGate: () => null
   },
   block: {

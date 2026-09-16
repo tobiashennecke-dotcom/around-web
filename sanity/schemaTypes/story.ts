@@ -247,15 +247,15 @@ export const story = defineType({
     defineField({name:"priority",title:"Editorial priority",type:"number",group:"publishing",initialValue:50,validation:r=>r.min(0).max(100)}),
     defineField({
       name:"accessTier",title:"Access tier",type:"string",group:"publishing",
-      description:"Controls a future reader access gate only. This is NOT AROUND Selected, and Premium does not mean higher editorial quality - it only marks a Story for a future Premium wall. Stories without this field behave as Free.",
+      description:"Controls the reader access gate. This is NOT AROUND Selected, and Premium does not mean higher editorial quality - it only marks a Story for the Premium wall. A Premium Story requires exactly one AROUND Premium Gate in its body. Stories without this field behave as Free.",
       options:{list:[{title:"Free",value:"free"},{title:"Premium",value:"premium"}],layout:"radio"},
       initialValue:"free",
       validation: r => r.custom((value: any, context: any) => {
         if (value !== "premium") return true;
         const body = Array.isArray((context?.document as any)?.body) ? (context.document as any).body : [];
         const hasGate = body.some((block: any) => block?._type === "premiumGate");
-        return hasGate ? true : "Premium Stories haben normalerweise ein AROUND Premium Gate im Body.";
-      }).warning()
+        return hasGate ? true : "Eine Premium Story braucht ein AROUND Premium Gate im Body, bevor sie veröffentlicht werden kann.";
+      })
     }),
 
     defineField({name:"seoTitle",title:"SEO title",type:"string",group:"seo",validation:r=>r.max(60)}),

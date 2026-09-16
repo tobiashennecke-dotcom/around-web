@@ -6,8 +6,12 @@ import { SaveButton } from "@/components/SaveButton";
 import { StoryBody } from "@/components/StoryBody";
 import { StoryRelationIndex } from "@/components/StoryRelationIndex";
 import { StoryPlaceBridge } from "@/components/StoryPlaceBridge";
+import { PremiumStoryGate } from "@/components/PremiumStoryGate";
+import { PremiumAccessBadge } from "@/components/PremiumAccessBadge";
 import { contentHref } from "@/components/ContentCard";
 import { splitStoryRelations } from "@/lib/story-relations";
+import { hasEntitlement } from "@/lib/access/entitlements";
+import { resolveStoryAccessState, splitStoryBodyAtPremiumGate } from "@/lib/story-access";
 
 function formatDate(value?:string){
   if(!value) return null;
@@ -32,11 +36,31 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
   const { places, destinations, people } = splitStoryRelations(related);
   const date=formatDate(story.publishedAt);
 
+  // Server-side access decision: no entitlement query for Free Stories at
+  // all. hasEntitlement() only ever asks "read_premium_stories" - never
+  // plan/subscriptionStatus.
+  const entitled = story.accessTier === "premium" ? await hasEntitlement("read_premium_stories") : false;
+  const accessState = resolveStoryAccessState({ accessTier: story.accessTier, hasPremiumEntitlement: entitled });
+  const locked = accessState === "premium-locked";
+
+  // A locked reader must never receive afterGate blocks through any
+  // component - visibleBody is the only body value ever rendered, and a
+  // malformed Premium Story (no gate) fails closed to zero body blocks
+  // rather than leaking the full text.
+  let visibleBody: unknown[] = story.body;
+  if (locked) {
+    const split = splitStoryBodyAtPremiumGate(story.body);
+    visibleBody = split.hasGate ? split.beforeGate : [];
+  }
+
   return (
     <main>
       <section className="section storyHero">
         <div className="container">
-          <span className="tag blue">{story.format || story.kicker || "Story"}</span>
+          <div className="storyHeroTags">
+            <span className="tag blue">{story.format || story.kicker || "Story"}</span>
+            {story.accessTier === "premium" && <PremiumAccessBadge />}
+          </div>
           <h1 className="serif" style={{fontSize:"clamp(60px,8vw,114px)",lineHeight:.88,letterSpacing:"-.05em",margin:"18px 0 28px",maxWidth:1160}}>
             {story.title}
           </h1>
@@ -63,7 +87,8 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
           <StoryRelationIndex related={related} />
         </aside>
         <article className="articleBody">
-          <StoryBody value={story.body} />
+          <StoryBody value={visibleBody} />
+          {locked && <PremiumStoryGate />}
         </article>
       </div>
 
@@ -104,8 +129,13 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
   );
 }
 
-// AROUND editorial freshness: refresh published Sanity content without a redeploy.
-export const revalidate = 30;
+// v1.26f: Premium access is user-specific (it depends on the requesting
+// user's own entitlement), so this route can no longer use ISR - a cached
+// response rendered for one user's entitlement must never be served to a
+// different user. Every request is rendered fresh; there is no revalidate
+// window to keep here. Public Story-list pages (e.g. /stories) are
+// unaffected and may keep their own normal caching.
+export const dynamic = "force-dynamic";
 
 // AROUND CMS routing: allow newly published Sanity slugs without a redeploy.
 export const dynamicParams = true;
