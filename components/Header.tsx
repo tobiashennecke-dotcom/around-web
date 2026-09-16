@@ -18,7 +18,7 @@ export function Header() {
         </nav>
         <div className="headerActions">
           <Link className="headerSearch" href="/search" aria-label="Suche">⌕</Link>
-          <Link className="headerMyAround" href="/saved">
+          <Link className="headerMyAround" href="/my-around">
             <span className="drop drop--mini" aria-hidden="true" />
             <span className="savedLabel">MY AROUND</span>
             <SaveCount className="saveCount--header" />
