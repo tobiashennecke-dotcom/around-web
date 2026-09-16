@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "next typegen && tsc --noEmit",
-    "preflight": "node scripts/preflight.mjs"
+    "preflight": "node scripts/preflight.mjs",
+    "sanity:security-check": "node scripts/check-sanity-security.mjs"
   },
   "dependencies": {
     "@portabletext/react": "^6.0.0",
