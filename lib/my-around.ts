@@ -10,6 +10,7 @@
  */
 
 import type { UserTrip, TripStatus } from "@/lib/supabase/trips";
+import type { UserCollection } from "@/lib/supabase/collections";
 
 export type FocusTripHeading = "next-trip" | "continue-planning";
 
@@ -19,13 +20,22 @@ export type FocusTripSelection = {
   heading: FocusTripHeading;
 };
 
-/** Parses a "YYYY-MM-DD" Trip date as a local calendar date, not a UTC instant. */
+/**
+ * Parses a "YYYY-MM-DD" Trip date as a local calendar date, not a UTC
+ * instant. Rejects impossible calendar dates (e.g. 2026-02-31) instead of
+ * allowing JS Date's silent rollover (which would otherwise resolve that to
+ * 2026-03-03) - an invalid date means "no date", not "some other date".
+ */
 function toCalendarDate(value: string): Date | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
   if (!match) return null;
-  const [, year, month, day] = match;
-  const date = new Date(Number(year), Number(month) - 1, Number(day));
-  return Number.isNaN(date.getTime()) ? null : date;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(year, month - 1, day);
+  if (Number.isNaN(date.getTime())) return null;
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+  return date;
 }
 
 function startOfDay(date: Date): Date {
@@ -90,4 +100,22 @@ export function formatTripDateRange(start?: string, end?: string): string {
   const format = (value: string) => new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "short" }).format(new Date(`${value}T12:00:00`));
   if (start && end) return `${format(start)} – ${format(end)}`;
   return start ? `ab ${format(start)}` : `bis ${format(end as string)}`;
+}
+
+/**
+ * MY AROUND Home's Collections preview must always mean "most recently
+ * updated first" - listUserCollections()'s own array order is not relied
+ * upon here, since guest (localStorage) storage does not guarantee
+ * updatedAt ordering after edits (only account/Supabase mode is queried
+ * pre-sorted). Ties fall back to id for a stable, deterministic order. Does
+ * not affect the Collections workspace's own ordering.
+ */
+export function sortCollectionsByRecentlyUpdated(collections: UserCollection[]): UserCollection[] {
+  return [...collections].sort((a, b) => {
+    const diff = Date.parse(b.updatedAt) - Date.parse(a.updatedAt);
+    if (diff !== 0) return diff;
+    if (a.id < b.id) return -1;
+    if (a.id > b.id) return 1;
+    return 0;
+  });
 }

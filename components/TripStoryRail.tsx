@@ -15,6 +15,14 @@ type Props = {
   recommendations: TripStoryRecommendation[];
   /** Defaults to the Trip Planner's own intro; MY AROUND Home passes a variant tuned to whether the focus Trip is actually future-dated. */
   intro?: string;
+  /**
+   * MY AROUND Home already renders inside its own outer .container - set
+   * this so the rail skips its second nested .container and aligns exactly
+   * with the dashboard's other modules (Focus Trip / Saved / Collections /
+   * Trips). Trip Detail keeps the default (false): full section, own
+   * .container. Same presentation markup either way - only the wrapper differs.
+   */
+  embedded?: boolean;
 };
 
 /**
@@ -24,24 +32,40 @@ type Props = {
  * recommendation can be opened or saved, never turned into a Stop. Renders
  * nothing without at least one recommendation.
  */
-export function TripStoryRail({ recommendations, intro = "Stories zu den Orten, die du eingeplant hast." }: Props) {
+export function TripStoryRail({
+  recommendations,
+  intro = "Stories zu den Orten, die du eingeplant hast.",
+  embedded = false
+}: Props) {
   if (!recommendations.length) return null;
+
+  const content = (
+    <>
+      <div className="eyebrow blue">AROUND / READ BEFORE YOU GO</div>
+      <h2 className="sectionTitle" id="trip-story-rail-title">READ BEFORE YOU GO.</h2>
+      <p className="storyRailIntro">{intro}</p>
+      <div className="cardGrid">
+        {recommendations.map(recommendation => (
+          <div className="tripStoryCard" key={recommendation.story.id}>
+            <ContentCard item={recommendation.story} />
+            <p className="tripStoryMatch">{matchContextLabel(recommendation)}</p>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <section className="section storyRailSection tripStoryRail" aria-labelledby="trip-story-rail-title">
+        {content}
+      </section>
+    );
+  }
 
   return (
     <section className="section storyRailSection tripStoryRail">
-      <div className="container">
-        <div className="eyebrow blue">AROUND / READ BEFORE YOU GO</div>
-        <h2 className="sectionTitle">READ BEFORE YOU GO.</h2>
-        <p className="storyRailIntro">{intro}</p>
-        <div className="cardGrid">
-          {recommendations.map(recommendation => (
-            <div className="tripStoryCard" key={recommendation.story.id}>
-              <ContentCard item={recommendation.story} />
-              <p className="tripStoryMatch">{matchContextLabel(recommendation)}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <div className="container">{content}</div>
     </section>
   );
 }

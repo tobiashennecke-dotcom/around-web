@@ -18,7 +18,7 @@ import {
   TRIPS_CHANGED_EVENT,
   type UserTrip
 } from "@/lib/supabase/trips";
-import { selectFocusTrip, tripStatusLabel, formatTripDateRange } from "@/lib/my-around";
+import { selectFocusTrip, tripStatusLabel, formatTripDateRange, sortCollectionsByRecentlyUpdated } from "@/lib/my-around";
 import { contentTypeLabel } from "@/lib/content-role";
 import { savedItemPrimaryAction, savedLibraryHref } from "@/lib/saved-content";
 import { TripStoryRail } from "@/components/TripStoryRail";
@@ -144,7 +144,7 @@ export function MyAroundHomeClient() {
   const focusTrip = focus?.trip;
   const homeStoryRecommendations = tripStoryRecommendations.slice(0, MAX_TRIP_STORIES_HOME);
   const savedPreview = saves.slice(0, MAX_SAVED_PREVIEW);
-  const collectionsPreview = collections.slice(0, MAX_COLLECTIONS_PREVIEW);
+  const collectionsPreview = sortCollectionsByRecentlyUpdated(collections).slice(0, MAX_COLLECTIONS_PREVIEW);
   const tripsPreview = trips.slice(0, MAX_TRIPS_PREVIEW);
 
   return (
@@ -200,6 +200,7 @@ export function MyAroundHomeClient() {
         <TripStoryRail
           recommendations={homeStoryRecommendations}
           intro={focus?.heading === "next-trip" ? "Stories zu den Orten in deinem nächsten Trip." : "Stories zu den Orten in deinem Trip."}
+          embedded
         />
       ) : null}
 
