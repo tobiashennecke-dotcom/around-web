@@ -112,7 +112,7 @@ export function CommunicationPreferences() {
       setPreferences(body.preferences);
       setMessage(
         body.providerSync === "failed"
-          ? "Gespeichert. Die Kommunikations-Synchronisierung wird später erneut versucht."
+          ? "Gespeichert. Die Kommunikations-Synchronisierung konnte gerade nicht abgeschlossen werden. Bitte versuche es später erneut."
           : "Preferences saved."
       );
     } catch {

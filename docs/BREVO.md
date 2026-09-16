@@ -42,4 +42,4 @@ Communication is always the least critical layer:
 2. **User Intelligence** (Supabase) must always remain canonical and correct.
 3. **Communication provider** (Brevo) is best-effort and safely degradable.
 
-A Brevo outage, a missing API key, or a missing list ID never breaks a Save, a Trip, or a preference change — it only means that particular piece of downstream communication doesn't go out yet.
+A Brevo outage, a missing API key, or a missing list ID never breaks a Save, a Trip, or a preference change — Supabase still saves correctly either way. There is no automatic retry queue: a failed sync simply does not happen for that attempt, and is only attempted again the next time the user explicitly saves their preferences (or a later lifecycle event is forwarded).
