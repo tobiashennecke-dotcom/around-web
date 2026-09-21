@@ -261,7 +261,7 @@ img{display:block;max-width:100%}
   .indexItem,.indexNumber,.indexItem strong,.indexArrow{transition:none}
   .indexItem:hover .indexArrow,.indexItem:focus-visible .indexArrow{transform:none}
 }
-.storiesSection{background:#e9e8e2}
+.storiesSection{background:var(--around-ink);color:var(--around-warm)}
 .selectedSection{background:var(--around-lime);padding:96px 0}
 .selectedSectionGrid{display:grid;grid-template-columns:.72fr 1.28fr;gap:54px;align-items:start}
 .selectedSection h2{font-size:clamp(58px,7vw,104px);line-height:.82;letter-spacing:-.055em;text-transform:uppercase;margin:14px 0 24px}
@@ -430,8 +430,46 @@ img{display:block;max-width:100%}
   .travelGrid.adaptiveGrid--3 .card:last-child .cardMedia{aspect-ratio:21/9}
 }
 
-.storyGridV13.adaptiveGrid--1 .card{grid-template-columns:minmax(0,1.35fr) minmax(330px,.65fr)}
-.storyGridV13 .cardMedia{background:var(--around-blue)}
+/* STORIES - homepage editorial feature. Reuses StoryFeature (lead/secondary/
+   wide) exclusively - no generic card grid, no duplicated Save/Premium/meta
+   logic. Dark ink surface mirrors the Stories Hub's own EDITORIAL NOW module
+   (same palette, not a new color) so this reads as a deliberate independent
+   editorial "voice" section, distinct from the light Index/Travel sections
+   above and the lime AROUND SELECTED section below. Scoped entirely under
+   .homeStoriesEditorial - never touches app/stories/page.tsx's own
+   .storiesEditorialNow / .editorialNowGrid rules. */
+.storiesSection .sectionHead{margin-bottom:38px}
+.homeStoriesEditorial{margin-top:6px}
+.homeStoriesGrid{display:grid;grid-template-columns:2fr 1fr;gap:28px;align-items:stretch}
+.homeStoriesLead{min-width:0}
+.homeStoriesSecondary{display:grid;gap:20px;min-width:0}
+
+.homeStoriesEditorial .storyFeature{border-color:rgba(245,243,238,.18)}
+.homeStoriesEditorial .storyFeatureKicker{color:rgba(245,243,238,.6)}
+.homeStoriesEditorial .storyFeatureDeck{color:rgba(245,243,238,.78)}
+.homeStoriesEditorial .storyFeatureMeta{color:var(--around-lime)}
+.homeStoriesEditorial .storyFeatureFooter{border-top-color:rgba(245,243,238,.18)}
+
+/* Solo secondary (exactly two Stories): a lone horizontal thumbnail row would
+   stretch its image to an ungainly height under align-items:stretch, so it
+   reverts to a vertical card instead - substantial, not distorted. */
+/* Compound with the variant class itself (not just the wrapper) so this
+   reliably outranks .storyFeature--secondary's own same-specificity rules
+   regardless of where each block sits in the file. */
+.homeStoriesSecondary--solo .storyFeature--secondary{flex-direction:column}
+.homeStoriesSecondary--solo .storyFeature--secondary .storyFeatureMedia{width:100%;aspect-ratio:16/10}
+.homeStoriesSecondary--solo .storyFeature--secondary .storyFeatureBody{padding:20px 2px 2px}
+
+/* Solo lead (exactly one Story): a deliberately larger single feature, not a
+   half-empty two-column layout. */
+.homeStoriesLead--solo .storyFeatureTitle{font-size:clamp(32px,4vw,56px)}
+@media(min-width:901px){
+  .homeStoriesLead--solo .storyFeatureMedia{min-height:440px}
+}
+
+@media(max-width:1050px){
+  .homeStoriesGrid{grid-template-columns:1fr}
+}
 
 .selectedSectionV13{padding:112px 0}
 .selectedSectionV13 .selectedSectionGrid{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch}

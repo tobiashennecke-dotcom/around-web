@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ContentCard, contentHref } from "@/components/ContentCard";
+import { StoryFeature } from "@/components/StoryFeature";
 import { getHomepageContent } from "@/lib/content";
 import type { ContentCard as CardType, ContentType } from "@/lib/types";
 
@@ -134,12 +135,30 @@ export default async function HomePage() {
           <div className="container">
             <div className="sectionHead">
               <div>
-                <div className="eyebrow blue">STORIES</div>
+                <div className="eyebrow lime">STORIES</div>
                 <h2 className="sectionTitle">Read beyond<br />the round.</h2>
               </div>
-              <Link className="textLink" href="/search?type=story">Alle Stories →</Link>
+              <Link className="textLink" href="/stories">Alle Stories →</Link>
             </div>
-            <AdaptiveCards items={stories} className="storyGridV13" />
+
+            <div className="homeStoriesEditorial">
+              {stories.length === 1 ? (
+                <div className="homeStoriesLead homeStoriesLead--solo">
+                  <StoryFeature story={stories[0]} variant="wide" />
+                </div>
+              ) : (
+                <div className="homeStoriesGrid">
+                  <div className="homeStoriesLead">
+                    <StoryFeature story={stories[0]} variant="lead" />
+                  </div>
+                  <div className={`homeStoriesSecondary${stories.length === 2 ? " homeStoriesSecondary--solo" : ""}`}>
+                    {stories.slice(1).map(story => (
+                      <StoryFeature key={story.id} story={story} variant="secondary" />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </section>
       )}
