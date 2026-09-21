@@ -262,13 +262,58 @@ img{display:block;max-width:100%}
   .indexItem:hover .indexArrow,.indexItem:focus-visible .indexArrow{transform:none}
 }
 .storiesSection{background:var(--around-ink);color:var(--around-warm)}
-.selectedSection{background:var(--around-lime);padding:96px 0}
-.selectedSectionGrid{display:grid;grid-template-columns:.72fr 1.28fr;gap:54px;align-items:start}
-.selectedSection h2{font-size:clamp(58px,7vw,104px);line-height:.82;letter-spacing:-.055em;text-transform:uppercase;margin:14px 0 24px}
-.selectedSection p{font-size:24px;line-height:1.2;max-width:460px}
-.selectedCards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.selectedCards .card:nth-child(3){grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}
-.selectedCards .card:nth-child(3) .cardMedia{aspect-ratio:auto;min-height:290px}
+/* AROUND SELECTED - homepage editorial brand signature (Home Visual Polish 04).
+   A lime editorial-manifesto panel beside a warm, breathing gallery surface -
+   deliberately not a uniform lime block. The section's own background matches
+   the gallery panel's warm tone so the gallery reads as part of the page and
+   the manifesto reads as an inset editorial "card" calling out from it. All
+   gallery column-count rules are min-width guarded so they can never outrank
+   the mobile/tablet collapse below regardless of source order (see the
+   .selectedSectionGrid / .selectedCardsV13 specificity bug this replaces). */
+.selectedSection{background:var(--around-warm);padding:0;border-bottom:1px solid var(--around-line)}
+.homeSelectedGrid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:0;align-items:stretch}
+.selectedManifesto{
+  background:var(--around-lime);color:var(--around-ink);
+  padding:72px 56px;display:flex;flex-direction:column;justify-content:center;
+  container-type:inline-size;min-width:0
+}
+.selectedMark{display:block;width:52px;height:3px;background:var(--around-ink);margin:20px 0 22px;opacity:.85}
+.selectedManifesto h2{
+  margin:0 0 22px;font-size:clamp(34px,13cqw,92px);line-height:.94;letter-spacing:-.04em;
+  text-transform:uppercase;font-weight:800;text-wrap:balance
+}
+.selectedManifesto p{font-size:clamp(17px,1.6cqw,21px);line-height:1.35;max-width:44ch}
+.homeSelectedGallery{padding:40px 0 40px 48px;min-width:0;display:grid;gap:20px}
+.homeSelectedGallery .card{background:#fff}
+.homeSelectedGallery .card h3{font-size:24px;line-height:1.02}
+.homeSelectedGallery .cardBody{padding:20px}
+.homeSelectedGallery--1 .card h3{font-size:clamp(28px,3.4vw,42px)}
+
+/* Column-count treatments are min-width guarded so a later, higher-
+   specificity desktop rule can never outrank the single-column collapse at
+   the bottom of this block, regardless of where either sits in the file. */
+@media(min-width:621px){
+  .homeSelectedGallery--2{grid-template-columns:repeat(2,1fr)}
+  .homeSelectedGallery--3{grid-template-columns:repeat(2,1fr)}
+  .homeSelectedGallery--3 .card:nth-child(3){grid-column:1/-1}
+  .homeSelectedGallery--3 .card:nth-child(3) .cardMedia{aspect-ratio:21/9}
+}
+@media(min-width:901px){
+  .homeSelectedGallery--1 .card{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(240px,.9fr);min-height:420px}
+  .homeSelectedGallery--1 .cardMedia{aspect-ratio:auto}
+  .homeSelectedGallery--1 .cardBody{padding:32px;display:flex;flex-direction:column;justify-content:center}
+}
+@media(max-width:1100px){
+  .homeSelectedGrid{grid-template-columns:1fr}
+  .selectedManifesto{padding:56px var(--around-pad)}
+  .homeSelectedGallery{padding:36px var(--around-pad)}
+}
+@media(max-width:620px){
+  .selectedManifesto{padding:44px var(--around-pad)}
+  .selectedManifesto p{max-width:none}
+  .homeSelectedGallery{padding:32px var(--around-pad);gap:16px}
+}
+
 .dropCta{background:var(--around-ink);color:var(--around-warm);padding:108px 0}
 .dropCtaGrid{display:grid;grid-template-columns:1.2fr .8fr;gap:80px;align-items:end}
 .dropCta h2{font-size:clamp(62px,8vw,118px);line-height:.8;letter-spacing:-.06em;text-transform:uppercase;margin:16px 0 0}
@@ -318,7 +363,7 @@ img{display:block;max-width:100%}
 .discoverFeedSection{background:var(--around-warm)}
 
 @media(max-width:1050px){
-  .homeHeroGrid,.discoverHeroGrid,.selectedSectionGrid,.dropCtaGrid{grid-template-columns:1fr;gap:36px}
+  .homeHeroGrid,.discoverHeroGrid,.dropCtaGrid{grid-template-columns:1fr;gap:36px}
   .leadGrid{grid-template-columns:1fr}.leadSupport{grid-template-columns:repeat(2,1fr);grid-template-rows:auto}
   .pathGrid{grid-template-columns:repeat(2,1fr)}
   .discoverLeadGrid{grid-template-columns:1fr}.discoverLeadLabel{display:flex;justify-content:space-between;gap:30px}.discoverLeadLabel p{max-width:430px;margin:0}
@@ -329,8 +374,6 @@ img{display:block;max-width:100%}
   .leadFeature{min-height:560px;padding:22px}.leadFeatureCopy h2{font-size:58px}
   .leadSupport{grid-template-columns:1fr}
   .indexItem{grid-template-columns:38px 1fr 28px;gap:12px}.indexItem small{font-size:14px}
-  .selectedCards{grid-template-columns:1fr}.selectedCards .card:nth-child(3){grid-column:auto;display:block}
-  .selectedCards .card:nth-child(3) .cardMedia{aspect-ratio:4/3;min-height:0}
   .pathGrid{grid-template-columns:1fr}.pathCard{min-height:230px}
   .discoverLead{min-height:520px;padding:22px}.discoverLead h2{font-size:56px}
   .discoverLeadLabel{display:block}.discoverLeadLabel p{margin-top:12px}
@@ -471,17 +514,6 @@ img{display:block;max-width:100%}
   .homeStoriesGrid{grid-template-columns:1fr}
 }
 
-.selectedSectionV13{padding:112px 0}
-.selectedSectionV13 .selectedSectionGrid{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch}
-.selectedManifesto{display:flex;flex-direction:column;justify-content:center;min-height:560px}
-.selectedSectionV13 h2{font-size:clamp(70px,7.6vw,120px)}
-.selectedCardsV13.adaptiveGrid--1 .card{grid-template-columns:1fr;grid-template-rows:minmax(360px,1fr) auto;min-height:560px}
-.selectedCardsV13.adaptiveGrid--1 .cardMedia{min-height:360px}
-.selectedCardsV13.adaptiveGrid--1 .cardBody{padding:28px;display:block}
-.selectedCardsV13.adaptiveGrid--1 .card h3{font-size:42px}
-.selectedCardsV13.adaptiveGrid--1 .card p{font-family:Arial,Helvetica,sans-serif;font-size:17px}
-.selectedCardsV13.adaptiveGrid--2{grid-template-columns:repeat(2,1fr)}
-
 .dropCtaV13{border-top:5px solid var(--around-lime)}
 .dropCtaV13 .dropCtaGrid{grid-template-columns:1.25fr .75fr;align-items:center}
 .dropCtaAside{display:grid;grid-template-columns:auto 1fr;gap:18px 28px;align-items:center}
@@ -524,8 +556,6 @@ img{display:block;max-width:100%}
   .homeHeroV13 .homeHeroGrid{grid-template-columns:1fr;gap:44px}.homeHeroV13 h1{max-width:1000px}
   .homeHeroV13 .homeHeroAside{max-width:680px}
   .adaptiveGrid--1 .card{grid-template-columns:1fr 1fr}
-  .selectedSectionV13 .selectedSectionGrid{grid-template-columns:1fr;gap:44px}
-  .selectedManifesto{min-height:0}
   .dropCtaV13 .dropCtaGrid{grid-template-columns:1fr;gap:50px}
 }
 
@@ -547,7 +577,6 @@ img{display:block;max-width:100%}
   .homeHeroV13 .homeHeroAside .heroIntro{font-size:23px}
   .adaptiveGrid--2,.discoverMixGrid.adaptiveGrid--2{grid-template-columns:1fr}
   .adaptiveGrid--1 .card h3{font-size:42px}.adaptiveGrid--1 .card p{font-size:19px}
-  .selectedSectionV13{padding:78px 0}.selectedSectionV13 h2{font-size:61px}
   .dropCtaAside{grid-template-columns:1fr}.dropCtaAside p,.dropCtaAside .primary{grid-column:1}.drop--hero{grid-row:auto;width:76px;height:76px;border-width:5px}.drop--hero:after{width:24px;height:24px;right:-11px;top:-11px}
   .discoverHeroV13{padding:78px 0 68px}.discoverHeroV13 h1{font-size:64px}
   .pathGridV13 .pathCard{min-height:220px}

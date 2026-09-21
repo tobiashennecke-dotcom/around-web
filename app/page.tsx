@@ -164,14 +164,17 @@ export default async function HomePage() {
       )}
 
       {selected.length > 0 && (
-        <section className="selectedSection selectedSectionV13">
-          <div className="container selectedSectionGrid">
+        <section className="selectedSection">
+          <div className="container homeSelectedGrid">
             <div className="selectedManifesto">
               <div className="eyebrow">AROUND SELECTED</div>
+              <span className="selectedMark" aria-hidden="true" />
               <h2>Handverlesen.<br />Nicht gekauft.</h2>
               <p className="serif">Unser redaktionelles Siegel für Dinge und Orte, die wir wirklich weitergeben würden.</p>
             </div>
-            <AdaptiveCards items={selected} className="selectedCards selectedCardsV13" />
+            <div className={`homeSelectedGallery homeSelectedGallery--${selected.length}`}>
+              {selected.map(item => <ContentCard item={item} key={item.id} />)}
+            </div>
           </div>
         </section>
       )}
