@@ -9,6 +9,14 @@ type Variant = "lead" | "secondary" | "wide";
 type Props = {
   story: ContentCardType;
   variant: Variant;
+  /**
+   * Optional override for the lead image's loading behavior. Defaults to
+   * "eager" for variant="lead" (its usual placement is above the fold on the
+   * Stories Hub) and "lazy" otherwise. Pass "lazy" explicitly when a lead
+   * feature is rendered further down the page - e.g. the homepage STORIES
+   * section - where eager loading would compete with above-the-fold assets.
+   */
+  imageLoading?: "eager" | "lazy";
 };
 
 /**
@@ -18,17 +26,18 @@ type Props = {
  * confident typographic surface when no image exists yet) rather than a
  * uniform grid card.
  */
-export function StoryFeature({ story, variant }: Props) {
+export function StoryFeature({ story, variant, imageLoading }: Props) {
   const href = `/stories/${story.slug}`;
   const metaParts = [storyFormatLabel(story.storyFormat), story.readingTime ? `${story.readingTime} MIN` : undefined].filter(
     (part): part is string => Boolean(part)
   );
+  const loading = imageLoading ?? (variant === "lead" ? "eager" : "lazy");
 
   return (
     <article className={`storyFeature storyFeature--${variant} ${story.image ? "storyFeature--withImage" : "storyFeature--typographic"}`}>
       <Link href={href} className="storyFeatureMedia" aria-label={story.title}>
         {story.image ? (
-          <img src={story.image} alt={story.title} loading={variant === "lead" ? "eager" : "lazy"} />
+          <img src={story.image} alt={story.title} loading={loading} />
         ) : (
           <div className="storyFeatureTypographic" aria-hidden="true">
             <span>{storyFormatLabel(story.storyFormat)}</span>

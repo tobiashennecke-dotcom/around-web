@@ -144,16 +144,16 @@ export default async function HomePage() {
             <div className="homeStoriesEditorial">
               {stories.length === 1 ? (
                 <div className="homeStoriesLead homeStoriesLead--solo">
-                  <StoryFeature story={stories[0]} variant="wide" />
+                  <StoryFeature story={stories[0]} variant="wide" imageLoading="lazy" />
                 </div>
               ) : (
                 <div className="homeStoriesGrid">
                   <div className="homeStoriesLead">
-                    <StoryFeature story={stories[0]} variant="lead" />
+                    <StoryFeature story={stories[0]} variant="lead" imageLoading="lazy" />
                   </div>
                   <div className={`homeStoriesSecondary${stories.length === 2 ? " homeStoriesSecondary--solo" : ""}`}>
                     {stories.slice(1).map(story => (
-                      <StoryFeature key={story.id} story={story} variant="secondary" />
+                      <StoryFeature key={story.id} story={story} variant="secondary" imageLoading="lazy" />
                     ))}
                   </div>
                 </div>
