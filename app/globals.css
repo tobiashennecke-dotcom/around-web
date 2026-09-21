@@ -241,14 +241,26 @@ img{display:block;max-width:100%}
 .leadSupport .card h3{font-size:22px;line-height:1.02;margin:8px 0}
 .leadSupport .card p{font-size:15px;line-height:1.4}
 .leadSupport .cardMeta{margin-top:12px}
-.indexSection{padding-top:78px;padding-bottom:78px}
+.indexSection{padding-top:84px;padding-bottom:90px}
 .indexGrid{border-top:3px solid var(--around-ink)}
-.indexItem{display:grid;grid-template-columns:60px 1fr 56px;gap:24px;align-items:center;padding:25px 0;border-bottom:1px solid var(--around-ink);transition:padding .2s ease,background .2s ease}
-.indexItem:hover{padding-left:14px;background:rgba(214,234,42,.18)}
-.indexNumber,.indexCount{font-size:10px;letter-spacing:.1em;text-transform:uppercase}
-.indexCount{text-align:right;font-weight:800}
-.indexItem strong{display:block;font-size:clamp(30px,4vw,58px);line-height:.9;text-transform:uppercase;letter-spacing:-.045em}
-.indexItem small{display:block;font-family:Georgia,"Times New Roman",serif;color:var(--around-muted);font-size:16px;margin-top:7px}
+.indexItem{
+  display:grid;grid-template-columns:52px 1fr 40px;gap:24px;align-items:center;
+  padding:27px 4px;border-bottom:1px solid var(--around-ink);
+  transition:padding-left .2s ease,background-color .2s ease
+}
+.indexItem:hover,.indexItem:focus-visible{padding-left:16px;background:rgba(214,234,42,.16)}
+.indexItem:focus-visible{outline:2px solid var(--around-ink);outline-offset:-2px}
+.indexNumber{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--around-muted);font-weight:700;transition:color .2s ease}
+.indexItem:hover .indexNumber,.indexItem:focus-visible .indexNumber{color:var(--around-ink)}
+.indexItem strong{display:block;font-size:clamp(26px,3.2vw,44px);line-height:.94;text-transform:uppercase;letter-spacing:-.03em;transition:letter-spacing .2s ease}
+.indexItem:hover strong,.indexItem:focus-visible strong{letter-spacing:-.015em}
+.indexItem small{display:block;font-family:Georgia,"Times New Roman",serif;color:var(--around-muted);font-size:15px;margin-top:6px;max-width:520px}
+.indexArrow{display:inline-flex;justify-self:end;font-size:16px;line-height:1;color:var(--around-ink);transition:transform .2s ease}
+.indexItem:hover .indexArrow,.indexItem:focus-visible .indexArrow{transform:translateX(5px)}
+@media(prefers-reduced-motion:reduce){
+  .indexItem,.indexNumber,.indexItem strong,.indexArrow{transition:none}
+  .indexItem:hover .indexArrow,.indexItem:focus-visible .indexArrow{transform:none}
+}
 .storiesSection{background:#e9e8e2}
 .selectedSection{background:var(--around-lime);padding:96px 0}
 .selectedSectionGrid{display:grid;grid-template-columns:.72fr 1.28fr;gap:54px;align-items:start}
@@ -343,7 +355,7 @@ img{display:block;max-width:100%}
 .drop--mini{width:13px;height:13px;border-width:2px}
 .drop--mini:after{width:5px;height:5px;right:-3px;top:-3px}
 
-.homeHeroV13{min-height:calc(100vh - 82px);padding:112px 0 88px}
+.homeHeroV13{min-height:calc(100vh - 76px);padding:112px 0 88px}
 .homeHeroV13 h1{
   font-family:Arial,Helvetica,sans-serif;font-weight:900;text-transform:uppercase;
   font-size:clamp(82px,10.4vw,166px);line-height:.76;letter-spacing:-.072em;
@@ -377,6 +389,47 @@ img{display:block;max-width:100%}
 .adaptiveGrid--2 .card:first-child h3{font-size:clamp(34px,4vw,54px)}
 .adaptiveGrid--2 .card:last-child{align-self:stretch}
 .travelSectionV13{padding-top:112px;padding-bottom:112px}
+.travelSectionV13 .sectionHead{margin-bottom:38px}
+.travelSectionV13 .sectionHead .textLink{display:inline-block;padding:8px 0 4px}
+
+/* WORTH THE TRIP - imagery-first editorial cards, scoped to .travelGrid only.
+   Property overrides that don't collide with the shared adaptiveGrid responsive
+   collapse below (aspect-ratio, type scale, spacing) are safe unconditionally.
+   Column-ratio overrides are min-width guarded so they never outrank the
+   shared tablet/mobile collapse rules further down this file (higher class
+   specificity would otherwise win regardless of viewport - see leadGrid fix
+   in Home Visual Polish 01). */
+.travelGrid{gap:20px}
+.travelGrid .card{border-top-width:3px}
+.travelGrid .cardBody{padding:24px}
+.travelGrid .card h3{margin:12px 0 10px}
+.travelGrid .card p{font-size:15px;line-height:1.45}
+.travelGrid .cardMeta{margin-top:16px}
+
+.travelGrid.adaptiveGrid--1 .card h3{font-size:clamp(40px,4.6vw,68px);margin:14px 0 16px}
+.travelGrid.adaptiveGrid--1 .card p{font-size:20px;max-width:480px}
+.travelGrid.adaptiveGrid--2 .card:first-child .cardMedia,
+.travelGrid.adaptiveGrid--2 .card:last-child .cardMedia{aspect-ratio:4/3}
+.travelGrid.adaptiveGrid--2 .card:first-child h3{font-size:clamp(30px,3vw,42px)}
+.travelGrid.adaptiveGrid--2 .card:last-child h3{font-size:clamp(26px,2.6vw,36px)}
+.travelGrid.adaptiveGrid--3 .cardMedia{aspect-ratio:4/3}
+.travelGrid.adaptiveGrid--3 .card h3{font-size:clamp(24px,2vw,30px)}
+
+@media(min-width:1051px){
+  .travelGrid.adaptiveGrid--1 .card{grid-template-columns:minmax(0,1.7fr) minmax(320px,.6fr);min-height:560px}
+  .travelGrid.adaptiveGrid--1 .cardMedia{min-height:560px}
+  .travelGrid.adaptiveGrid--1 .cardBody{padding:40px}
+  .travelGrid.adaptiveGrid--3{grid-template-columns:repeat(3,1fr)}
+}
+@media(min-width:901px){
+  .travelGrid.adaptiveGrid--2{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}
+}
+@media(max-width:1050px) and (min-width:621px){
+  .travelGrid.adaptiveGrid--3{grid-template-columns:repeat(2,1fr)}
+  .travelGrid.adaptiveGrid--3 .card:last-child{grid-column:1/-1}
+  .travelGrid.adaptiveGrid--3 .card:last-child .cardMedia{aspect-ratio:21/9}
+}
+
 .storyGridV13.adaptiveGrid--1 .card{grid-template-columns:minmax(0,1.35fr) minmax(330px,.65fr)}
 .storyGridV13 .cardMedia{background:var(--around-blue)}
 

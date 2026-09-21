@@ -7,10 +7,6 @@ function unique(items: CardType[]) {
   return Array.from(new Map(items.map(item => [item.id, item])).values());
 }
 
-function typeCount(items: CardType[], type: ContentType) {
-  return items.filter(item => item.type === type).length;
-}
-
 function AdaptiveCards({ items, className = "" }: { items: CardType[]; className?: string }) {
   return (
     <div className={`cardGrid adaptiveGrid adaptiveGrid--${Math.min(items.length, 3)} ${className}`.trim()}>
@@ -111,7 +107,7 @@ export default async function HomePage() {
                   <strong>{entry.label}</strong>
                   <small>{entry.hint}</small>
                 </div>
-                <span className="indexCount">{typeCount(all, entry.type)}</span>
+                <span className="indexArrow" aria-hidden="true">→</span>
               </Link>
             ))}
           </div>
