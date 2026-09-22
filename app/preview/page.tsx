@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./preview.css";
-import { previewContent } from "@/lib/preview-content";
+import { getPartnerPreview } from "@/lib/partner-preview";
 import { PreviewHeader } from "@/components/preview/PreviewHeader";
 import { PreviewHero } from "@/components/preview/PreviewHero";
 import { AroundIntro } from "@/components/preview/AroundIntro";
@@ -15,43 +15,48 @@ import { PreviewContact } from "@/components/preview/PreviewContact";
 import { PreviewStatus } from "@/components/preview/PreviewStatus";
 import { PreviewFooter } from "@/components/preview/PreviewFooter";
 
-export const metadata: Metadata = {
-  title: previewContent.seo.title,
-  description: previewContent.seo.description,
-  openGraph: {
-    title: previewContent.seo.title,
-    description: previewContent.seo.description,
-    images: [{ url: previewContent.seo.ogImage }]
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: previewContent.seo.title,
-    description: previewContent.seo.description,
-    images: [previewContent.seo.ogImage]
-  },
-  robots: previewContent.seo.noindex
-    ? { index: false, follow: false }
-    : { index: true, follow: true }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getPartnerPreview();
+  const { seo } = content;
 
-export default function PreviewPage() {
+  return {
+    title: seo.title,
+    description: seo.description,
+    openGraph: {
+      title: seo.title,
+      description: seo.description,
+      images: [{ url: seo.ogImage }]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.title,
+      description: seo.description,
+      images: [seo.ogImage]
+    },
+    robots: seo.noindex ? { index: false, follow: false } : { index: true, follow: true }
+  };
+}
+
+export default async function PreviewPage() {
+  const content = await getPartnerPreview();
+
   return (
     <div className="pv-page">
       <PreviewHeader />
       <main>
-        <PreviewHero />
-        <AroundIntro />
-        <ProductJourney />
-        <EditorialPrinciples />
-        <FieldStories />
-        <AroundIt />
-        <SaveDemo />
-        <EditorialUniverse />
-        <PartnerSection />
-        <PreviewContact />
-        <PreviewStatus />
+        <PreviewHero content={content} />
+        <AroundIntro content={content} />
+        <ProductJourney content={content} />
+        <EditorialPrinciples content={content} />
+        <FieldStories content={content} />
+        <AroundIt content={content} />
+        <SaveDemo content={content} />
+        <EditorialUniverse content={content} />
+        <PartnerSection content={content} />
+        <PreviewContact content={content} />
+        <PreviewStatus content={content} />
       </main>
-      <PreviewFooter />
+      <PreviewFooter content={content} />
     </div>
   );
 }

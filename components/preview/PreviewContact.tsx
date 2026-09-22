@@ -1,8 +1,8 @@
-import { previewContent } from "@/lib/preview-content";
+import type { PartnerPreviewContent } from "@/lib/preview-content";
 import { Reveal } from "./Reveal";
 
-export function PreviewContact() {
-  const { headlineLines, body, person, role, email, ctaLabel } = previewContent.contact;
+export function PreviewContact({ content }: { content: PartnerPreviewContent }) {
+  const { headlineLines, body, person, role, email, ctaLabel } = content.contact;
   const mailto = `mailto:${email}?subject=${encodeURIComponent("AROUND — Partner Inquiry")}`;
 
   return (

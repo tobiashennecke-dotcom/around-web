@@ -1,9 +1,9 @@
-import { previewContent } from "@/lib/preview-content";
+import type { PartnerPreviewContent } from "@/lib/preview-content";
 import { PreviewMedia } from "./PreviewMedia";
 import { Reveal } from "./Reveal";
 
-export function FieldStories() {
-  const { eyebrow, headlineLines, cards } = previewContent.stories;
+export function FieldStories({ content }: { content: PartnerPreviewContent }) {
+  const { eyebrow, headlineLines, cards } = content.stories;
 
   return (
     <section className="section pv-section pv-stories">
@@ -22,7 +22,7 @@ export function FieldStories() {
         <div className="pv-storiesGrid">
           {cards.map((card, i) => (
             <Reveal
-              key={card.key}
+              key={`${card.role}-${card.title}-${i}`}
               as="article"
               className={`pv-storyCard pv-storyCard--${card.role} pv-storyCard--${card.accent}`}
               delay={i * 90}

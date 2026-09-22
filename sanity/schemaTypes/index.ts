@@ -6,5 +6,6 @@ import { objectType } from "./object";
 import { collection } from "./collection";
 import { storiesHub } from "./storiesHub";
 import { homepageSettings } from "./homepageSettings";
+import { partnerPreview } from "./partnerPreview";
 
-export const schemaTypes = [destination, place, story, person, objectType, collection, storiesHub, homepageSettings];
+export const schemaTypes = [destination, place, story, person, objectType, collection, storiesHub, homepageSettings, partnerPreview];

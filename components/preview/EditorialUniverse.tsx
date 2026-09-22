@@ -1,7 +1,7 @@
-import { previewContent } from "@/lib/preview-content";
+import type { PartnerPreviewContent } from "@/lib/preview-content";
 
-export function EditorialUniverse() {
-  const { ticker, headlineLines } = previewContent.editorialUniverse;
+export function EditorialUniverse({ content }: { content: PartnerPreviewContent }) {
+  const { ticker, headlineLines } = content.editorialUniverse;
 
   return (
     <section className="pv-universe" aria-label="Editorial universe">

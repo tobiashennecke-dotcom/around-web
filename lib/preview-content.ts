@@ -1,24 +1,100 @@
+import type { RawSanityImage } from "@/lib/homepage-hero";
+
 /**
- * Central copy/data config for the /preview partner onepager (see
- * docs handoff: AROUND_ONEPAGER_CLAUDE_HANDOFF.md). Structural copy lives
- * here as typed config; product entities referenced below (Lisbon, Oitavos
- * Dunes, Prado, Reit im Winkl…) match the real slugs in lib/sample-content.ts
- * and the Sanity Bayern seed tools — nothing here is invented. Assets that
- * don't exist in the repo are marked with an explicit `assetNeeded` id
- * instead of a stock substitute (see components/preview/PreviewMedia.tsx).
+ * Shared content contract for the /preview partner onepager (see docs
+ * handoff: AROUND_ONEPAGER_CLAUDE_HANDOFF.md). `previewContent` below is the
+ * local, always-available fallback/initial dataset — product entities it
+ * references (Lisbon, Oitavos Dunes, Prado, Reit im Winkl…) match the real
+ * slugs in lib/sample-content.ts and the Sanity Bayern seed tools, nothing
+ * here is invented. Assets that don't exist in the repo are marked with an
+ * explicit `assetNeeded` id instead of a stock substitute (see
+ * components/preview/PreviewMedia.tsx).
+ *
+ * lib/partner-preview.ts's getPartnerPreview() merges the editorial
+ * `partnerPreview` Sanity singleton over this shape field-by-field, so
+ * Sanity becomes the authoritative source once populated while this file
+ * stays a safe, typed fallback — never a second competing content source.
+ * Every exported type here is the contract both sides must conform to.
  */
 
 export type PreviewImage = { src: string; alt: string };
 export type PreviewPlaceholder = { assetNeeded: string; label: string };
 export type PreviewMedia = PreviewImage | PreviewPlaceholder;
 
-export const previewContent = {
+export type Accent = "lime" | "blue" | "pink";
+
+/** A resolved, ready-to-render content card: PreviewCard's exact prop shape. */
+export type ResolvedCard = {
+  stamp: string;
+  kicker: string;
+  title: string;
+  description?: string;
+  accent: Accent;
+  media?: PreviewMedia;
+};
+
+export type Chapter = { key: string; label: string; caption: string; media: PreviewMedia };
+
+export type JourneyStep =
+  | { label: string; copy: string; kind: "discover"; filters: string[] }
+  | { label: string; copy: string; kind: "card" | "save"; card: ResolvedCard }
+  | { label: string; copy: string; kind: "story"; story: { kicker: string; title: string; deck: string } };
+
+export type Principle = { number: string; label: string; headline: string; copy: string };
+
+export type FieldStoryCard = { role: "lead" | "secondary"; category: string; title: string; media: PreviewMedia; accent: Accent };
+
+export type AroundItConnection = { role: string; title: string; note: string; accent: Accent };
+
+export type PartnerPreviewContent = {
+  seo: { title: string; description: string; ogImage: string; noindex: boolean };
+  hero: {
+    eyebrow: string;
+    headlineLines: string[];
+    subline: string;
+    intro: string;
+    scrollCue: string;
+    /** Local fallback image, used whenever desktopRaw is absent. */
+    media: PreviewMedia;
+    /** Raw Sanity image refs for the responsive, hotspot-aware <picture> — null unless Sanity provides one. */
+    desktopRaw: RawSanityImage | null;
+    mobileRaw: RawSanityImage | null;
+  };
+  intro: { eyebrow: string; headlineLines: string[]; body: string[]; chapters: Chapter[] };
+  productJourney: { eyebrow: string; headlineLines: string[]; closing: string; steps: JourneyStep[] };
+  editorialPrinciples: { eyebrow: string; headlineLines: string[]; intro: string[]; principles: Principle[] };
+  stories: { eyebrow: string; headlineLines: string[]; cards: FieldStoryCard[] };
+  aroundIt: { eyebrow: string; headlineLines: string[]; body: string; anchor: ResolvedCard; connections: AroundItConnection[] };
+  saveDemo: {
+    eyebrow: string;
+    headlineLines: string[];
+    body: string[];
+    card: ResolvedCard;
+    destinationLabel: string;
+    baseSavedCount: number;
+  };
+  editorialUniverse: { ticker: string; headlineLines: string[] };
+  pr: {
+    eyebrow: string;
+    headlineLines: string[];
+    body: string[];
+    topics: string[];
+    subheading: string;
+    helpItems: string[];
+    independenceLine: string;
+  };
+  contact: { headlineLines: string[]; body: string[]; person: string; role: string; email: string; ctaLabel: string };
+  status: { eyebrow: string; headlineLines: string[]; body: string[] };
+  footer: { tagline: string; instagram: { label: string; href: string }; closing: string };
+};
+
+export const previewContent: PartnerPreviewContent = {
   seo: {
     title: "AROUND — Golf is where the journey starts.",
     description:
       "A private preview of AROUND — an independent editorial platform for golf, travel and the places worth going for.",
     ogImage: "/around-seed/bayern/golfclub-reit-im-winkl-hero.webp",
-    noindex: false
+    noindex: true
   },
 
   hero: {
@@ -30,7 +106,9 @@ export const previewContent = {
     media: {
       src: "/around-seed/bayern/golfclub-reit-im-winkl-hero.webp",
       alt: "Golf course at Reit im Winkl, mountains behind the fairway"
-    } as PreviewMedia
+    },
+    desktopRaw: null,
+    mobileRaw: null
   },
 
   intro: {
@@ -47,28 +125,19 @@ export const previewContent = {
         key: "PLAY",
         label: "PLAY",
         caption: "Golfclub Reit im Winkl-Kössen",
-        media: {
-          src: "/around-seed/bayern/golfclub-reit-im-winkl-wide.jpg",
-          alt: "Fairway at Golfclub Reit im Winkl-Kössen"
-        } as PreviewMedia
+        media: { src: "/around-seed/bayern/golfclub-reit-im-winkl-wide.jpg", alt: "Fairway at Golfclub Reit im Winkl-Kössen" }
       },
       {
         key: "STAY",
         label: "STAY",
         caption: "Gut Steinbach Hotel & Chalets",
-        media: {
-          src: "/around-seed/bayern/gut-steinbach-chalets.webp",
-          alt: "Chalets at Gut Steinbach Hotel"
-        } as PreviewMedia
+        media: { src: "/around-seed/bayern/gut-steinbach-chalets.webp", alt: "Chalets at Gut Steinbach Hotel" }
       },
       {
         key: "EAT",
         label: "EAT",
         caption: "Restaurant HEIMAT",
-        media: {
-          src: "/around-seed/bayern/restaurant-heimat.jpg",
-          alt: "Interior of Restaurant HEIMAT at Gut Steinbach"
-        } as PreviewMedia
+        media: { src: "/around-seed/bayern/restaurant-heimat.jpg", alt: "Interior of Restaurant HEIMAT at Gut Steinbach" }
       },
       {
         key: "DO",
@@ -77,7 +146,7 @@ export const previewContent = {
         media: {
           src: "/around-seed/bayern/grenzuebergang-tee18.jpg",
           alt: "Border crossing at the 18th tee between Germany and Austria"
-        } as PreviewMedia
+        }
       }
     ]
   },
@@ -88,43 +157,39 @@ export const previewContent = {
     closing: "DISCOVER → SAVE → GO",
     steps: [
       {
-        key: "discover",
         label: "01 · DISCOVER",
         copy: "Find destinations, stories and places worth the trip.",
-        kind: "discover" as const,
+        kind: "discover",
         filters: ["PLAY", "STAY", "EAT", "DO", "STORIES"]
       },
       {
-        key: "destination",
         label: "02 · DESTINATION",
         copy: "Understand a place beyond a list of golf courses.",
-        kind: "card" as const,
+        kind: "card",
         card: {
           stamp: "DESTINATION",
           kicker: "Portugal / 38.7223° N",
           title: "Lisbon",
           description: "Atlantic golf. City nights. Food worth staying for.",
-          accent: "lime" as const
+          accent: "lime"
         }
       },
       {
-        key: "place",
         label: "03 · PLACE",
         copy: "Know why a course, hotel or restaurant deserves your time.",
-        kind: "card" as const,
+        kind: "card",
         card: {
           stamp: "PLAY",
           kicker: "AROUND Selected / Cascais",
           title: "Oitavos Dunes",
           description: "Golf zwischen Dünen, Pinien und Atlantik.",
-          accent: "lime" as const
+          accent: "lime"
         }
       },
       {
-        key: "story",
         label: "04 · STORY",
         copy: "Go deeper through people, experiences and local perspective.",
-        kind: "story" as const,
+        kind: "story",
         story: {
           kicker: "WORTH THE TRIP",
           title: "Warum Lissabon mehr ist als Golf.",
@@ -132,16 +197,15 @@ export const previewContent = {
         }
       },
       {
-        key: "save",
         label: "05 · SAVE",
         copy: "Keep what matters and turn discovery into your next trip.",
-        kind: "save" as const,
+        kind: "save",
         card: {
           stamp: "PLAY",
           kicker: "AROUND Selected / Cascais",
           title: "Oitavos Dunes",
           description: "Golf zwischen Dünen, Pinien und Atlantik.",
-          accent: "lime" as const
+          accent: "lime"
         }
       }
     ]
@@ -150,10 +214,7 @@ export const previewContent = {
   editorialPrinciples: {
     eyebrow: "NOT A DIRECTORY",
     headlineLines: ["NOT EVERYTHING", "MAKES THE CUT."],
-    intro: [
-      "AROUND isn't built to catalogue everything.",
-      "It's built to find what is worth knowing."
-    ],
+    intro: ["AROUND isn't built to catalogue everything.", "It's built to find what is worth knowing."],
     principles: [
       {
         number: "01",
@@ -181,31 +242,25 @@ export const previewContent = {
     headlineLines: ["STORIES START", "ON THE GROUND."],
     cards: [
       {
-        key: "lisbon",
-        role: "lead" as const,
+        role: "lead",
         category: "DESTINATION · PORTUGAL",
         title: "Atlantic golf. City energy. And plenty worth stopping for in between.",
-        media: { assetNeeded: "lisbon-portugal-story", label: "Lisbon / Portugal" } as PreviewMedia,
-        accent: "lime" as const
+        media: { assetNeeded: "lisbon-portugal-story", label: "Lisbon / Portugal" },
+        accent: "lime"
       },
       {
-        key: "bavaria",
-        role: "secondary" as const,
+        role: "secondary",
         category: "BAVARIA · GOLF & TRAVEL",
         title: "Heimatrefugium und Zwei-Länder-Runde.",
-        media: {
-          src: "/around-seed/bayern/gut-steinbach-aerial.jpg",
-          alt: "Aerial view of Gut Steinbach estate, Reit im Winkl"
-        } as PreviewMedia,
-        accent: "blue" as const
+        media: { src: "/around-seed/bayern/gut-steinbach-aerial.jpg", alt: "Aerial view of Gut Steinbach estate, Reit im Winkl" },
+        accent: "blue"
       },
       {
-        key: "allgau",
-        role: "secondary" as const,
+        role: "secondary",
         category: "FIELD NOTES",
         title: "A golf day between fairways, mountains and the Allgäu way of life.",
-        media: { assetNeeded: "allgau-field-notes", label: "Allgäu" } as PreviewMedia,
-        accent: "pink" as const
+        media: { assetNeeded: "allgau-field-notes", label: "Allgäu" },
+        accent: "pink"
       }
     ]
   },
@@ -214,16 +269,11 @@ export const previewContent = {
     eyebrow: "AROUND IT",
     headlineLines: ["THE BEST PLACE", "MIGHT BE FIVE MINUTES AWAY."],
     body: "Every place is connected to what surrounds it. AROUND turns individual recommendations into a journey.",
-    anchor: {
-      stamp: "PLAY",
-      kicker: "AROUND Selected / Cascais",
-      title: "Oitavos Dunes",
-      accent: "lime" as const
-    },
+    anchor: { stamp: "PLAY", kicker: "AROUND Selected / Cascais", title: "Oitavos Dunes", accent: "lime" },
     connections: [
-      { role: "STAY", title: "Lisbon Design Stay", note: "Urban, ruhig, nah genug am Abend.", accent: "lime" as const },
-      { role: "EAT", title: "Prado", note: "Modernes Portugal ohne Folklore.", accent: "pink" as const },
-      { role: "STORY", title: "Warum Lissabon mehr ist als Golf.", note: "WORTH THE TRIP", accent: "blue" as const }
+      { role: "STAY", title: "Lisbon Design Stay", note: "Urban, ruhig, nah genug am Abend.", accent: "lime" },
+      { role: "EAT", title: "Prado", note: "Modernes Portugal ohne Folklore.", accent: "pink" },
+      { role: "STORY", title: "Warum Lissabon mehr ist als Golf.", note: "WORTH THE TRIP", accent: "blue" }
     ]
   },
 
@@ -239,7 +289,7 @@ export const previewContent = {
       kicker: "AROUND Selected / Cascais",
       title: "Oitavos Dunes",
       description: "Golf zwischen Dünen, Pinien und Atlantik.",
-      accent: "lime" as const
+      accent: "lime"
     },
     destinationLabel: "Lisbon",
     baseSavedCount: 3

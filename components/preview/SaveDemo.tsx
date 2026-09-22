@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { previewContent } from "@/lib/preview-content";
+import type { PartnerPreviewContent } from "@/lib/preview-content";
 import { PreviewCard } from "./PreviewCard";
 import { PreviewSaveButton } from "./PreviewSaveButton";
 import { Reveal } from "./Reveal";
 
-export function SaveDemo() {
-  const { eyebrow, headlineLines, body, card, destinationLabel, baseSavedCount } = previewContent.saveDemo;
+export function SaveDemo({ content }: { content: PartnerPreviewContent }) {
+  const { eyebrow, headlineLines, body, card, destinationLabel, baseSavedCount } = content.saveDemo;
   const [saved, setSaved] = useState(false);
   const count = baseSavedCount + (saved ? 1 : 0);
 

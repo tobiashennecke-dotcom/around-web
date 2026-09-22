@@ -1,8 +1,8 @@
-import { previewContent } from "@/lib/preview-content";
+import type { PartnerPreviewContent } from "@/lib/preview-content";
 import { Reveal } from "./Reveal";
 
-export function EditorialPrinciples() {
-  const { eyebrow, headlineLines, intro, principles } = previewContent.editorialPrinciples;
+export function EditorialPrinciples({ content }: { content: PartnerPreviewContent }) {
+  const { eyebrow, headlineLines, intro, principles } = content.editorialPrinciples;
 
   return (
     <section className="section pv-section pv-principles">

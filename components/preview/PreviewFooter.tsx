@@ -1,7 +1,7 @@
-import { previewContent } from "@/lib/preview-content";
+import type { PartnerPreviewContent } from "@/lib/preview-content";
 
-export function PreviewFooter() {
-  const { tagline, instagram, closing } = previewContent.footer;
+export function PreviewFooter({ content }: { content: PartnerPreviewContent }) {
+  const { tagline, instagram, closing } = content.footer;
 
   return (
     <footer className="pv-footer">

@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { previewContent } from "@/lib/preview-content";
+import type { JourneyStep, PartnerPreviewContent } from "@/lib/preview-content";
 import { PreviewCard } from "./PreviewCard";
-
-type JourneyStep = (typeof previewContent.productJourney.steps)[number];
 
 function StepPreview({ step }: { step: JourneyStep }) {
   if (step.kind === "discover") {
@@ -47,14 +45,15 @@ function StepPreview({ step }: { step: JourneyStep }) {
         title={step.card.title}
         description={step.card.description}
         accent={step.card.accent}
+        media={step.card.media}
         withSave={step.kind === "save"}
       />
     </div>
   );
 }
 
-export function ProductJourney() {
-  const { eyebrow, headlineLines, closing, steps } = previewContent.productJourney;
+export function ProductJourney({ content }: { content: PartnerPreviewContent }) {
+  const { eyebrow, headlineLines, closing, steps } = content.productJourney;
   const [active, setActive] = useState(0);
   const refs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -95,7 +94,7 @@ export function ProductJourney() {
         <div className="pv-journeySteps">
           {steps.map((step, i) => (
             <div
-              key={step.key}
+              key={step.label || i}
               ref={(el) => {
                 refs.current[i] = el;
               }}
@@ -111,7 +110,7 @@ export function ProductJourney() {
         <div className="pv-journeySticky">
           <div className="pv-journeyStickyInner">
             {steps.map((step, i) => (
-              <div key={step.key} className="pv-journeyPanel" data-active={i === active} aria-hidden={i !== active}>
+              <div key={step.label || i} className="pv-journeyPanel" data-active={i === active} aria-hidden={i !== active}>
                 <StepPreview step={step} />
               </div>
             ))}
@@ -120,8 +119,8 @@ export function ProductJourney() {
       </div>
 
       <div className="container pv-journeyMobile">
-        {steps.map((step) => (
-          <div key={step.key} className="pv-journeyMobileStep">
+        {steps.map((step, i) => (
+          <div key={step.label || i} className="pv-journeyMobileStep">
             <span className="pv-journeyLabel">{step.label}</span>
             <p className="pv-journeyCopy serif">{step.copy}</p>
             <StepPreview step={step} />

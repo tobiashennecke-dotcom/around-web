@@ -1,8 +1,8 @@
-import { previewContent } from "@/lib/preview-content";
+import type { PartnerPreviewContent } from "@/lib/preview-content";
 import { Reveal } from "./Reveal";
 
-export function PreviewStatus() {
-  const { eyebrow, headlineLines, body } = previewContent.status;
+export function PreviewStatus({ content }: { content: PartnerPreviewContent }) {
+  const { eyebrow, headlineLines, body } = content.status;
 
   return (
     <section className="section pv-section pv-dark pv-status">

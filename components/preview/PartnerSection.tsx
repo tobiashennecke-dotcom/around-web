@@ -1,8 +1,8 @@
-import { previewContent } from "@/lib/preview-content";
+import type { PartnerPreviewContent } from "@/lib/preview-content";
 import { Reveal } from "./Reveal";
 
-export function PartnerSection() {
-  const { eyebrow, headlineLines, body, topics, subheading, helpItems, independenceLine } = previewContent.pr;
+export function PartnerSection({ content }: { content: PartnerPreviewContent }) {
+  const { eyebrow, headlineLines, body, topics, subheading, helpItems, independenceLine } = content.pr;
 
   return (
     <section className="section pv-section pv-dark pv-partner">
@@ -39,7 +39,7 @@ export function PartnerSection() {
           </ul>
           <p className="serif pv-partnerIndependence">{independenceLine}</p>
           <a href="#contact" className="primary pv-partnerCta">
-            {previewContent.contact.ctaLabel}
+            {content.contact.ctaLabel}
           </a>
         </Reveal>
       </div>

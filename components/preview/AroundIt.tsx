@@ -1,9 +1,9 @@
-import { previewContent } from "@/lib/preview-content";
+import type { PartnerPreviewContent } from "@/lib/preview-content";
 import { PreviewCard } from "./PreviewCard";
 import { Reveal } from "./Reveal";
 
-export function AroundIt() {
-  const { eyebrow, headlineLines, body, anchor, connections } = previewContent.aroundIt;
+export function AroundIt({ content }: { content: PartnerPreviewContent }) {
+  const { eyebrow, headlineLines, body, anchor, connections } = content.aroundIt;
 
   return (
     <section id="around-it" className="section pv-section pv-aroundIt">

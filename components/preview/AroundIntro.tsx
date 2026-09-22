@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { previewContent } from "@/lib/preview-content";
+import type { PartnerPreviewContent } from "@/lib/preview-content";
 import { PreviewMedia } from "./PreviewMedia";
 import { Reveal } from "./Reveal";
 
-export function AroundIntro() {
-  const { eyebrow, headlineLines, body, chapters } = previewContent.intro;
+export function AroundIntro({ content }: { content: PartnerPreviewContent }) {
+  const { eyebrow, headlineLines, body, chapters } = content.intro;
   const [active, setActive] = useState(chapters[0].key);
 
   return (
