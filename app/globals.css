@@ -411,7 +411,24 @@ img{display:block;max-width:100%}
 .drop--mini{width:13px;height:13px;border-width:2px}
 .drop--mini:after{width:5px;height:5px;right:-3px;top:-3px}
 
-.homeHeroV13{min-height:calc(100vh - 76px);padding:112px 0 88px}
+.homeHeroV13{min-height:calc(100vh - 76px);padding:112px 0 88px;position:relative;isolation:isolate;overflow:hidden}
+/* Homepage Hero Media (Sanity-managed, optional). Absolutely positioned so
+   the image never participates in flow - .homeHeroV13's own min-height keeps
+   governing hero height whether or not imagery is enabled, so there is no
+   layout shift while the image loads or if it's disabled. Scoped entirely to
+   .homeHeroV13, never the shared .hero/.homeHero base classes also used by
+   other pages (e.g. the People hero). */
+.homeHeroMedia{position:absolute;inset:0;z-index:0;display:block}
+.homeHeroMedia img{width:100%;height:100%;object-fit:cover;display:block}
+.homeHeroOverlay{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(
+    180deg,
+    rgba(15,16,15,calc(var(--hero-overlay,45) * 0.6%)) 0%,
+    rgba(15,16,15,calc(var(--hero-overlay,45) * 1.15%)) 100%
+  )
+}
+.homeHeroV13 .container{position:relative;z-index:2}
 .homeHeroV13 h1{
   font-family:Arial,Helvetica,sans-serif;font-weight:900;text-transform:uppercase;
   font-size:clamp(82px,10.4vw,166px);line-height:.76;letter-spacing:-.072em;

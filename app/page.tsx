@@ -2,7 +2,13 @@ import Link from "next/link";
 import { ContentCard, contentHref } from "@/components/ContentCard";
 import { StoryFeature } from "@/components/StoryFeature";
 import { getHomepageContent } from "@/lib/content";
+import { getHomepageHero, heroImageUrl } from "@/lib/homepage-hero";
 import type { ContentCard as CardType, ContentType } from "@/lib/types";
+
+const HERO_DESKTOP_ASPECT = 16 / 9;
+const HERO_MOBILE_ASPECT = 4 / 5;
+const HERO_DESKTOP_WIDTHS = [900, 1400, 1900, 2400];
+const HERO_MOBILE_WIDTHS = [640, 960, 1280];
 
 function unique(items: CardType[]) {
   return Array.from(new Map(items.map(item => [item.id, item])).values());
@@ -16,8 +22,18 @@ function AdaptiveCards({ items, className = "" }: { items: CardType[]; className
   );
 }
 
+function heroSrcSet(image: Parameters<typeof heroImageUrl>[0], widths: number[], aspectRatio: number) {
+  return widths
+    .map(width => {
+      const url = heroImageUrl(image, width, aspectRatio);
+      return url ? `${url} ${width}w` : null;
+    })
+    .filter((entry): entry is string => Boolean(entry))
+    .join(", ");
+}
+
 export default async function HomePage() {
-  const { featured, latest } = await getHomepageContent();
+  const [{ featured, latest }, hero] = await Promise.all([getHomepageContent(), getHomepageHero()]);
   const all = unique([...featured, ...latest]);
   const lead = featured[0] || latest[0];
   const supporting = unique(featured.slice(1).concat(latest.filter(item => item.id !== lead?.id))).slice(0, 2);
@@ -37,6 +53,35 @@ export default async function HomePage() {
   return (
     <main>
       <section className="hero homeHero homeHeroV13">
+        {hero.enabled && hero.desktop && (
+          <>
+            <picture className="homeHeroMedia">
+              {hero.mobile && (
+                <source
+                  media="(max-width: 620px)"
+                  srcSet={heroSrcSet(hero.mobile, HERO_MOBILE_WIDTHS, HERO_MOBILE_ASPECT)}
+                  sizes="100vw"
+                />
+              )}
+              <img
+                src={heroImageUrl(hero.desktop, HERO_DESKTOP_WIDTHS[HERO_DESKTOP_WIDTHS.length - 1], HERO_DESKTOP_ASPECT)}
+                srcSet={heroSrcSet(hero.desktop, HERO_DESKTOP_WIDTHS, HERO_DESKTOP_ASPECT)}
+                sizes="100vw"
+                width={HERO_DESKTOP_WIDTHS[HERO_DESKTOP_WIDTHS.length - 1]}
+                height={Math.round(HERO_DESKTOP_WIDTHS[HERO_DESKTOP_WIDTHS.length - 1] / HERO_DESKTOP_ASPECT)}
+                alt={hero.desktop.alt || hero.mobile?.alt || ""}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+              />
+            </picture>
+            <div
+              className="homeHeroOverlay"
+              style={{ "--hero-overlay": hero.overlay } as React.CSSProperties}
+              aria-hidden="true"
+            />
+          </>
+        )}
         <div className="container homeHeroGrid">
           <div>
             <div className="eyebrow lime">THIS IS AROUND</div>

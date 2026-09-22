@@ -107,6 +107,23 @@ export const HOME_QUERY = defineQuery(`
   }
 `);
 
+/**
+ * Homepage hero art direction only (v1 - Homepage Hero Media). Reads ONLY the
+ * deterministic singleton document around-homepage, never a list. Returns the
+ * raw image value (asset ref + hotspot + crop) rather than a resolved URL, so
+ * the frontend can build hotspot-aware, width-specific Sanity CDN URLs via
+ * @sanity/image-url instead of downloading one fixed-size original. Entirely
+ * independent of HOME_QUERY - never touches editorial content selection.
+ */
+export const HOMEPAGE_SETTINGS_QUERY = defineQuery(`
+  *[_type == "homepageSettings" && _id == "around-homepage"][0]{
+    enableHeroImage,
+    heroOverlay,
+    heroImage{ asset, hotspot, crop, alt },
+    mobileHeroImage{ asset, hotspot, crop, alt }
+  }
+`);
+
 export const DISCOVER_QUERY = defineQuery(`
   *[
     _type in ["destination","place","story","person","product","collection"] &&
