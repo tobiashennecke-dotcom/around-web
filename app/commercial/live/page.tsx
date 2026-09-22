@@ -6,6 +6,6 @@ export const dynamic = "force-dynamic";
 export const metadata:Metadata={title:"Commercial Desk / Private — AROUND",robots:{index:false,follow:false}};
 export default async function LiveCommercialPage(){
   const access=await getCommercialAccess();
-  if(!access) redirect("/login?next=%2Fcommercial%2Flive");
+  if(!access) redirect("/account");
   return <LiveDesk/>;
 }
