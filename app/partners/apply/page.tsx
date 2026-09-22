@@ -28,7 +28,7 @@ function ApplyForm() {
  const selected=ALL_PARTNER_PLANS.find(p=>p.id===plan)!;
  const selectedExtras=useMemo(()=>PARTNER_ADDONS.filter(a=>extras.includes(a.id)),[extras]);
  const total=(founding?selected.foundingPrice:selected.price)+selectedExtras.reduce((sum,a)=>sum+a.price,0);
- const contactEmail=process.env.NEXT_PUBLIC_PARTNER_CONTACT_EMAIL;\n const submit=async(e:React.FormEvent<HTMLFormElement>)=>{
+ const submit=async(e:React.FormEvent<HTMLFormElement>)=>{
  e.preventDefault();setFeedback("");if(!turnstileToken||sending)return;setSending(true);
  try{
  const response=await fetch("/api/partner-inquiries",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({company,person,email,website,notes,plan,founding,extras,turnstileToken,honeypot:""})});
