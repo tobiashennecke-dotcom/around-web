@@ -3,6 +3,7 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { MobileNav } from "@/components/MobileNav";
 import { Footer } from "@/components/Footer";
+import { ChromeGate } from "@/components/ChromeGate";
 
 export const metadata: Metadata = {
   title: {
@@ -16,10 +17,16 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="de">
       <body>
-        <Header />
+        <ChromeGate>
+          <Header />
+        </ChromeGate>
         {children}
-        <Footer />
-        <MobileNav />
+        <ChromeGate>
+          <Footer />
+        </ChromeGate>
+        <ChromeGate>
+          <MobileNav />
+        </ChromeGate>
       </body>
     </html>
   );

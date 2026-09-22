@@ -13,7 +13,7 @@ export function contentHref(item: CardType) {
   return "/discover";
 }
 
-function typeLabel(item: CardType) {
+export function typeLabel(item: CardType) {
   if (item.type === "destination") return "DESTINATION";
   if (item.type === "place") {
     const role = (item.placeType || "").toLowerCase();

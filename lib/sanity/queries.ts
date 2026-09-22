@@ -267,3 +267,78 @@ export const COLLECTION_QUERY = defineQuery(`
     "items": items[]->{${CARD_FIELDS}}
   }
 `);
+
+/**
+ * Shared shape for every card-like content slot in PARTNER_PREVIEW_QUERY
+ * (Product Journey steps, From the Field cards, Around It anchor/
+ * connections, Save demo card): dereferences the optional `reference` into
+ * a CARD_FIELDS projection - the exact same shape toCard() (lib/content.ts)
+ * already normalizes elsewhere in the app - alongside the editor's raw
+ * override fields. Resolution/merging happens in lib/partner-preview.ts,
+ * never here.
+ */
+const PARTNER_PREVIEW_TEASER_FIELDS = `
+  "ref": reference->{${CARD_FIELDS}},
+  titleOverride,
+  kickerOverride,
+  descriptionOverride,
+  accent,
+  image{asset,hotspot,crop,alt,caption,credit},
+  placeholderLabel
+`;
+
+/**
+ * The /preview partner onepager's singleton (around-partner-preview). Every
+ * field is optional - lib/partner-preview.ts falls back to the local static
+ * config in lib/preview-content.ts per-field when a value is empty, so this
+ * document never needs to be fully filled in to be useful.
+ */
+export const PARTNER_PREVIEW_QUERY = defineQuery(`
+  *[_type == "partnerPreview" && _id == "around-partner-preview"][0]{
+    seo{
+      title, description, noindex,
+      ogImage{asset,hotspot,crop,alt}
+    },
+    hero{
+      eyebrow, headlineLines, subline, intro, scrollCue,
+      desktopImage{asset,hotspot,crop,alt,caption,credit},
+      mobileImage{asset,hotspot,crop,alt,caption,credit}
+    },
+    intro{
+      eyebrow, headlineLines, body,
+      chapters[]{ key, label, caption, image{asset,hotspot,crop,alt,caption,credit} }
+    },
+    productJourney{
+      eyebrow, headlineLines, closing,
+      steps[]{
+        label, copy, kind, filters,
+        item{ ${PARTNER_PREVIEW_TEASER_FIELDS} }
+      }
+    },
+    editorialPrinciples{
+      eyebrow, headlineLines, intro,
+      principles[]{ number, label, headline, copy }
+    },
+    stories{
+      eyebrow, headlineLines,
+      cards[]{ role, ${PARTNER_PREVIEW_TEASER_FIELDS} }
+    },
+    aroundIt{
+      eyebrow, headlineLines, body,
+      anchor{ ${PARTNER_PREVIEW_TEASER_FIELDS} },
+      connections[]{ role, teaser{ ${PARTNER_PREVIEW_TEASER_FIELDS} } }
+    },
+    saveDemo{
+      eyebrow, headlineLines, body,
+      card{ ${PARTNER_PREVIEW_TEASER_FIELDS} },
+      destinationLabel, baseSavedCount
+    },
+    editorialUniverse{ ticker, headlineLines },
+    pr{
+      eyebrow, headlineLines, body, topics, subheading, helpItems, independenceLine
+    },
+    contact{ headlineLines, body, person, role, email, ctaLabel },
+    status{ eyebrow, headlineLines, body },
+    footer{ tagline, instagramLabel, instagramHref, closing }
+  }
+`);
