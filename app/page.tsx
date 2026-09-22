@@ -56,13 +56,11 @@ export default async function HomePage() {
         {hero.enabled && hero.desktop && (
           <>
             <picture className="homeHeroMedia">
-              {hero.mobile && (
-                <source
-                  media="(max-width: 620px)"
-                  srcSet={heroSrcSet(hero.mobile, HERO_MOBILE_WIDTHS, HERO_MOBILE_ASPECT)}
-                  sizes="100vw"
-                />
-              )}
+              <source
+                media="(max-width: 620px)"
+                srcSet={heroSrcSet(hero.mobile ?? hero.desktop, HERO_MOBILE_WIDTHS, HERO_MOBILE_ASPECT)}
+                sizes="100vw"
+              />
               <img
                 src={heroImageUrl(hero.desktop, HERO_DESKTOP_WIDTHS[HERO_DESKTOP_WIDTHS.length - 1], HERO_DESKTOP_ASPECT)}
                 srcSet={heroSrcSet(hero.desktop, HERO_DESKTOP_WIDTHS, HERO_DESKTOP_ASPECT)}

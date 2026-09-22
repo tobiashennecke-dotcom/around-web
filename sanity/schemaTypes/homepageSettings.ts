@@ -61,7 +61,20 @@ export const homepageSettings = defineType({
       initialValue: 45,
       description:
         "Controls how dark the background image appears behind the headline, as a percentage (0-100). Suggested range: 25-75. Lower values show more of the photograph; higher values favour text legibility.",
-      validation: r => r.min(0).max(100).integer().warning("Values outside 25-75 may hurt legibility or hide the photograph.")
+      // Hard constraint (blocks publish): 0-100, whole number. Kept as its own
+      // rule so it always errors, never just warns - a value outside this
+      // range would otherwise reach the frontend, which clamps it defensively
+      // (lib/homepage-hero.ts's clampOverlay), but the CMS itself should
+      // refuse to store an unsafe value in the first place. 25-75 is a
+      // separate, independent soft recommendation only.
+      validation: Rule => [
+        Rule.min(0).max(100).integer().error("Overlay darkness must be a whole number between 0 and 100."),
+        Rule.custom((value: number | undefined) => {
+          if (typeof value !== "number") return true;
+          if (value < 25 || value > 75) return "Values outside 25-75 may hurt legibility or hide the photograph.";
+          return true;
+        }).warning()
+      ]
     })
   ],
   preview: {
