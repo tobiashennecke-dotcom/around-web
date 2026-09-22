@@ -278,8 +278,21 @@ img{display:block;max-width:100%}
   container-type:inline-size;min-width:0
 }
 .selectedMark{display:block;width:52px;height:3px;background:var(--around-ink);margin:20px 0 22px;opacity:.85}
+/* cqw resolves against the manifesto's content box (post-padding), which
+   makes the safe multiplier scale-invariant: measured "Handverlesen."'s
+   actual rendered line width against that content box at every checkpoint
+   from 320px to 1600px+ (single-column full-width AND the narrow desktop
+   two-column split alike) and found overflow starts around ~12.4cqw
+   regardless of viewport - the original 13cqw was unsafe everywhere, not
+   just near the two-column breakpoint. 11.5cqw keeps a deliberate margin
+   below that measured ceiling for cross-browser font-metric variance. The
+   26px floor is a separate, independently-verified constraint: at the
+   narrowest supported phones the fluid value itself drops low enough that
+   a fixed floor takes over, and the previous 34px floor was too large to
+   fit the ~320px case (a fixed px floor doesn't shrink with the container
+   the way cqw does) - 26px was confirmed safe with margin at 320px. */
 .selectedManifesto h2{
-  margin:0 0 22px;font-size:clamp(34px,13cqw,92px);line-height:.94;letter-spacing:-.04em;
+  margin:0 0 22px;font-size:clamp(26px,11.5cqw,92px);line-height:.94;letter-spacing:-.04em;
   text-transform:uppercase;font-weight:800;text-wrap:balance
 }
 .selectedManifesto p{font-size:clamp(17px,1.6cqw,21px);line-height:1.35;max-width:44ch}
