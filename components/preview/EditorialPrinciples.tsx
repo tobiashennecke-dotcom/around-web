@@ -18,7 +18,7 @@ export function EditorialPrinciples({ content }: { content: PartnerPreviewConten
           </h2>
           <div className="pv-principlesIntro">
             {intro.map((line) => (
-              <p key={line} className="serif">
+              <p key={line}>
                 {line}
               </p>
             ))}

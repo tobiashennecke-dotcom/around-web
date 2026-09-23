@@ -22,7 +22,7 @@ export function AroundIntro({ content }: { content: PartnerPreviewContent }) {
             ))}
           </h2>
           {body.map((paragraph, i) => (
-            <p key={paragraph} className={i === body.length - 1 ? "serif pv-introLast" : "pv-introP"}>
+            <p key={paragraph} className={i === body.length - 1 ? "pv-introLast" : "pv-introP"}>
               {paragraph}
             </p>
           ))}

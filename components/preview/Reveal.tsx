@@ -18,11 +18,17 @@ export function Reveal({ children, as = "div", className, delay = 0 }: Props) {
   const Tag = as as "div";
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
+  const [enhanced, setEnhanced] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
 
+    setEnhanced(true);
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -43,6 +49,7 @@ export function Reveal({ children, as = "div", className, delay = 0 }: Props) {
     <Tag
       ref={ref}
       className={`pv-reveal ${visible ? "is-visible" : ""} ${className ?? ""}`.trim()}
+      data-enhanced={enhanced}
       style={delay ? ({ "--pv-delay": `${delay}ms` } as React.CSSProperties) : undefined}
     >
       {children}

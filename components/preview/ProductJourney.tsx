@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { JourneyStep, PartnerPreviewContent } from "@/lib/preview-content";
 import { PreviewCard } from "./PreviewCard";
+import { PreviewMedia } from "./PreviewMedia";
 
 function StepPreview({ step }: { step: JourneyStep }) {
   if (step.kind === "discover") {
     return (
       <div className="pv-journeyPreview pv-journeyDiscover">
-        <div className="pv-discoverBar serif">Golf und die Lücke danach…</div>
+        <div className="pv-discoverBar">Golf und die Lücke danach…</div>
         <div className="pv-discoverFilters">
           {step.filters.map((f) => (
             <span key={f} className="tag pv-discoverTag">
@@ -24,9 +25,13 @@ function StepPreview({ step }: { step: JourneyStep }) {
     return (
       <article className="storyFeature storyFeature--secondary storyFeature--typographic pv-journeyPreview pv-journeyStory">
         <div className="storyFeatureMedia">
-          <div className="storyFeatureTypographic" aria-hidden="true">
-            <span>STORY</span>
-          </div>
+          {step.story.media ? (
+            <PreviewMedia media={step.story.media} loading="lazy" />
+          ) : (
+            <div className="storyFeatureTypographic" aria-hidden="true">
+              <span>STORY</span>
+            </div>
+          )}
         </div>
         <div className="storyFeatureBody">
           <div className="storyFeatureKicker">{step.story.kicker}</div>
@@ -103,7 +108,7 @@ export function ProductJourney({ content }: { content: PartnerPreviewContent }) 
               data-active={i === active}
             >
               <span className="pv-journeyLabel">{step.label}</span>
-              <p className="pv-journeyCopy serif">{step.copy}</p>
+              <p className="pv-journeyCopy">{step.copy}</p>
             </div>
           ))}
         </div>
@@ -122,7 +127,7 @@ export function ProductJourney({ content }: { content: PartnerPreviewContent }) 
         {steps.map((step, i) => (
           <div key={step.label || i} className="pv-journeyMobileStep">
             <span className="pv-journeyLabel">{step.label}</span>
-            <p className="pv-journeyCopy serif">{step.copy}</p>
+            <p className="pv-journeyCopy">{step.copy}</p>
             <StepPreview step={step} />
           </div>
         ))}

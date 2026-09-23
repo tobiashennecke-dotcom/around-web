@@ -38,7 +38,7 @@ export type Chapter = { key: string; label: string; caption: string; media: Prev
 export type JourneyStep =
   | { label: string; copy: string; kind: "discover"; filters: string[] }
   | { label: string; copy: string; kind: "card" | "save"; card: ResolvedCard }
-  | { label: string; copy: string; kind: "story"; story: { kicker: string; title: string; deck: string } };
+  | { label: string; copy: string; kind: "story"; story: { kicker: string; title: string; deck: string; media?: PreviewMedia } };
 
 export type Principle = { number: string; label: string; headline: string; copy: string };
 

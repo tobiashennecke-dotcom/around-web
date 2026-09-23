@@ -17,7 +17,7 @@ export function PreviewContact({ content }: { content: PartnerPreviewContent }) 
             ))}
           </h2>
           {body.map((paragraph) => (
-            <p key={paragraph} className="serif pv-contactBody">
+            <p key={paragraph} className="pv-contactBody">
               {paragraph}
             </p>
           ))}
