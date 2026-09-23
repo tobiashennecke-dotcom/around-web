@@ -28,12 +28,13 @@ export default function OnboardingDemo(){
  const step=steps[active];
  function complete(){if(active===steps.length-1)return;setDone(current=>current.includes(active)?current:[...current,active]);setActive(current=>Math.min(steps.length-1,current+1));}
  function submitRequest(){
-  if(!launch||!packageStart||!packageEnd||packageEnd<packageStart){setScheduleError("Bitte einen Launch und eine gültige Angebotslaufzeit auswählen.");return;}
+  if(!launch||!packageStart||!packageEnd||packageEnd<packageStart||launch>packageEnd){setScheduleError("Bitte einen Launch und eine gültige Angebotslaufzeit auswählen. Der Launch darf nicht nach dem Package-Ende liegen.");return;}
   try{
-   const current=readDemoEvents().filter(e=>!e.id.startsWith("partner-request-"));
+   const demoPartnerId=encodeURIComponent(proposal.partner.trim().toLowerCase());
+   const current=readDemoEvents().filter(e=>e.id!==`partner-request-${demoPartnerId}-launch`&&e.id!==`partner-request-${demoPartnerId}-package`);
    const events=[
-    {id:"partner-request-launch",partner:proposal.partner,title:"Gewünschter Partner Launch",kind:"launch" as const,start:launch,end:launch,status:"requested" as const},
-    {id:"partner-request-package",partner:proposal.partner,title:"Gewünschte Package-Laufzeit",kind:"package" as const,start:packageStart,end:packageEnd,status:"requested" as const}
+    {id:`partner-request-${demoPartnerId}-launch`,partner:proposal.partner,title:"Gewünschter Partner Launch",kind:"launch" as const,start:launch,end:launch,status:"requested" as const},
+    {id:`partner-request-${demoPartnerId}-package`,partner:proposal.partner,title:"Gewünschte Package-Laufzeit",kind:"package" as const,start:packageStart,end:packageEnd,status:"requested" as const}
    ];
    writeDemoEvents([...current,...events]);setSubmitted(true);setScheduleError("");
   }catch{setScheduleError("Die Demo-Termine konnten in diesem Browser nicht gespeichert werden.");}
