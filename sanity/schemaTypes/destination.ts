@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { PlaceGalleryBulkInput } from "../components/PlaceGalleryBulkInput";
 
 export const destination = defineType({
   name: "destination",
@@ -34,6 +35,7 @@ export const destination = defineType({
     }),
     defineField({
       name:"gallery", title:"Gallery", type:"array", group:"media",
+      components:{input:PlaceGalleryBulkInput},
       of:[{type:"image",options:{hotspot:true},fields:[
         {name:"alt",title:"Alt text",type:"string"},
         {name:"caption",title:"Caption",type:"string"},
