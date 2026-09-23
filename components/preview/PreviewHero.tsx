@@ -66,7 +66,7 @@ export function PreviewHero({ content }: { content: PartnerPreviewContent }) {
             </span>
           ))}
         </p>
-        <p className="serif pv-heroIntro">{intro}</p>
+        <p className="pv-heroIntro">{intro}</p>
       </div>
       <div className="pv-heroScroll" aria-hidden="true">
         <span>{scrollCue}</span>
