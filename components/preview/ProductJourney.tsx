@@ -9,7 +9,7 @@ function StepPreview({ step }: { step: JourneyStep }) {
   if (step.kind === "discover") {
     return (
       <div className="pv-journeyPreview pv-journeyDiscover">
-        <div className="pv-discoverBar serif">Golf und die Lücke danach…</div>
+        <div className="pv-discoverBar">Golf und die Lücke danach…</div>
         <div className="pv-discoverFilters">
           {step.filters.map((f) => (
             <span key={f} className="tag pv-discoverTag">
@@ -108,7 +108,7 @@ export function ProductJourney({ content }: { content: PartnerPreviewContent }) 
               data-active={i === active}
             >
               <span className="pv-journeyLabel">{step.label}</span>
-              <p className="pv-journeyCopy serif">{step.copy}</p>
+              <p className="pv-journeyCopy">{step.copy}</p>
             </div>
           ))}
         </div>
@@ -127,7 +127,7 @@ export function ProductJourney({ content }: { content: PartnerPreviewContent }) 
         {steps.map((step, i) => (
           <div key={step.label || i} className="pv-journeyMobileStep">
             <span className="pv-journeyLabel">{step.label}</span>
-            <p className="pv-journeyCopy serif">{step.copy}</p>
+            <p className="pv-journeyCopy">{step.copy}</p>
             <StepPreview step={step} />
           </div>
         ))}
