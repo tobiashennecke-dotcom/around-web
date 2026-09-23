@@ -13,6 +13,7 @@ import {
   PLACE_RELEVANCE_CANDIDATES_QUERY,
   PLACES_BY_IDS_QUERY,
   PRODUCT_QUERY,
+  SEARCH_QUERY,
   STORIES_RELATED_TO_IDS_QUERY,
   STORY_QUERY
 } from "@/lib/sanity/queries";
@@ -595,8 +596,12 @@ export function rankSearchResults(
 }
 
 export async function getSearchContent(query:string,type?:string,role?:string):Promise<ContentCard[]> {
-  const cards=await getDiscoverContent();
-  return rankSearchResults(cards, query, type, role);
+  if (sanity) {
+    const docs=await sanity.fetch(SEARCH_QUERY);
+    const cards=compactCards(docs as any[] | undefined);
+    if (cards.length) return rankSearchResults(cards, query, type, role);
+  }
+  return rankSearchResults(content, query, type, role);
 }
 
 export type TripSearchContext = {
