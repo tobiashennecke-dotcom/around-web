@@ -24,7 +24,7 @@ export function SaveDemo({ content }: { content: PartnerPreviewContent }) {
             ))}
           </h2>
           {body.map((paragraph) => (
-            <p key={paragraph} className="serif pv-saveBodyText">
+            <p key={paragraph} className="pv-saveBodyText">
               {paragraph}
             </p>
           ))}
