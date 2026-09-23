@@ -364,7 +364,6 @@
 .pv-page{
   --around-font-editorial:var(--around-font-sans);
   font-family:var(--around-font-sans);
-  font-synthesis:none;
 }
 .pv-page .serif,
 .pv-page .pv-contactPerson,
@@ -394,11 +393,17 @@
 /* Persistent legibility: image-overlay nav at top, opaque ink nav once
    the reader reaches the light editorial sections. */
 .pv-page .pv-header{
-  background:linear-gradient(180deg,rgba(16,18,17,.69),rgba(16,18,17,.13));
-  border-bottom:1px solid transparent;
+  /* Opaque without JS; a hydrated header becomes transparent over the hero. */
+  background:rgba(25,27,26,.97);
+  border-bottom:1px solid rgba(245,243,238,.17);
   backdrop-filter:none;
   -webkit-backdrop-filter:none;
   transition:background .22s ease,border-color .22s ease,box-shadow .22s ease
+}
+.pv-page .pv-header[data-enhanced="true"][data-scrolled="false"]{
+  background:linear-gradient(180deg,rgba(16,18,17,.69),rgba(16,18,17,.13));
+  border-bottom-color:transparent;
+  box-shadow:none
 }
 .pv-page .pv-header[data-scrolled="true"]{
   background:rgba(25,27,26,.97);
