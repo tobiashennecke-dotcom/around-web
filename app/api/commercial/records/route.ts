@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ALL_PARTNER_PLANS, PARTNER_ADDONS } from "@/lib/partner-os/catalog";
 import { getCommercialAccess,getCommercialAdminClient } from "@/lib/partner-os/commercial-access";
 export const runtime="nodejs";export const dynamic="force-dynamic";
 const headers={"Cache-Control":"private, no-store, max-age=0"};
@@ -48,6 +49,17 @@ export async function POST(request:Request){
   table="commercial_campaigns";auditType="campaign";row={partner_id:b.partner_id,kind:b.kind,title:b.title.trim(),starts_on:b.starts_on,ends_on:b.ends_on,offer_id:b.offer_id||null,status:"requested"};
  }else if(b.resource==="offers"){
   if(!uuid(b.partner_id)||!str(b.offer_number,80,2)||!Number.isSafeInteger(b.version)||Number(b.version)<1||!Number.isSafeInteger(b.net_amount_cents)||Number(b.net_amount_cents)<0||!Array.isArray(b.line_items)||!b.catalog_snapshot||typeof b.catalog_snapshot!=="object"||Array.isArray(b.catalog_snapshot)||b.terms_version!=null&&!str(b.terms_version,120)||b.valid_until!=null&&!date(b.valid_until))return fail(400,"invalid_fields");
+  const snap=b.catalog_snapshot as Record<string,unknown>;
+  if(snap.source==="around_catalog"){
+   const plan=ALL_PARTNER_PLANS.find(p=>p.id===snap.plan_id);
+   const ids=snap.addon_ids;
+   if(!plan||typeof snap.founding!=="boolean"||!Array.isArray(ids)||ids.some(id=>typeof id!=="string"||!PARTNER_ADDONS.some(a=>a.id===id))||new Set(ids).size!==ids.length)return fail(400,"invalid_catalog_selection");
+   const base=snap.founding?plan.foundingPrice:plan.price;
+   const total=base+PARTNER_ADDONS.filter(a=>ids.includes(a.id)).reduce((sum,a)=>sum+a.price,0);
+   if(b.net_amount_cents!==total*100)return fail(409,"catalog_price_mismatch");
+   b.line_items=[{id:plan.id,name:plan.name,amount_cents:base*100},...PARTNER_ADDONS.filter(a=>ids.includes(a.id)).map(a=>({id:a.id,name:a.name,amount_cents:a.price*100}))];
+   b.catalog_snapshot={source:"around_catalog",plan_id:plan.id,plan_name:plan.name,founding:snap.founding,addon_ids:ids,catalog_amount_cents:total*100};
+  }
   table="commercial_offers";auditType="offer";row={partner_id:b.partner_id,offer_number:b.offer_number.trim(),version:b.version,state:"draft",net_amount_cents:b.net_amount_cents,line_items:b.line_items,catalog_snapshot:b.catalog_snapshot,terms_version:b.terms_version||null,valid_until:b.valid_until||null};
  }else return fail(400,"invalid_resource");
  const {data,error}=await ctx.db.from(table).insert(row).select("*").single();
