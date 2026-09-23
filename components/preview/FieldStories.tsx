@@ -33,7 +33,7 @@ export function FieldStories({ content }: { content: PartnerPreviewContent }) {
               </div>
               <div className="pv-storyBody">
                 <span className={`tag ${card.accent === "lime" ? "" : card.accent}`.trim()}>{card.category}</span>
-                <p className="pv-storyTitle serif">{card.title}</p>
+                <p className="pv-storyTitle">{card.title}</p>
               </div>
             </Reveal>
           ))}
