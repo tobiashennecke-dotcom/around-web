@@ -17,7 +17,7 @@ export function PreviewStatus({ content }: { content: PartnerPreviewContent }) {
             ))}
           </h2>
           {body.map((paragraph) => (
-            <p key={paragraph} className="serif pv-statusBody">
+            <p key={paragraph} className="pv-statusBody">
               {paragraph}
             </p>
           ))}
