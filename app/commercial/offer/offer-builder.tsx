@@ -15,7 +15,7 @@ export default function OfferBuilder(){
  const vat=subtotal*.19,total=subtotal+vat;
  return <main className={styles.page}><div className={styles.wrap}>
   <header className={styles.head}><div><div className={styles.eyebrow}>AROUND / COMMERCIAL / OFFER LAB</div><h1>Offer<br/>Builder<span style={{color:"#93b52b"}}>.</span></h1><p>Aus einem Paket wird ein nachvollziehbares Angebot – ohne Preischaos und ohne redaktionelle Leistungen mit käuflicher Empfehlung zu vermischen.</p></div><span className={styles.pill}>PREVIEW · NO SEND</span></header>
-  <nav className={styles.toolNav}><Link href="/commercial">Pipeline</Link><strong>Offer Builder</strong><Link href="/commercial/onboarding">Onboarding</Link></nav>
+  <nav className={styles.toolNav}><Link href="/commercial">Pipeline</Link><strong>Offer Builder</strong><Link href="/commercial/onboarding">Onboarding</Link><Link href="/commercial/calendar">Campaign Calendar</Link></nav>
   <div className={styles.offerGrid}><section className={styles.board}><div className={styles.formStack}>
    <label>Partner<input value={partner} maxLength={160} onChange={e=>setPartner(e.target.value)}/></label>
    <label>Jahrespaket<select value={plan} onChange={e=>setPlan(e.target.value as PartnerPlanId)}>{ALL_PARTNER_PLANS.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
