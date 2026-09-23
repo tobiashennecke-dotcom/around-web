@@ -1,0 +1,62 @@
+/* AROUND Objects — compatible with the all-sans destination/People system. */
+.objectPage {
+  font-family: var(--around-font-sans);
+}
+
+.objectPage .objectHero {
+  min-height: clamp(570px, 72svh, 900px);
+  padding-block: clamp(115px, 13vh, 190px) clamp(70px, 8vh, 116px);
+  background-size: cover;
+  background-position: center;
+}
+
+.objectPage .objectHero h1 {
+  font-family: var(--around-font-sans);
+  font-size: clamp(3.6rem, 8vw, 8.5rem);
+  font-weight: 900;
+  letter-spacing: -.072em;
+  line-height: .91;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+.objectPage .objectHero .heroIntro {
+  line-height: 1.29;
+  font-weight: 500;
+  max-width: 800px;
+}
+
+.objectPage .objectTake {
+  min-height: 330px;
+  padding: clamp(25px, 3.4vw, 42px);
+  border-top: 5px solid var(--around-blue);
+}
+
+.objectPage .objectTakeQuote {
+  margin: 0;
+  font-family: var(--around-font-sans);
+  font-size: clamp(27px, 3vw, 44px);
+  font-weight: 800;
+  letter-spacing: -.043em;
+  line-height: 1.14;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 620px) {
+  .objectPage .objectHero {
+    min-height: clamp(540px, 78svh, 750px);
+    padding-block: 112px 70px;
+  }
+  .objectPage .objectHero h1 {
+    font-size: clamp(2.5rem, 10.5vw, 4.5rem);
+    line-height: .95;
+  }
+  .objectPage .objectTake {
+    min-height: 280px;
+    padding: 24px;
+  }
+  .objectPage .objectTakeQuote {
+    font-size: clamp(25px, 7vw, 36px);
+  }
+}

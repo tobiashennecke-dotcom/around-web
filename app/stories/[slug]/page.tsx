@@ -61,7 +61,7 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
             <span className="tag blue">{story.format || story.kicker || "Story"}</span>
             {story.accessTier === "premium" && <PremiumAccessBadge />}
           </div>
-          <h1 className="serif" style={{fontSize:"clamp(60px,8vw,114px)",lineHeight:.88,letterSpacing:"-.05em",margin:"18px 0 28px",maxWidth:1160}}>
+          <h1 className="storyTitle">
             {story.title}
           </h1>
           <p style={{fontSize:26,lineHeight:1.18,maxWidth:780}}>{story.deck}</p>

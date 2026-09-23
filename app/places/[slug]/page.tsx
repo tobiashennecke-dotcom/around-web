@@ -1,3 +1,4 @@
+import "./place.css";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -32,9 +33,9 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
   const gallery = place.gallery || [];
 
   return (
-    <main>
+    <main className="placeFallbackPage">
       <section
-        className={`hero ${place.image ? "heroWithImage" : ""}`}
+        className={`hero placeFallbackHero ${place.image ? "heroWithImage" : ""}`}
         style={place.image ? {backgroundImage:`linear-gradient(rgba(18,20,19,.25),rgba(18,20,19,.8)),url(${place.image})`} : undefined}
       >
         <div className="container">
@@ -59,8 +60,8 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
             <div className="eyebrow lime">Warum wir ihn mögen</div>
             <h2 className="sectionTitle">DER AROUND<br/>TAKE.</h2>
           </div>
-          <div className="featureCard">
-            <p className="serif" style={{fontSize:34,lineHeight:1.16}}>{place.whyWeLikeIt}</p>
+          <div className="featureCard placeFallbackTake">
+            <p className="placeFallbackTakeQuote">{place.whyWeLikeIt}</p>
             {place.aroundTake && <div><div className="eyebrow">AROUND TAKE</div><p>{place.aroundTake}</p></div>}
           </div>
         </div>
