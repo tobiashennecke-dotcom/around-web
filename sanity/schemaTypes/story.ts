@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { PlaceGalleryBulkInput } from "../components/PlaceGalleryBulkInput";
 
 function stripDraftPrefix(id?: string) {
   return id ? id.replace(/^drafts\./, "") : id;
@@ -204,6 +205,7 @@ export const story = defineType({
           fields:[
             {
               name:"images",title:"Images",type:"array",
+              components:{input:PlaceGalleryBulkInput},
               validation:r=>r.min(2).max(20),
               of:[{
                 type:"image",options:{hotspot:true},
