@@ -122,7 +122,7 @@ function mapStep(raw: Record<string, unknown>): JourneyStep {
   }
   if (kind === "story") {
     const teaser = resolveTeaser(raw?.item as RawTeaser, 760, 4 / 3, { ...EMPTY_TEASER_FALLBACK, stamp: "STORY", accent: "blue" });
-    return { label, copy, kind, story: { kicker: teaser.kicker, title: teaser.title, deck: teaser.description ?? "" } };
+    return { label, copy, kind, story: { kicker: teaser.kicker, title: teaser.title, deck: teaser.description ?? "", media: teaser.media } };
   }
   const teaser = resolveTeaser(raw?.item as RawTeaser, 760, 4 / 3, {
     ...EMPTY_TEASER_FALLBACK,
