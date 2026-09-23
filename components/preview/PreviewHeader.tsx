@@ -8,8 +8,10 @@ import { useEffect, useState } from "react";
  */
 export function PreviewHeader() {
   const [scrolled, setScrolled] = useState(false);
+  const [enhanced, setEnhanced] = useState(false);
 
   useEffect(() => {
+    setEnhanced(true);
     const update = () => setScrolled(window.scrollY > 36);
     update();
     window.addEventListener("scroll", update, { passive: true });
@@ -17,7 +19,7 @@ export function PreviewHeader() {
   }, []);
 
   return (
-    <header className="pv-header" data-scrolled={scrolled}>
+    <header className="pv-header" data-scrolled={scrolled} data-enhanced={enhanced}>
       <div className="container pv-headerInner">
         <a href="#top" className="wordmark" aria-label="AROUND — zurück nach oben">
           ar<span className="o">o</span>und
