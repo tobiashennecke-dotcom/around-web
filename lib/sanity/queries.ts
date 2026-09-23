@@ -131,6 +131,16 @@ export const DISCOVER_QUERY = defineQuery(`
   ] | order(priority desc, _updatedAt desc)[0...36]{${CARD_FIELDS}}
 `);
 
+/** Search must consider the full published content pool before role/text filtering.
+ * Discovery deliberately remains capped to its curated first 36 cards.
+ */
+export const SEARCH_QUERY = defineQuery(`
+  *[
+    _type in ["destination","place","story","person","product","collection"] &&
+    defined(slug.current)
+  ] | order(priority desc, _updatedAt desc){${CARD_FIELDS}}
+`);
+
 export const DESTINATION_QUERY = defineQuery(`
   *[_type == "destination" && slug.current == $slug][0]{
     _id,title,slug,kicker,summary,country,coordinates,whyGo,aroundTake,bestFor,
