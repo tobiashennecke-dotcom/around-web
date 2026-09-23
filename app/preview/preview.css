@@ -18,11 +18,12 @@
 /* ---------- Reveal-on-scroll (JS progressive enhancement only) ---------- */
 .pv-reveal{opacity:1;transform:none}
 @media (prefers-reduced-motion:no-preference){
-  .pv-reveal{
-    opacity:0;transform:translateY(18px);
-    transition:opacity .7s ease var(--pv-delay,0ms),transform .7s ease var(--pv-delay,0ms)
+  /* Hide only after client enhancement is active. No-JS content stays visible. */
+  .pv-reveal[data-enhanced="true"]{
+    opacity:0;transform:translateY(16px);
+    transition:opacity .65s ease var(--pv-delay,0ms),transform .65s ease var(--pv-delay,0ms)
   }
-  .pv-reveal.is-visible{opacity:1;transform:none}
+  .pv-reveal[data-enhanced="true"].is-visible{opacity:1;transform:none}
 }
 
 .pv-block{display:block}
@@ -352,4 +353,307 @@
   .pv-footer{padding:56px 0 36px}
   .pv-footerLinks{gap:18px;flex-wrap:wrap}
   .pv-footerClosing{margin-top:44px}
+}
+
+
+/* ===============================================================
+   AROUND /preview — Sans-only partner editorial refinement v2.
+   Intentionally scoped: no typography or responsive changes to the
+   public site, Sanity Studio, or shared ContentCard components.
+   =============================================================== */
+.pv-page{
+  --around-font-editorial:var(--around-font-sans);
+  font-family:var(--around-font-sans);
+  font-synthesis:none;
+}
+.pv-page .serif,
+.pv-page .pv-contactPerson,
+.pv-page .pv-heroHeadline{
+  font-family:var(--around-font-sans);
+}
+/* A few preview-specific type treatments used .serif's 400 weight.
+   Remove that inheritance without flattening the hierarchy. */
+.pv-page .serif{font-weight:inherit}
+.pv-page .sectionTitle{
+  font-family:var(--around-font-sans);
+  font-size:clamp(2.8rem,6.7vw,6.6rem);
+  line-height:.91;
+  letter-spacing:-.06em;
+  font-weight:900;
+  text-wrap:balance;
+}
+.pv-page .eyebrow{letter-spacing:.16em}
+.pv-page .pv-section{padding-block:clamp(76px,8vw,124px)}
+.pv-page #about,.pv-page #contact{scroll-margin-top:90px}
+.pv-page :focus-visible{outline:2px solid var(--around-blue);outline-offset:4px}
+.pv-page .pv-dark :focus-visible,
+.pv-page .pv-hero :focus-visible,
+.pv-page .pv-header :focus-visible,
+.pv-page .pv-footer :focus-visible{outline-color:var(--around-lime)}
+
+/* Persistent legibility: image-overlay nav at top, opaque ink nav once
+   the reader reaches the light editorial sections. */
+.pv-page .pv-header{
+  background:linear-gradient(180deg,rgba(16,18,17,.69),rgba(16,18,17,.13));
+  border-bottom:1px solid transparent;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  transition:background .22s ease,border-color .22s ease,box-shadow .22s ease
+}
+.pv-page .pv-header[data-scrolled="true"]{
+  background:rgba(25,27,26,.97);
+  border-bottom-color:rgba(245,243,238,.17);
+  box-shadow:0 12px 36px rgba(0,0,0,.12);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px)
+}
+.pv-page .pv-headerInner{height:80px}
+.pv-page .pv-header .wordmark{font-size:clamp(30px,2.6vw,37px);line-height:1}
+.pv-page .pv-headerNav{align-items:center;gap:30px}
+.pv-page .pv-headerNav a{
+  display:inline-flex;align-items:center;min-height:44px;
+  transition:color .2s ease
+}
+.pv-page .pv-headerNav a:last-child{
+  border:1px solid rgba(245,243,238,.55);
+  padding:0 16px;
+  color:var(--around-warm)
+}
+.pv-page .pv-headerNav a:last-child:hover,
+.pv-page .pv-headerNav a:last-child:focus-visible{
+  background:var(--around-lime);border-color:var(--around-lime);
+  color:var(--around-ink)
+}
+
+/* Hero: expressive typography through scale and weight, never a serif.
+   The two author-defined lines can wrap naturally on phones. */
+.pv-page .pv-hero{
+  background:var(--around-ink);
+  isolation:isolate
+}
+.pv-page .pv-heroScrim{
+  background:
+    linear-gradient(90deg,rgba(13,16,15,.48),rgba(13,16,15,.03) 80%),
+    linear-gradient(180deg,rgba(13,16,15,.32) 0%,rgba(13,16,15,.12) 32%,rgba(13,16,15,.89) 100%)
+}
+.pv-page .pv-heroContent{
+  width:100%;
+  padding-block:154px 128px
+}
+.pv-page .pv-heroEyebrow{
+  display:flex;align-items:center;gap:13px;
+  margin:0;color:var(--around-lime)
+}
+.pv-page .pv-heroEyebrow:before{
+  content:"";display:block;flex:0 0 30px;height:3px;background:currentColor
+}
+.pv-page .pv-heroHeadline{
+  margin:20px 0 24px;
+  font-size:clamp(3.75rem,7.5vw,8.2rem);
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:-.075em;
+  line-height:.91;
+  max-width:100%;
+  text-wrap:balance
+}
+.pv-page .pv-heroLine{
+  padding-block:.075em;
+  margin-block:-.075em;
+  overflow:hidden;
+  overflow-wrap:normal;
+  word-break:normal
+}
+.pv-page .pv-heroSubline{margin-bottom:21px;font-size:12px;letter-spacing:.19em}
+.pv-page .pv-heroIntro{
+  max-width:36ch;
+  margin:0;
+  font-size:clamp(19px,2.1vw,27px);
+  font-weight:500;
+  line-height:1.28;
+  letter-spacing:-.015em;
+  text-wrap:pretty
+}
+.pv-page .pv-heroScroll{bottom:23px;color:rgba(245,243,238,.82)}
+
+/* Intro: less fragile text wrapping, more deliberate editorial contrast. */
+.pv-page .pv-introGrid{gap:clamp(32px,4.5vw,76px)}
+.pv-page .pv-introP{
+  font-size:clamp(17px,1.5vw,20px);
+  line-height:1.56;
+  max-width:54ch
+}
+.pv-page .pv-introLast{
+  max-width:39ch;
+  font-size:clamp(22px,2.2vw,30px);
+  line-height:1.23;
+  letter-spacing:-.03em;
+  font-weight:800
+}
+.pv-page .pv-chapterFrame::after{
+  content:"";position:absolute;inset:40% 0 0;
+  background:linear-gradient(180deg,transparent,rgba(12,14,12,.65));
+  pointer-events:none
+}
+.pv-page .pv-chapterTab{min-height:50px}
+.pv-page .pv-chapterTab:hover{color:var(--around-ink)}
+.pv-page .pv-chapterTab:focus-visible{outline-offset:-4px}
+.pv-page .pv-chapterCaption{max-width:calc(100% - 32px)}
+.pv-page .pv-chapterLabelMobile{font-family:var(--around-font-sans)}
+
+/* Product: dense mockups should look like the actual product, not a stack
+   of empty white rectangles. Make each text step legible while inactive. */
+.pv-page .pv-journeyDesktop{gap:clamp(40px,6vw,88px)}
+.pv-page .pv-journeyStep{min-height:56vh;opacity:.54}
+.pv-page .pv-journeyStep[data-active="true"]{opacity:1}
+.pv-page .pv-journeyCopy{
+  max-width:32ch;
+  font-size:clamp(20px,2.15vw,30px);
+  line-height:1.25;
+  font-weight:600;
+  letter-spacing:-.03em
+}
+.pv-page .pv-journeySticky{top:115px}
+.pv-page .pv-journeyPreview .cardMedia,
+.pv-page .pv-saveDemoCard .cardMedia,
+.pv-page .pv-aroundItAnchorCard .cardMedia{aspect-ratio:16/10}
+.pv-page .pv-discoverBar{
+  border-color:rgba(245,243,238,.45);
+  border-left:4px solid var(--around-lime);
+  background:rgba(245,243,238,.055);
+  color:var(--around-warm);
+  font-size:17px;font-weight:700;letter-spacing:-.025em
+}
+.pv-page .pv-journeyStory .storyFeatureMedia img{width:100%;height:100%;object-fit:cover}
+.pv-page .pv-journeyStory .storyFeatureDeck{color:rgba(245,243,238,.72)}
+.pv-page .pv-journeyClosingTitle{color:var(--around-lime)}
+
+/* Editorial story cards: clear type and accent, not a faux-link hover. */
+.pv-page .pv-storyBody{padding-top:20px}
+.pv-page .pv-storyTitle{
+  font-size:clamp(25px,2.45vw,36px);
+  line-height:1.08;
+  letter-spacing:-.043em;
+  font-weight:800;
+  text-wrap:balance
+}
+.pv-page .pv-storyCard--lead .pv-storyTitle{font-size:clamp(29px,3.1vw,47px)}
+.pv-page .pv-storyCard--lime .pv-storyMedia{border-bottom:4px solid var(--around-lime)}
+.pv-page .pv-storyCard--blue .pv-storyMedia{border-bottom:4px solid var(--around-blue)}
+.pv-page .pv-storyCard--pink .pv-storyMedia{border-bottom:4px solid var(--around-pink)}
+.pv-page .pv-storyMedia img{width:100%;height:100%;object-fit:cover}
+
+/* Principles: headline = bold, prose = relaxed. No editorial serif. */
+.pv-page .pv-principlesIntro p{margin:0 0 8px}
+.pv-page .pv-principlesIntro{
+  max-width:48ch;
+  font-size:clamp(20px,2vw,26px);
+  line-height:1.35;
+  letter-spacing:-.025em;
+  font-weight:500
+}
+.pv-page .pv-principleHeadline{
+  font-size:clamp(24px,2.6vw,34px);
+  line-height:1.1;
+  font-weight:800;
+  letter-spacing:-.04em
+}
+.pv-page .pv-principleNumber{letter-spacing:-.07em}
+.pv-page .pv-principleCopy{font-size:16px;line-height:1.56}
+
+/* Connections: reserve acid lime for a graphic mark on warm surfaces;
+   lime-colored tiny text on warm-white wasn't legible enough. */
+.pv-page .pv-aroundItChip--lime{border-top:3px solid var(--around-lime)}
+.pv-page .pv-aroundItChip--lime .eyebrow{color:var(--around-ink)}
+.pv-page .pv-aroundItChip--blue{border-top:3px solid var(--around-blue)}
+.pv-page .pv-aroundItChip--pink{border-top:3px solid var(--around-pink)}
+.pv-page .pv-aroundItConnections{align-items:stretch}
+
+/* Conversion: one typographic rhythm across partner, contact and status. */
+.pv-page .pv-saveBodyText,
+.pv-page .pv-partnerBody,
+.pv-page .pv-contactBody{
+  font-size:clamp(18px,1.6vw,22px);
+  line-height:1.48;
+  font-weight:500;
+  letter-spacing:-.012em
+}
+.pv-page .pv-partnerIndependence{font-size:17px;line-height:1.48;font-weight:600}
+.pv-page .pv-contactPerson{font-size:clamp(29px,3vw,41px);font-weight:900;letter-spacing:-.05em}
+.pv-page .pv-contactCard{padding-top:30px}
+.pv-page .pv-contactCta,.pv-page .pv-partnerCta{min-height:48px}
+.pv-page .pv-status{
+  background:#eae7de;
+  color:var(--around-ink);
+  border-bottom-color:var(--around-line)
+}
+.pv-page .pv-status .eyebrow.lime{color:var(--around-blue)}
+.pv-page .pv-statusBody{color:var(--around-muted);font-size:18px;line-height:1.55}
+.pv-page .pv-statusHeadline{font-size:clamp(2.6rem,6vw,5.8rem)}
+.pv-page .pv-footer{border-top:4px solid var(--around-lime)}
+.pv-page .pv-footerTagline{letter-spacing:.14em}
+.pv-page .pv-footerClosingTitle{font-size:clamp(2.8rem,5vw,5.6rem)}
+
+/* Tablet: the chapter strip is a four-piece editorial grid, not four
+   enormous portrait pictures extending the page by several screens. */
+@media(max-width:900px){
+  .pv-page .pv-introGrid,.pv-page .pv-saveGrid,
+  .pv-page .pv-partnerGrid,.pv-page .pv-contactGrid{gap:36px}
+  .pv-page .pv-chapterStage{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;aspect-ratio:auto;background:transparent
+  }
+  .pv-page .pv-chapterFrame{
+    position:relative;inset:auto;display:flex;opacity:1;
+    aspect-ratio:4/3;margin:0;min-width:0
+  }
+  .pv-page .pv-chapterCaption{font-size:10px;margin:0 12px 12px}
+  .pv-page .pv-chapterLabelMobile{top:12px;left:12px}
+  .pv-page .pv-journeyMobile{margin-top:38px}
+  .pv-page .pv-journeyMobileStep{padding-block:34px}
+  .pv-page .pv-journeyCopy{max-width:48ch}
+}
+@media(max-width:620px){
+  .pv-page .pv-section{padding-block:66px}
+  .pv-page #about,.pv-page #contact{scroll-margin-top:70px}
+  .pv-page .pv-headerInner{height:64px}
+  .pv-page .pv-headerNav{gap:10px;font-size:10px}
+  .pv-page .pv-headerNav a:last-child{padding-inline:11px}
+  .pv-page .pv-heroContent{padding-block:112px 100px}
+  .pv-page .pv-heroHeadline{
+    margin:19px 0 19px;
+    font-size:clamp(2.65rem,10.15vw,4.4rem);
+    line-height:.93;letter-spacing:-.071em
+  }
+  .pv-page .pv-heroSubline{font-size:10px;letter-spacing:.13em;line-height:1.65}
+  .pv-page .pv-heroSublineDot{margin-inline:6px}
+  .pv-page .pv-heroIntro{font-size:clamp(18px,4.8vw,21px);line-height:1.32}
+  .pv-page .pv-heroScroll{bottom:18px;font-size:9px}
+  .pv-page .sectionTitle{
+    font-size:clamp(2.5rem,11.1vw,4.3rem);
+    line-height:.94;letter-spacing:-.058em
+  }
+  .pv-page .pv-chapterStage{gap:8px}
+  .pv-page .pv-chapterFrame{aspect-ratio:4/5}
+  .pv-page .pv-chapterLabelMobile{
+    top:8px;left:8px;padding:5px 7px;font-size:9px
+  }
+  .pv-page .pv-chapterCaption{
+    max-width:calc(100% - 16px);
+    margin:0 8px 8px;padding:5px 7px;
+    font-size:9px;line-height:1.25;white-space:normal
+  }
+  .pv-page .pv-principlesGrid{margin-top:36px}
+  .pv-page .pv-principle{padding:28px 22px 34px}
+  .pv-page .pv-storiesGrid{margin-top:36px;gap:32px}
+  .pv-page .pv-storyCard--lead .pv-storyTitle{font-size:30px}
+  .pv-page .pv-aroundItComposition{margin-top:40px}
+  .pv-page .pv-aroundItConnections{padding-top:26px}
+  .pv-page .pv-aroundItChip{padding:18px}
+  .pv-page .pv-saveDemoCard,.pv-page .pv-journeyPreview{max-width:100%}
+  .pv-page .pv-footer{padding-top:64px}
+}
+@media(prefers-reduced-motion:reduce){
+  .pv-page .pv-header,
+  .pv-page .pv-headerNav a{transition:none}
 }
