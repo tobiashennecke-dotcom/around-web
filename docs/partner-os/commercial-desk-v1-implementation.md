@@ -35,3 +35,9 @@ All seven tables have RLS enabled. SELECT/INSERT/UPDATE grants for `anon` and `a
 - Demo routes remain local-only and are not linked to the private records.
 - No partner accounts, private upload bucket, external email, billing, Google Calendar sync or Sanity publishing action.
 - Do not merge this branch to production before verifying all Vercel environment and access settings.
+
+## 2026-09-23 follow-up (branch only)
+- Magic-link callback now reports missing/invalid code and failed exchange via safe `auth_error` URL flags, instead of silently redirecting to /saved. /account displays the error; no auth tokens or provider descriptions are exposed.
+- Internal offer draft UI now uses the shared AROUND catalog and founding prices with add-ons. The protected POST endpoint re-derives and checks the amount from the shared catalog and writes a catalog snapshot and line items. This is an **internal draft**, not an externally binding offer. The catalog price's tax basis still requires a decision before sending offers.
+- No schema migration in this follow-up. Audit writes remain non-atomic and must be fixed before legally binding operations.
+- Supabase email rate limit remains a separate external blocker to testing the Preview login. Do not repeatedly send magic links; verify allowed redirect URL and retry after cooldown.
