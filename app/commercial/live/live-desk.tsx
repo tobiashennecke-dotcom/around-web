@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import styles from "../commercial.module.css";
 type Status="new"|"qualified"|"contacted"|"proposal"|"won"|"lost";
 type Inquiry={id:string;created_at:string;organization_name:string;contact_name:string;email:string;website:string|null;message:string|null;plan_id:string;founding_requested:boolean;addon_ids:string[];quoted_total_eur:number;status:Status;source:string};
@@ -39,6 +40,7 @@ export default function LiveDesk(){
  }
  return <main className={styles.page}><div className={styles.wrap}>
   <header className={styles.head}><div><div className={styles.eyebrow}>AROUND / PARTNER OPERATIONS / PRIVATE</div><h1>Commercial<br/>Desk<span style={{color:"#93b52b"}}>.</span></h1><p>Vertrauliche Partneranfragen. Nur für ausdrücklich freigegebene AROUND-Operatoren.</p></div><span className={styles.pill}>PRIVATE · LIVE DATA</span></header>
+  <nav className={styles.toolNav}><strong>Anfragen</strong><Link href="/commercial/live/partners">Partnerverwaltung</Link><Link href="/commercial/live/calendar">Live Calendar</Link></nav>
   <section className={styles.metrics}><div className={styles.metric}><span>OFFENE ANFRAGEN</span><strong>{open.length}</strong></div><div className={styles.metric}><span>NEUE ANFRAGEN</span><strong>{items.filter(i=>i.status==="new").length}</strong></div><div className={styles.metric}><span>ANGEBOTE</span><strong>{items.filter(i=>i.status==="proposal").length}</strong></div><div className={styles.metric}><span>ANFRAGEVOLUMEN*</span><strong>{open.reduce((sum,i)=>sum+i.quoted_total_eur,0).toLocaleString("de-DE")} €</strong></div></section>
   <div className={styles.sectionTitle}><h2>Partner pipeline</h2><button className={styles.action} onClick={()=>void load()} disabled={loading}>↻ Aktualisieren</button></div>
   {error&&<p role="alert" style={{padding:18,border:"1px solid #a44"}}>{error}</p>}
