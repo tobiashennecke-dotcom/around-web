@@ -17,7 +17,7 @@ export function PartnerSection({ content }: { content: PartnerPreviewContent }) 
             ))}
           </h2>
           {body.map((paragraph) => (
-            <p key={paragraph} className="serif pv-partnerBody">
+            <p key={paragraph} className="pv-partnerBody">
               {paragraph}
             </p>
           ))}
@@ -37,7 +37,7 @@ export function PartnerSection({ content }: { content: PartnerPreviewContent }) 
               <li key={item}>{item}</li>
             ))}
           </ul>
-          <p className="serif pv-partnerIndependence">{independenceLine}</p>
+          <p className="pv-partnerIndependence">{independenceLine}</p>
           <a href="#contact" className="primary pv-partnerCta">
             {content.contact.ctaLabel}
           </a>
