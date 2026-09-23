@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { JourneyStep, PartnerPreviewContent } from "@/lib/preview-content";
 import { PreviewCard } from "./PreviewCard";
+import { PreviewMedia } from "./PreviewMedia";
 
 function StepPreview({ step }: { step: JourneyStep }) {
   if (step.kind === "discover") {
@@ -24,9 +25,13 @@ function StepPreview({ step }: { step: JourneyStep }) {
     return (
       <article className="storyFeature storyFeature--secondary storyFeature--typographic pv-journeyPreview pv-journeyStory">
         <div className="storyFeatureMedia">
-          <div className="storyFeatureTypographic" aria-hidden="true">
-            <span>STORY</span>
-          </div>
+          {step.story.media ? (
+            <PreviewMedia media={step.story.media} loading="lazy" />
+          ) : (
+            <div className="storyFeatureTypographic" aria-hidden="true">
+              <span>STORY</span>
+            </div>
+          )}
         </div>
         <div className="storyFeatureBody">
           <div className="storyFeatureKicker">{step.story.kicker}</div>
