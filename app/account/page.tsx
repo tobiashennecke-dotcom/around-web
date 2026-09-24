@@ -1,4 +1,5 @@
 import { AccountClient } from "./AccountClient";
+import { Suspense } from "react";
 import { CommunicationPreferences } from "@/components/CommunicationPreferences";
 
 export default function AccountPage() {
@@ -8,7 +9,7 @@ export default function AccountPage() {
         <div className="eyebrow lime">Account</div>
         <h1 className="sectionTitle" style={{margin:"16px 0 40px"}}>MY AROUND.</h1>
         <div className="editorialGrid">
-          <AccountClient />
+          <Suspense fallback={<div className="featureCard dark accountLoginCard">Account wird geladen …</div>}><AccountClient /></Suspense>
           <div className="featureCard limeBg">
             <div className="eyebrow">Warum ein Account?</div>
             <h2 style={{fontSize:48}}>DEIN AROUND. ÜBERALL.</h2>
