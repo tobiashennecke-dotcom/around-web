@@ -130,6 +130,16 @@ export const story = defineType({
   ],
   fields:[
     defineField({name:"title",title:"Title",type:"string",group:"basics",validation:r=>r.required()}),
+    defineField({
+      name:"teaserTitle",title:"Teaserüberschrift",type:"string",group:"basics",
+      description:"Optionaler kurzer Titel für den großen Teaser auf Entdecken. Die Artikelüberschrift bleibt unverändert.",
+      validation:r=>r.max(60).warning("Für zwei bis drei Zeilen möglichst unter 60 Zeichen bleiben.")
+    }),
+    defineField({
+      name:"teaserDescription",title:"Teaser-Kurztext",type:"text",rows:2,group:"basics",
+      description:"Optionaler kurzer Satz für den großen Teaser auf Entdecken.",
+      validation:r=>r.max(160).warning("Ein kurzer Satz mit maximal 160 Zeichen lässt dem Bild mehr Raum.")
+    }),
     defineField({name:"slug",title:"Slug",type:"slug",group:"basics",options:{source:"title"},validation:r=>r.required()}),
     defineField({
       name:"format",title:"AROUND format",type:"string",group:"basics",

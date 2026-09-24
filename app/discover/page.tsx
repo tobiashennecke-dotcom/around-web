@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ContentCard, contentHref } from "@/components/ContentCard";
+import { discoverTeaser } from "@/lib/discover-teaser";
 import { getDiscoverContent } from "@/lib/content";
 import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
 import type { ContentCard as CardType } from "@/lib/types";
@@ -19,6 +20,7 @@ function AdaptiveCards({ items, className = "" }: { items: CardType[]; className
 export default async function DiscoverPage() {
   const content = unique(await getDiscoverContent());
   const lead = content.find(item => item.featured) || content[0];
+  const leadTeaser = lead ? discoverTeaser(lead) : undefined;
   const selected = content.filter(item => item.aroundSelected).slice(0, 6);
   const feed = content.filter(item => item.id !== lead?.id);
   const roleCounts: Record<ContentRole, number> = { play:0, stay:0, eat:0, do:0 };
@@ -98,7 +100,7 @@ export default async function DiscoverPage() {
         </div>
       </section>
 
-      {lead && (
+      {lead && leadTeaser && (
         <section className="section discoverLeadSection discoverLeadSectionV13">
           <div className="container discoverLeadGrid">
             <div className="discoverLeadLabel">
@@ -108,14 +110,14 @@ export default async function DiscoverPage() {
             <Link
               href={contentHref(lead)}
               className={`discoverLead discoverLead--${lead.accent}`}
-              style={lead.image ? { backgroundImage: `linear-gradient(180deg,rgba(18,19,18,.05),rgba(18,19,18,.82)),url(${lead.image})` } : undefined}
+              style={lead.image ? { backgroundImage: `linear-gradient(180deg,rgba(18,19,18,0) 25%,rgba(18,19,18,.35) 55%,rgba(18,19,18,.88) 100%),url(${lead.image})` } : undefined}
             >
               {lead.aroundSelected && <span className="selectedBadge">AROUND SELECTED</span>}
-              <div className="eyebrow lime">{lead.kicker || "Featured"}</div>
-              <div>
-                <h2>{lead.title}</h2>
-                <p className="serif">{lead.description}</p>
-                <span className="textLink">Entdecken →</span>
+              <div className="discoverLeadCopy">
+                <div className="eyebrow lime">{lead.kicker || "Featured"}</div>
+                <h2>{leadTeaser.title}</h2>
+                {leadTeaser.description && <p>{leadTeaser.description}</p>}
+                <span className="textLink">{lead.type === "story" ? "Story entdecken" : "Entdecken"} →</span>
               </div>
             </Link>
           </div>

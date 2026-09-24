@@ -1,7 +1,7 @@
 import { defineQuery } from "next-sanity";
 
 const CARD_FIELDS = `
-  _id,_type,title,slug,kicker,placeType,featured,aroundSelected,priority,accessTier,
+  _id,_type,title,slug,kicker,teaserTitle,teaserDescription,placeType,featured,aroundSelected,priority,accessTier,
   defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,
   compatibleDayparts,effortLevel,environment,weatherSensitivity,
   coordinates,

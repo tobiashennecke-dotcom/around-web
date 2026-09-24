@@ -22,6 +22,8 @@ export type ContentCard = {
   type: ContentType;
   slug: string;
   title: string;
+  teaserTitle?: string;
+  teaserDescription?: string;
   kicker?: string;
   description: string;
   accent: Accent;

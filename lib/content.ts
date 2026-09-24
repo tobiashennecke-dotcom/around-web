@@ -72,6 +72,8 @@ export function toCard(doc: any): ContentCard | null {
     type,
     slug: doc.slug.current,
     title: doc.title,
+    teaserTitle: doc.teaserTitle?.trim() || undefined,
+    teaserDescription: doc.teaserDescription?.trim() || undefined,
     kicker: doc.kicker || undefined,
     description: doc.summary || "",
     placeType: type === "place" ? (doc.placeType || undefined) : undefined,
