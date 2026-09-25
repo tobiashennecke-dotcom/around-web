@@ -11,8 +11,10 @@
 # next.js auto-generated, machine/version-specific
 next-env.d.ts
 
-# local env files (keep .env.local out of version control going forward)
-.env*.local
+# local and deployment env files; only the non-secret template is tracked
+.env
+.env.*
+!.env.example
 
 # misc
 .DS_Store

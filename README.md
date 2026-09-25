@@ -1,52 +1,45 @@
-# AROUND Product System v1.0
+# AROUND — Product System
 
-Production-oriented starter for the AROUND media + discovery platform.
+AROUND is an editorial golf travel and lifestyle web application.
 
-## Stack
-- Next.js 16 / App Router
-- Sanity / next-sanity for editorial content
-- Supabase SSR Auth + Postgres/RLS for user state
-- CSS design tokens based on AROUND Brand Identity
-- Local sample content fallback for immediate UI work
+## Architecture
 
-## Start locally
-1. `npm install`
-2. Copy `.env.example` to `.env.local`
-3. `npm run dev`
+- **Next.js 16 + React + TypeScript:** public editorial website and application UI.
+- **Sanity:** canonical editorial content, images, destination/place/story relationships and the embedded Studio at `/studio`.
+- **Supabase:** authentication, saves, collections, trips, preferences and other user/product state.
+- **Vercel:** deployment and runtime. Hosting configuration is managed separately from this repository.
 
-The app renders with sample content even before Sanity/Supabase are configured.
+See [architecture](docs/architecture/AROUND_ARCHITECTURE.md) and [current product state](docs/state/CURRENT_STATE.md). Source code and deployed settings take precedence over older handoff documents.
 
-## Connect Supabase
-1. Create a Supabase project
-2. Run `supabase/schema.sql` in SQL editor
-3. Add URL + Publishable Key to `.env.local`
-4. Add Auth UI / magic-link flow in the next implementation sprint
+## Local development
 
-## Connect Sanity
-1. Create a Sanity project
-2. Add project ID/dataset to `.env.local`
-3. Reuse `sanity/schemaTypes`
-4. Add embedded or hosted Studio
-5. Replace sample-content page loaders with GROQ queries from `lib/sanity/queries.ts`
+Requirements: Node version in `.nvmrc`, npm and access to the required hosted services for full end-to-end testing.
 
-## Product rule
-AROUND must never degrade into a blog + database.
-Every editorial object should lead somewhere useful, and every utility action should retain editorial context.
+```bash
+nvm use
+npm ci
+cp .env.example .env.local
+npm run dev
+```
 
-See `/docs` for product, IA, content model, UX rules, MVP scope and build order.
+Fill in only the values for your own environment. Never commit `.env.local`, provider access tokens or service-role keys. The public editorial UI includes sample-content fallbacks when Sanity is not configured, but authenticated workflows require valid Supabase configuration.
 
-## Account / Saves
-The starter includes passwordless email login through Supabase OTP/Magic Link:
-- `/account`
-- `/auth/callback`
-- `proxy.ts` refreshes SSR auth cookies
-- guest saves remain usable without login
-- authenticated saves are written to `saved_items`
+## Quality checks
 
-## Editorial Studio
-Sanity Studio is mounted at `/studio`.
-Draft mode endpoints are included under `/api/draft-mode/*`.
-Once Sanity environment variables are present, dynamic detail pages read from Sanity first and fall back to sample content when no CMS record is available.
+```bash
+npm run preflight
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
 
-## Preflight
-Run `npm run preflight` to validate the repository structure before installing external services.
+`lint` is a **targeted repository/security guard**, not a full ESLint installation. `test` currently covers selected pure access/consent/planning helpers, not real multi-user database authorization or browser end-to-end flows. The GitHub Actions workflow runs these checks for proposed code changes. The dependency audit is initially informational.
+
+## Production boundaries
+
+- Do not change production database schema, Sanity content or Vercel settings merely to make tests green.
+- Validate user-specific access on a separate test account/environment; do not read personal user data in an audit.
+- The Sanity production dataset is publicly readable. A frontend premium gate is **not** content confidentiality. Do not publish paid-only full article bodies there before introducing a private content strategy.
+- Before deploying database policy changes, take a verified backup and validate a staging restore.
+- The launch checklist in [docs/PRE_LIVE_LAUNCH.md](docs/PRE_LIVE_LAUNCH.md) and the [health check](docs/qa/TECHNICAL_HEALTH_CHECK_2026-09-25.md) track outstanding operations.
