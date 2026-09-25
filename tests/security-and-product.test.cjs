@@ -85,3 +85,79 @@ test("blocker priority reports time conflict first", () => {
   assert.equal(conflicts.formatBlockerLabel(["MISSING_DURATION", "TIME_CONFLICT"]), "OVERLAPS ANOTHER FIXED POINT");
   assert.equal(conflicts.formatBlockerLabel(["ALREADY_IN_TRIP"]), undefined);
 });
+
+
+const fit = loadPureTs("lib/trip-fit.ts");
+
+test("Trip Fit never scores a geographically ineligible place", () => {
+  const result = fit.evaluateTripFit({
+    candidate: { id: "new", role: "play", suggestedDurationMinutes: 240, priority: 100, aroundSelected: true, featured: true },
+    dayIndex: 0,
+    tripItems: [],
+    geo: { eligible: false }
+  });
+  assert.equal(result.eligible, false);
+  assert.equal(result.score, 0);
+  assert.deepEqual(result.blockerCodes, ["GEO_NOT_ELIGIBLE"]);
+});
+
+test("Trip Fit rejects an item already present in the trip", () => {
+  const result = fit.evaluateTripFit({
+    candidate: { id: "existing", suggestedDurationMinutes: 90 },
+    dayIndex: 1,
+    tripItems: [{ sourceId: "existing", dayIndex: 0 }],
+    geo: { eligible: true }
+  });
+  assert.deepEqual(result.blockerCodes, ["ALREADY_IN_TRIP"]);
+});
+
+test("Trip Fit rejects missing duration", () => {
+  const result = fit.evaluateTripFit({
+    candidate: { id: "new", role: "do" },
+    dayIndex: 0, tripItems: [], geo: { eligible: true }
+  });
+  assert.equal(result.eligible, false);
+  assert.deepEqual(result.blockerCodes, ["MISSING_DURATION"]);
+});
+
+test("fixed candidates require a real supplied start time", () => {
+  const result = fit.evaluateTripFit({
+    candidate: { id: "new", role: "play", defaultPlanningMode: "fixed", suggestedDurationMinutes: 240 },
+    dayIndex: 0, tripItems: [], geo: { eligible: true }
+  });
+  assert.equal(result.score, 0);
+  assert.deepEqual(result.blockerCodes, ["FIXED_TIME_REQUIRED"]);
+});
+
+test("known fixed-time overlaps are a hard Trip Fit blocker", () => {
+  const result = fit.evaluateTripFit({
+    candidate: { id: "tee", role: "play", defaultPlanningMode: "fixed", suggestedDurationMinutes: 120 },
+    candidateStartTime: "14:00", dayIndex: 0,
+    tripItems: [{ sourceId: "dinner", role: "eat", dayIndex: 0, isFixed: true, fixedTime: "14:30", durationMinutes: 60 }],
+    geo: { eligible: true }
+  });
+  assert.equal(result.eligible, false);
+  assert.deepEqual(result.blockerCodes, ["TIME_CONFLICT"]);
+});
+
+test("an ordinary flexible stop with available time remains eligible", () => {
+  const result = fit.evaluateTripFit({
+    candidate: { id: "walk", role: "do", suggestedDurationMinutes: 90 },
+    dayIndex: 0, tripItems: [], geo: { eligible: true }
+  });
+  assert.equal(result.eligible, true);
+  assert.ok(result.score > 0);
+  assert.deepEqual(result.blockerCodes, []);
+});
+
+test("after-golf recommendation needs an actual golf fixed point and geo context", () => {
+  const result = fit.evaluateTripFit({
+    candidate: { id: "spa", role: "do", suggestedDurationMinutes: 90, suggestedDaypart: "afternoon" },
+    dayIndex: 0,
+    tripItems: [{ sourceId: "golf", role: "play", dayIndex: 0, isFixed: true, fixedTime: "08:00", durationMinutes: 240 }],
+    geo: { eligible: true, distanceToItemKm: { golf: 8 } }
+  });
+  assert.equal(result.eligible, true);
+  assert.equal(result.recommendationType, "after_golf");
+  assert.ok(result.reasonCodes.includes("AFTER_MORNING_GOLF"));
+});
