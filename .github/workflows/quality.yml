@@ -1,0 +1,41 @@
+name: Quality checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node.js from .nvmrc
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Repository structure
+        run: npm run preflight
+      - name: Repository security guards
+        run: npm run lint
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Focused unit tests
+        run: npm run test
+      - name: Production build
+        run: npm run build
+      - name: Dependency advisory (informational until triaged)
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true

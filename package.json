@@ -9,9 +9,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "node scripts/repository-lint.mjs",
     "typecheck": "next typegen && tsc --noEmit",
-    "preflight": "node scripts/preflight.mjs"
+    "preflight": "node scripts/preflight.mjs",
+    "test": "node --test tests/*.test.cjs"
   },
   "dependencies": {
     "@portabletext/react": "^6.0.0",
