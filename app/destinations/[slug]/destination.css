@@ -250,3 +250,24 @@
     max-width: 34ch;
   }
 }
+
+/* Group existing curated Places by editorial role without altering cards. */
+.destinationPage .destinationRoleSections {
+  display: grid;
+  gap: clamp(48px, 6vw, 88px);
+}
+.destinationPage .destinationRoleSection {
+  min-width: 0;
+}
+.destinationPage .destinationRoleTitle {
+  margin: 0 0 24px;
+  font-family: var(--around-font-sans);
+  font-size: clamp(2rem, 4vw, 4.25rem);
+  font-weight: 900;
+  letter-spacing: -.055em;
+  line-height: 1;
+}
+@media (max-width: 620px) {
+  .destinationPage .destinationRoleSections { gap: 48px; }
+  .destinationPage .destinationRoleTitle { margin-bottom: 20px; }
+}
