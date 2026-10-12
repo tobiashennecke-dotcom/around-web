@@ -23,6 +23,18 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
   if (!destination) notFound();
   const linkedPlaces = destination.places || [];
   const linkedStories = destination.stories || [];
+  const roleSections = [
+    { id: "play", title: "PLAY", roles: ["course"] },
+    { id: "stay", title: "STAY", roles: ["stay"] },
+    { id: "eat", title: "EAT", roles: ["eat", "drink"] },
+    { id: "do", title: "DO", roles: ["do", "culture", "shop"] }
+  ].map(section => ({
+    ...section,
+    items: linkedPlaces.filter(place => section.roles.includes(place.placeType || ""))
+  })).filter(section => section.items.length > 0);
+  const otherPlaces = linkedPlaces.filter(place =>
+    !["course", "stay", "eat", "drink", "do", "culture", "shop"].includes(place.placeType || "")
+  );
 
   return (
     <main className="destinationPage">
@@ -65,7 +77,20 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
           <div className="eyebrow lime">PLAY / STAY / EAT / DO</div>
           <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>AROUND IT.</h2>
           {linkedPlaces.length > 0 ? (
-            <div className="cardGrid">{linkedPlaces.map(item => <ContentCard key={item.id} item={item}/>)}</div>
+            <div className="destinationRoleSections">
+              {roleSections.map(section => (
+                <section key={section.id} aria-labelledby={`destination-${section.id}`} className="destinationRoleSection">
+                  <h3 id={`destination-${section.id}`} className="destinationRoleTitle">{section.title}</h3>
+                  <div className="cardGrid">{section.items.map(item => <ContentCard key={item.id} item={item}/>)}</div>
+                </section>
+              ))}
+              {otherPlaces.length > 0 && (
+                <section aria-labelledby="destination-more" className="destinationRoleSection">
+                  <h3 id="destination-more" className="destinationRoleTitle">MORE</h3>
+                  <div className="cardGrid">{otherPlaces.map(item => <ContentCard key={item.id} item={item}/>)}</div>
+                </section>
+              )}
+            </div>
           ) : (
             <p>Noch keine Places mit dieser Destination verknüpft.</p>
           )}
