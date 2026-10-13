@@ -101,11 +101,18 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
       {destination.itinerary && destination.itinerary.days.length > 0 && (
         <section className="section destination48" id="48-hours" aria-labelledby="destination48-heading">
           <div className="container">
-            <div className="eyebrow lime">THE AROUND EDIT / 48 HOURS</div>
+            <div className="eyebrow lime">THE AROUND EDIT / YOUR WAY</div>
             <div className="destination48Intro">
-              <h2 className="sectionTitle" id="destination48-heading">48 HOURS.<br/>{destination.itinerary.title.toUpperCase()}.</h2>
+              <h2 className="sectionTitle" id="destination48-heading">THE LONG WEEKEND.<br/>{destination.itinerary.title.toUpperCase()}.</h2>
               {destination.itinerary.intro && <p>{destination.itinerary.intro}</p>}
             </div>
+            {(destination.itinerary.durationAdvice || destination.itinerary.paceAdvice) && (
+              <div className="destinationJourneyGuidance">
+                {destination.itinerary.durationAdvice && <p><strong>WIE LANGE BLEIBEN?</strong> {destination.itinerary.durationAdvice}</p>}
+                {destination.itinerary.paceAdvice && <p><strong>DEIN TEMPO.</strong> {destination.itinerary.paceAdvice}</p>}
+              </div>
+            )}
+            <p className="destinationJourneyExample">EIN MÖGLICHER REISEVERLAUF · {destination.itinerary.days.length} TAGE · INDIVIDUELL ANPASSBAR</p>
             <div className="destination48Days">
               {destination.itinerary.days.map((day, index) => (
                 <article className="destination48Day" key={day.key}>
@@ -128,6 +135,21 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
                 </article>
               ))}
             </div>
+            {Boolean(destination.itinerary.alternatives?.length) && (
+              <aside className="destinationJourneyAlternatives">
+                <h3>MAKE IT YOURS.</h3>
+                <p>Mehr Golf oder lieber Zeit zum Durchatmen? Diese Places kannst du zusätzlich speichern und selbst in deinen Trip einplanen.</p>
+                <div className="destinationJourneyAlternativeGrid">
+                  {destination.itinerary.alternatives?.map(alt => (
+                    <article key={alt.key}>
+                      <h4><Link href={`/places/${alt.place.slug}`}>{alt.place.title} ↗</Link></h4>
+                      {alt.reason && <p>{alt.reason}</p>}
+                      <SaveButton sourceId={alt.place.id} sourceType={alt.place.type} title={alt.place.title} slug={alt.place.slug} placeType={alt.place.placeType} label="Optionalen Place merken" />
+                    </article>
+                  ))}
+                </div>
+              </aside>
+            )}
             <LisbonTripImport destinationId={destination.id} journey={destination.itinerary} />
             <p className="destination48Note">AROUND ROUTE NOTE · Redaktionelle Reihenfolge, keine bestätigten Fahr- oder Öffnungszeiten. Prüfe vor deiner Reise Abschlagszeiten, Reservierungen und Öffnungszeiten. Einzelne Places lassen sich direkt über THE DROP speichern.</p>
           </div>
