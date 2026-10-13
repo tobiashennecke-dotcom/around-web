@@ -775,8 +775,8 @@ export function TripDetailClient({ id }: { id: string }) {
         <div className="container">
           <div className="tripMetaEditor tripMetaEditor--desktop">
             <label><span>Trip</span><input value={title} onChange={event => setTitle(event.target.value)} /></label>
-            <label><span>Von</span><input type="date" value={startDate} onInput={event => setStartDate(event.currentTarget.value)} onChange={event => setStartDate(event.currentTarget.value)} /></label>
-            <label><span>Bis</span><input type="date" value={endDate} min={startDate || undefined} onInput={event => setEndDate(event.currentTarget.value)} onChange={event => setEndDate(event.currentTarget.value)} /></label>
+            <label className={`tripDateStep ${!startDate ? "tripDateStep--needed" : ""}`}><span><b>01</b> Anreise <small>Ersten Reisetag wählen</small></span><input type="date" aria-label="Anreisedatum auswählen" value={startDate} onChange={event => setStartDate(event.currentTarget.value)} /></label>
+            <label className={`tripDateStep ${startDate && (!endDate || endDate < startDate) ? "tripDateStep--needed" : ""}`}><span><b>02</b> Abreise <small>{startDate && !endDate ? "Jetzt Rückreisetag wählen!" : "Letzten Reisetag wählen"}</small></span><input type="date" aria-label="Abreisedatum auswählen" value={endDate} min={startDate || undefined} onChange={event => setEndDate(event.currentTarget.value)} /></label>
             <label><span>Status</span><select value={status} onChange={event => setStatus(event.target.value as TripStatus)}><option value="idea">Idee</option><option value="planning">Planung</option><option value="booked">Gebucht</option><option value="completed">Erlebt</option></select></label>
             <button type="button" className="primary" onClick={saveMeta} disabled={savingMeta || !title.trim()}>{savingMeta ? "Speichert …" : "Plan speichern →"}</button>
           </div>
@@ -793,19 +793,30 @@ export function TripDetailClient({ id }: { id: string }) {
             <div className="tripMetaMobileFields">
               <label><span>Trip</span><input value={title} onChange={event => setTitle(event.target.value)} /></label>
               <div className="tripMetaMobileDates">
-                <label><span>Von</span><input type="date" value={startDate} onInput={event => setStartDate(event.currentTarget.value)} onChange={event => setStartDate(event.currentTarget.value)} /></label>
-                <label><span>Bis</span><input type="date" value={endDate} min={startDate || undefined} onInput={event => setEndDate(event.currentTarget.value)} onChange={event => setEndDate(event.currentTarget.value)} /></label>
+                <label className={`tripDateStep ${!startDate ? "tripDateStep--needed" : ""}`}><span><b>01</b> Anreise <small>Ersten Reisetag wählen</small></span><input type="date" aria-label="Anreisedatum auswählen" value={startDate} onChange={event => setStartDate(event.currentTarget.value)} /></label>
+                <label className={`tripDateStep ${startDate && (!endDate || endDate < startDate) ? "tripDateStep--needed" : ""}`}><span><b>02</b> Abreise <small>{startDate && !endDate ? "Jetzt Rückreisetag wählen!" : "Letzten Reisetag wählen"}</small></span><input type="date" aria-label="Abreisedatum auswählen" value={endDate} min={startDate || undefined} onChange={event => setEndDate(event.currentTarget.value)} /></label>
               </div>
               <label><span>Status</span><select value={status} onChange={event => setStatus(event.target.value as TripStatus)}><option value="idea">Idee</option><option value="planning">Planung</option><option value="booked">Gebucht</option><option value="completed">Erlebt</option></select></label>
               <button type="button" className="secondary tripMetaMobileSave" onClick={saveMeta} disabled={savingMeta || !title.trim()}>{savingMeta ? "Speichert …" : "Jetzt speichern"}</button>
             </div>
           </details>
 
-          <p className="tripDateLiveCount" aria-live="polite">
-            {startDate && endDate && endDate >= startDate
-              ? `${dayCount} Kalendertage · ${dayCount - 1} ${dayCount === 2 ? "Übernachtung" : "Übernachtungen"} · Tagesplanung wird automatisch angepasst`
-              : startDate && endDate ? "Bitte ein Abreisedatum nach dem Anreisedatum wählen." : "Bitte An- und Abreisedatum wählen. Bis dahin werden drei Planungstage angezeigt."}
-          </p>
+          <div className={`tripDateRangeFeedback ${startDate && endDate && endDate >= startDate ? "tripDateRangeFeedback--ready" : "tripDateRangeFeedback--needs-date"}`} role="status" aria-live="polite">
+            <div className="tripDateRangeFeedbackIcon" aria-hidden="true">{startDate && endDate && endDate >= startDate ? "✓" : "!"}</div>
+            <div>
+              {startDate && endDate && endDate >= startDate ? (
+                <><strong>{dayCount} Kalendertage · {dayCount - 1} {dayCount === 2 ? "Übernachtung" : "Übernachtungen"}</strong><span>Deine Tagesleiste und Übernachtungsplanung passen sich automatisch an.</span></>
+              ) : startDate && endDate ? (
+                <><strong>Bitte das Abreisedatum aktualisieren.</strong><span>Die Abreise muss am oder nach dem Anreisetag liegen. Klicke oben auf „02 Abreise“.</span></>
+              ) : startDate ? (
+                <><strong>Schritt 2 fehlt: Wann reist du zurück?</strong><span>Wähle oben bei „02 Abreise“ den letzten Reisetag. Erst dann werden die tatsächlichen Reisetage angezeigt.</span></>
+              ) : endDate ? (
+                <><strong>Schritt 1 fehlt: Wann reist du an?</strong><span>Wähle oben bei „01 Anreise“ den ersten Reisetag.</span></>
+              ) : (
+                <><strong>Lege zuerst Anreise und Abreise fest.</strong><span>Die drei angezeigten Tage sind nur eine vorläufige Planungsvorlage.</span></>
+              )}
+            </div>
+          </div>
           <div className={`tripSaveState ${saveError ? "tripSaveState--error" : ""}`} role="status" aria-live="polite">
             <span className="syncDot" />
             {saveError || saveMessage || (mode === "guest"
