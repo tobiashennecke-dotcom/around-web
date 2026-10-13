@@ -44,11 +44,21 @@ export const destination = defineType({
     }),
 
     defineField({
-      name:"itinerary", title:"48 HOURS / Journey", type:"object", group:"editorial",
-      description:"Optional curated route. Add days and reorder stops here. Each stop references an existing Place; the page and Trip Planner use this same sequence.",
+      name:"itinerary", title:"AROUND JOURNEY / Travel edit", type:"object", group:"editorial",
+      description:"Optional example route, not a fixed recommended trip duration. Reorder stops and offer additional optional Places.",
       fields:[
         defineField({name:"title",title:"Journey title",type:"string",description:"Example: LISSABON & CASCAIS"}),
         defineField({name:"intro",title:"Introduction",type:"text",rows:3}),
+        defineField({name:"durationAdvice",title:"How long to go? (optional)",type:"text",rows:3}),
+        defineField({name:"paceAdvice",title:"Choose your pace (optional)",type:"text",rows:3}),
+        defineField({name:"alternatives",title:"Optional Places / further inspiration",type:"array",description:"Not part of the default Trip import",of:[{
+          type:"object",name:"journeyAlternative",title:"Optional Place",
+          fields:[
+            {name:"place",type:"reference",to:[{type:"place"}],title:"Place",validation:(r:any)=>r.required()},
+            {name:"reason",type:"text",title:"Why add it?",rows:2}
+          ],
+          preview:{select:{title:"place.title",subtitle:"reason"}}
+        }]}),
         defineField({name:"days",title:"Days",type:"array",of:[{
           type:"object",name:"itineraryDay",title:"Day",
           fields:[
