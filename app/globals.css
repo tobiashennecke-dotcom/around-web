@@ -2641,3 +2641,27 @@ img{display:block;max-width:100%}
 .tripDateRangeFeedback strong{display:block;font-size:14px;margin-bottom:3px}
 .tripDateRangeFeedback span{display:block;color:#555853}
 @media(max-width:750px){.tripDateRangeFeedback{padding:13px;margin-top:14px}.tripDateStep>span small{flex-basis:100%;padding-left:28px}}
+
+
+/* Mobile-first Trip Day View. Desktop layout remains unchanged. */
+.tripMobileDayPicker,.tripMobileAddDock{display:none}
+.tripMobileDayPanel{display:contents}
+@media(max-width:750px){
+  .tripDayNav{display:none}
+  .tripMobileDayPicker{display:block;margin-top:26px}
+  .tripMobilePickerHeader{display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:13px;font-weight:900;letter-spacing:.06em}
+  .tripMobilePickerHeader span{color:var(--around-muted);font-size:12px}
+  .tripMobileDayButtons{display:flex;overflow-x:auto;gap:7px;scroll-snap-type:x mandatory;padding:13px 0 7px;-webkit-overflow-scrolling:touch}
+  .tripMobileDayButton{flex:0 0 79px;scroll-snap-align:start;min-height:69px;padding:8px 4px;border:1px solid var(--around-ink);border-radius:0;background:transparent;color:var(--around-ink);font:inherit;cursor:pointer}
+  .tripMobileDayButton b{display:block;font-size:23px;line-height:1;font-weight:900}
+  .tripMobileDayButton small{display:block;font-size:10px;margin-top:7px;white-space:nowrap}
+  .tripMobileDayButton--active{background:var(--around-lime);border-color:var(--around-ink)}
+  .tripMobileDayPicker>p{color:var(--around-muted);font-size:11px;margin:8px 0 0}
+  .tripMobileDayPanel{display:none}
+  .tripMobileDayPanel--active{display:block}
+  .tripBoard--v18{gap:15px}
+  .tripMobileAddDock{display:block;position:fixed;left:0;right:0;bottom:0;z-index:42;padding:12px max(16px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(245,243,237,.92),#f5f3ed 24%);border-top:1px solid var(--around-line)}
+  .tripMobileAddDock button{width:100%;min-height:54px;background:var(--around-lime);color:var(--around-ink);border:1px solid var(--around-ink);font:inherit;font-size:12px;letter-spacing:.035em;font-weight:900;cursor:pointer}
+  .tripMobileAddDock button span{font-size:23px;vertical-align:-2px;margin-right:7px}
+  .tripBoardSection--v18{padding-bottom:145px}
+}
