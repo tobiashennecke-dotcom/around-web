@@ -97,6 +97,54 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
         </div>
       </section>
 
+      {slug === "lisbon" && (
+        <section className="section destination48" id="48-hours" aria-labelledby="destination48-heading">
+          <div className="container">
+            <div className="eyebrow lime">THE AROUND EDIT / 48 HOURS</div>
+            <div className="destination48Intro">
+              <h2 className="sectionTitle" id="destination48-heading">48 HOURS.<br/>LISSABON & CASCAIS.</h2>
+              <p>Ein Wochenende zwischen Atlantik, Fairways und Stadtleben. Kein eng getakteter Stundenplan – sondern zwei kuratierte Tage, die Platz für eigene Entdeckungen lassen.</p>
+            </div>
+            <div className="destination48Days">
+              {[
+                { day:"01", label:"ANKOMMEN & ATLANTIK", summary:"Küste zuerst. Die Stadt läuft dir nicht weg.", stops:[
+                  { period:"NACHMITTAG", slug:"boca-do-inferno-cascais", copy:"Beginne dort, wo der Atlantik die Dramaturgie übernimmt: zwischen Fels und Brandung." },
+                  { period:"CHECK-IN", slug:"the-albatroz-hotel-cascais", copy:"Cascais als Basis: kurze Wege zum Wasser statt einer weiteren Fahrt in die Stadt." },
+                  { period:"ABEND", slug:"mar-do-inferno-cascais", copy:"Fisch und Meeresfrüchte an der Küste. Vorab reservieren und genug Zeit mitbringen." }
+                ]},
+                { day:"02", label:"GOLF & CITY", summary:"Erst den Wind lesen. Dann die Stadt.", stops:[
+                  { period:"VORMITTAG", slug:"oitavos-dunes", copy:"Die Runde am Atlantik ist der sportliche Anker. Abschlagzeit vorher buchen." },
+                  { period:"NACHMITTAG", slug:"casa-das-historias-paula-rego", copy:"Eine bewusst andere Perspektive auf Cascais: Kunst, Architektur und ein ruhigerer Takt." },
+                  { period:"ABEND / LISBOA", slug:"prado-lissabon", copy:"Zum Abschluss in die Stadt. Ein Abend für saisonale portugiesische Küche; Tisch reservieren." }
+                ]}
+              ].map(day => (
+                <article className="destination48Day" key={day.day}>
+                  <div className="destination48DayHeader">
+                    <span className="destination48DayNumber">{day.day}</span>
+                    <div><h3>{day.label}</h3><p>{day.summary}</p></div>
+                  </div>
+                  <ol className="destination48Stops">
+                    {day.stops.map(stop => {
+                      const place = linkedPlaces.find(item => item.slug === stop.slug);
+                      if (!place) return null;
+                      return <li className="destination48Stop" key={stop.slug}>
+                        <span className="destination48Period">{stop.period}</span>
+                        <div className="destination48StopContent">
+                          <h4><Link href={`/places/${place.slug}`}>{place.title} <span aria-hidden="true">↗</span></Link></h4>
+                          <p>{stop.copy}</p>
+                          <SaveButton sourceId={place.id} sourceType={place.type} title={place.title} slug={place.slug} placeType={place.placeType} label="Place merken" />
+                        </div>
+                      </li>;
+                    })}
+                  </ol>
+                </article>
+              ))}
+            </div>
+            <p className="destination48Note">AROUND ROUTE NOTE · Redaktionelle Reihenfolge, keine bestätigten Fahr- oder Öffnungszeiten. Prüfe vor deiner Reise Abschlagszeiten, Reservierungen und Öffnungszeiten. Einzelne Places lassen sich direkt über THE DROP speichern.</p>
+          </div>
+        </section>
+      )}
+
       <StoryRail
         stories={linkedStories}
         eyebrow="STORIES FROM HERE"
