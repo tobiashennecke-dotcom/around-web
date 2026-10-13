@@ -11,9 +11,31 @@ import {
 } from "@/lib/supabase/trips";
 
 function dateLabel(trip: UserTrip) {
-  if (!trip.startDate && !trip.endDate) return "DATUM OFFEN";
-  if (trip.startDate && trip.endDate) return `${trip.startDate} → ${trip.endDate}`;
-  return trip.startDate || trip.endDate || "DATUM OFFEN";
+  const start = trip.startDate;
+  const end = trip.endDate;
+  const date = (iso: string) => {
+    const [year, month, day] = iso.split("-");
+    return { year, month, day };
+  };
+  if (!start && !end) return "DATUM OFFEN";
+  if (!start) return `BIS ${date(end!).day}.${date(end!).month}.${date(end!).year}`;
+  if (!end) return `AB ${date(start).day}.${date(start).month}.${date(start).year}`;
+  const first = date(start);
+  const last = date(end);
+  if (start === end) return `${first.day}.${first.month}.${first.year}`;
+  return first.year === last.year && first.month === last.month
+    ? `${first.day}.–${last.day}.${last.month}.${last.year}`
+    : first.year === last.year
+      ? `${first.day}.${first.month}.–${last.day}.${last.month}.${last.year}`
+      : `${first.day}.${first.month}.${first.year} – ${last.day}.${last.month}.${last.year}`;
+}
+function tripDuration(trip: UserTrip) {
+  if (!trip.startDate || !trip.endDate || trip.endDate < trip.startDate) return null;
+  const start = Date.parse(`${trip.startDate}T12:00:00Z`);
+  const end = Date.parse(`${trip.endDate}T12:00:00Z`);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return null;
+  const days = Math.round((end - start) / 86400000) + 1;
+  return `${days} ${days === 1 ? "Tag" : "Tage"}`;
 }
 
 export function TripsClient() {
@@ -97,7 +119,7 @@ export function TripsClient() {
               <div className="tripCardMeta"><span>{String(index + 1).padStart(2, "0")}</span><span>{trip.status.toUpperCase()}</span></div>
               <div className="tripCardDate">{dateLabel(trip)}</div>
               <h3><Link href={`/my-around/trips/${trip.id}`}>{trip.title}</Link></h3>
-              <p>{trip.items.length} Baustein{trip.items.length === 1 ? "" : "e"} im Plan.</p>
+              <p className="tripCardDetails">{tripDuration(trip) ? <span>{tripDuration(trip)}</span> : null}<span>{trip.items.length} Baustein{trip.items.length === 1 ? "" : "e"}</span></p>
               <div className="userCollectionActions">
                 <Link href={`/my-around/trips/${trip.id}`}>Plan öffnen →</Link>
                 <button type="button" onClick={() => remove(trip.id)}>Löschen</button>
