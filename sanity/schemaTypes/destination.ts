@@ -68,7 +68,7 @@ export const destination = defineType({
             }]}
           ],
           preview:{select:{title:"label",subtitle:"summary"}}
-        }]}
+        }]})
       ]
     }),
 
