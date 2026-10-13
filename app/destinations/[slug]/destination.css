@@ -325,3 +325,24 @@
 .destinationPage .destinationJourneyAlternativeGrid h4 a {color:inherit;text-decoration:none}
 .destinationPage .destinationJourneyAlternativeGrid p {color:rgba(255,255,255,.75);line-height:1.5}
 @media(max-width:700px){.destinationPage .destinationJourneyGuidance,.destinationPage .destinationJourneyAlternativeGrid{grid-template-columns:1fr}}
+
+
+/* Two distinct, working paths from editorial inspiration to MY AROUND. */
+.destinationPage .destinationJourneyChoose {margin-top:clamp(42px,6vw,80px);padding:clamp(25px,4vw,52px);background:var(--around-warm);color:var(--around-ink)}
+.destinationPage .destinationJourneyChoose .eyebrow {font-size:11px;letter-spacing:.15em}
+.destinationPage .destinationJourneyChoose h3 {font-size:clamp(29px,4.4vw,58px);line-height:.99;letter-spacing:-.055em;font-weight:900;margin:16px 0}
+.destinationPage .destinationJourneyChooseIntro {max-width:64ch;line-height:1.55;font-size:17px;margin:0 0 32px}
+.destinationPage .destinationJourneyChoiceGrid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin-top:30px}
+.destinationPage .destinationJourneyChoice {min-width:0;display:flex;flex-direction:column;align-items:flex-start;padding:clamp(22px,3vw,35px);border:1px solid rgba(17,19,18,.25)}
+.destinationPage .destinationJourneyChoice--edit {background:var(--around-ink);color:var(--around-warm);border-color:var(--around-ink)}
+.destinationPage .destinationJourneyChoice--own {background:transparent}
+.destinationPage .destinationJourneyChoiceIndex {font-size:11px;letter-spacing:.15em;font-weight:800;color:var(--around-lime)}
+.destinationPage .destinationJourneyChoice--own .destinationJourneyChoiceIndex {color:var(--around-ink)}
+.destinationPage .destinationJourneyChoice h4 {max-width:18ch;margin:30px 0 16px;font-size:clamp(24px,3vw,39px);line-height:1.05;letter-spacing:-.05em;font-weight:900}
+.destinationPage .destinationJourneyChoice p {max-width:42ch;margin:0 0 35px;line-height:1.55;flex:1}
+.destinationPage .destinationJourneyChoiceButton {display:inline-flex;justify-content:center;align-items:center;min-height:50px;padding:13px 17px;max-width:100%;border:2px solid var(--around-lime);background:var(--around-lime);color:var(--around-ink);font:inherit;font-size:13px;font-weight:900;cursor:pointer;text-align:center}
+.destinationPage .destinationJourneyChoiceButton--outline {background:transparent;border-color:var(--around-ink)}
+.destinationPage .destinationJourneyChoiceButton:disabled {opacity:.55;cursor:wait}
+.destinationPage .destinationJourneyChoose>.destination48ImportHint {margin:18px 0 0;color:inherit;opacity:.7}
+.destinationPage .destinationJourneyChoose>.destination48ImportStatus {color:var(--around-ink)}
+@media(max-width:700px){.destinationPage .destinationJourneyChoiceGrid{grid-template-columns:1fr}.destinationPage .destinationJourneyChoice h4{margin-top:18px}.destinationPage .destinationJourneyChoice p{margin-bottom:22px}}
