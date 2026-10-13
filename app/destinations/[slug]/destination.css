@@ -271,3 +271,34 @@
   .destinationPage .destinationRoleSections { gap: 48px; }
   .destinationPage .destinationRoleTitle { margin-bottom: 20px; }
 }
+
+
+/* AROUND / 48 HOURS: curated, saveable editorial sequence. */
+.destinationPage .destination48 { background: var(--around-ink); color: var(--around-warm); padding-block: clamp(76px, 9vw, 134px); }
+.destinationPage .destination48Intro { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: 40px; align-items: end; margin: 20px 0 62px; }
+.destinationPage .destination48Intro .sectionTitle { color: var(--around-warm); font-size: clamp(3rem, 6.3vw, 7.5rem); line-height: .92; letter-spacing: -.066em; margin: 0; }
+.destinationPage .destination48Intro > p { max-width: 47ch; font-size: clamp(17px, 1.4vw, 21px); line-height: 1.55; margin: 0; }
+.destinationPage .destination48Days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.destinationPage .destination48Day { border: 1px solid rgba(255,255,255,.22); padding: clamp(22px, 3vw, 42px); min-width: 0; }
+.destinationPage .destination48DayHeader { display: flex; align-items: start; gap: 24px; border-bottom: 1px solid rgba(255,255,255,.24); padding-bottom: 28px; }
+.destinationPage .destination48DayNumber { font-size: clamp(54px, 7vw, 99px); color: var(--around-lime); font-weight: 900; line-height: .85; letter-spacing: -.08em; }
+.destinationPage .destination48DayHeader h3 { font-size: clamp(19px, 2vw, 26px); letter-spacing: -.04em; line-height: 1.1; margin: 0 0 10px; }
+.destinationPage .destination48DayHeader p { margin: 0; opacity: .75; line-height: 1.45; }
+.destinationPage .destination48Stops { list-style: none; margin: 0; padding: 0; }
+.destinationPage .destination48Stop { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 17px; padding: 28px 0; border-bottom: 1px solid rgba(255,255,255,.16); }
+.destinationPage .destination48Stop:last-child { border-bottom: 0; }
+.destinationPage .destination48Period { color: var(--around-lime); letter-spacing: .12em; font-weight: 800; font-size: 11px; line-height: 1.5; }
+.destinationPage .destination48StopContent h4 { margin: 0 0 12px; font-size: clamp(21px, 2.1vw, 30px); line-height: 1.12; letter-spacing: -.045em; }
+.destinationPage .destination48StopContent h4 a { color: inherit; text-decoration: none; }
+.destinationPage .destination48StopContent h4 a:hover { color: var(--around-lime); }
+.destinationPage .destination48StopContent p { margin: 0 0 20px; line-height: 1.55; color: rgba(255,255,255,.8); }
+.destinationPage .destination48Note { max-width: 80ch; margin: 34px 0 0; color: rgba(255,255,255,.68); font-size: 12px; line-height: 1.6; letter-spacing: .035em; }
+@media (max-width: 850px) {
+  .destinationPage .destination48Intro, .destinationPage .destination48Days { grid-template-columns: 1fr; }
+  .destinationPage .destination48Intro { gap: 24px; margin-bottom: 38px; }
+}
+@media (max-width: 520px) {
+  .destinationPage .destination48DayHeader { gap: 15px; }
+  .destinationPage .destination48Stop { grid-template-columns: 1fr; gap: 7px; padding: 22px 0; }
+  .destinationPage .destination48Day { padding: 21px; }
+}
