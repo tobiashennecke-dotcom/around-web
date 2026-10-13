@@ -2624,3 +2624,20 @@ img{display:block;max-width:100%}
 
 /* Trip dates: immediate, explicit feedback for the calendar-day count. */
 .tripDateLiveCount {margin:14px 0 0;font-size:12px;font-weight:700;line-height:1.5;letter-spacing:.035em;color:var(--around-ink)}
+
+
+/* ARRIVAL → DEPARTURE: visible two-step date setup without replacing native accessible pickers. */
+.tripMetaEditor .tripDateStep,.tripMetaMobileDates .tripDateStep{position:relative;min-width:0}
+.tripDateStep>span{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.tripDateStep>span b{display:inline-grid;place-items:center;width:21px;height:21px;border:1px solid currentColor;font-size:10px;font-weight:900}
+.tripDateStep>span small{font-size:9px;letter-spacing:0;text-transform:none;font-weight:600;color:var(--around-muted)}
+.tripDateStep--needed>span,.tripDateStep--needed>span small{color:#a33b57}
+.tripDateStep--needed>input{border-bottom:3px solid var(--around-pink)!important;background:rgba(243,48,119,.07);border-radius:0}
+.tripDateStep>input{min-width:0;width:100%;cursor:pointer}
+.tripDateRangeFeedback{display:flex;align-items:flex-start;gap:12px;padding:15px 18px;margin:16px 0 10px;border:1px solid var(--around-line);font-size:13px;line-height:1.45}
+.tripDateRangeFeedback--needs-date{border-left:4px solid var(--around-pink);background:#fff0f4}
+.tripDateRangeFeedback--ready{border-left:4px solid var(--around-lime);background:#eef2e1}
+.tripDateRangeFeedbackIcon{display:grid;place-items:center;flex:0 0 25px;width:25px;height:25px;border-radius:50%;background:var(--around-ink);color:white;font-size:15px;font-weight:900}
+.tripDateRangeFeedback strong{display:block;font-size:14px;margin-bottom:3px}
+.tripDateRangeFeedback span{display:block;color:#555853}
+@media(max-width:750px){.tripDateRangeFeedback{padding:13px;margin-top:14px}.tripDateStep>span small{flex-basis:100%;padding-left:28px}}
