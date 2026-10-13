@@ -43,6 +43,35 @@ export const destination = defineType({
       ]}]
     }),
 
+    defineField({
+      name:"itinerary", title:"48 HOURS / Journey", type:"object", group:"editorial",
+      description:"Optional curated route. Add days and reorder stops here. Each stop references an existing Place; the page and Trip Planner use this same sequence.",
+      fields:[
+        defineField({name:"title",title:"Journey title",type:"string",description:"Example: LISSABON & CASCAIS"}),
+        defineField({name:"intro",title:"Introduction",type:"text",rows:3}),
+        defineField({name:"days",title:"Days",type:"array",of:[{
+          type:"object",name:"itineraryDay",title:"Day",
+          fields:[
+            {name:"label",type:"string",title:"Day headline",validation:(r:any)=>r.required()},
+            {name:"summary",type:"text",title:"Editorial subline",rows:2},
+            {name:"stops",type:"array",title:"Stops in order",of:[{
+              type:"object",name:"itineraryStop",title:"Stop",
+              fields:[
+                {name:"place",type:"reference",to:[{type:"place"}],title:"Place",validation:(r:any)=>r.required()},
+                {name:"period",type:"string",title:"Display label",description:"e.g. VORMITTAG"},
+                {name:"slot",type:"string",title:"Planner slot",options:{list:[
+                  {title:"Flexible",value:"flex"},{title:"Morning",value:"morning"},{title:"Midday",value:"midday"},
+                  {title:"Afternoon",value:"afternoon"},{title:"Evening",value:"evening"},{title:"Stay",value:"stay"}]}},
+                {name:"copy",type:"text",title:"Editorial copy",rows:3}
+              ],
+              preview:{select:{title:"place.title",subtitle:"period"}}
+            }]}
+          ],
+          preview:{select:{title:"label",subtitle:"summary"}}
+        }]}
+      ]
+    }),
+
     defineField({ name:"places", title:"Places", type:"array", group:"relations", of:[{type:"reference",to:[{type:"place"}]}], description:"Curated order. This controls which places appear on the destination page." }),
     defineField({ name:"stories", title:"Stories", type:"array", group:"relations", of:[{type:"reference",to:[{type:"story"}]}], description:"Curated stories for this destination." }),
 
