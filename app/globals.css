@@ -2620,3 +2620,7 @@ img{display:block;max-width:100%}
   .storyPlaceModuleControls{width:100%;justify-content:space-between}
 }
 
+
+
+/* Trip dates: immediate, explicit feedback for the calendar-day count. */
+.tripDateLiveCount {margin:14px 0 0;font-size:12px;font-weight:700;line-height:1.5;letter-spacing:.035em;color:var(--around-ink)}
