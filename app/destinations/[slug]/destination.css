@@ -302,3 +302,10 @@
   .destinationPage .destination48Stop { grid-template-columns: 1fr; gap: 7px; padding: 22px 0; }
   .destinationPage .destination48Day { padding: 21px; }
 }
+
+
+.destinationPage .destination48Import { margin-top: 32px; display: flex; flex-direction: column; align-items: flex-start; gap: 11px; }
+.destinationPage .destination48Import > button { border: 0; cursor: pointer; padding: 17px 22px; font-family: inherit; font-weight: 900; font-size: 14px; }
+.destinationPage .destination48Import > button:disabled { cursor: wait; opacity: .6; }
+.destinationPage .destination48ImportHint { color: rgba(255,255,255,.7); font-size: 12px; margin: 0; line-height: 1.6; }
+.destinationPage .destination48ImportStatus { margin: 4px 0 0; max-width: 68ch; color: var(--around-lime); line-height: 1.5; font-size: 14px; }

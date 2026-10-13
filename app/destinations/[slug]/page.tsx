@@ -6,6 +6,7 @@ import { getDestination } from "@/lib/content";
 import { SaveButton } from "@/components/SaveButton";
 import { ContentCard } from "@/components/ContentCard";
 import { StoryRail } from "@/components/StoryRail";
+import { LisbonTripImport } from "@/components/LisbonTripImport";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
@@ -140,6 +141,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
                 </article>
               ))}
             </div>
+            <LisbonTripImport destinationId={destination.id} places={linkedPlaces} />
             <p className="destination48Note">AROUND ROUTE NOTE · Redaktionelle Reihenfolge, keine bestätigten Fahr- oder Öffnungszeiten. Prüfe vor deiner Reise Abschlagszeiten, Reservierungen und Öffnungszeiten. Einzelne Places lassen sich direkt über THE DROP speichern.</p>
           </div>
         </section>
