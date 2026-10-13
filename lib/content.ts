@@ -38,6 +38,7 @@ import type {
   ContentCard,
   ContentType,
   Destination,
+  EditorialJourney,
   Person,
   Place,
   Product,
@@ -293,6 +294,23 @@ export async function getDestination(slug: string): Promise<Destination | null> 
         bestFor: Array.isArray(doc.bestFor) ? doc.bestFor : [],
         placeIds: linkedPlaces.map(x => x.id),
         storyIds: linkedStories.map(x => x.id),
+        itinerary: doc.itinerary && Array.isArray(doc.itinerary.days) ? {
+          title: doc.itinerary.title || doc.title,
+          intro: doc.itinerary.intro || undefined,
+          days: doc.itinerary.days.map((day: any, dayIndex: number) => ({
+            key: day._key || String(dayIndex),
+            label: day.label || `Tag ${dayIndex + 1}`,
+            summary: day.summary || undefined,
+            stops: (day.stops || []).map((stop: any, stopIndex: number) => ({
+              key: stop._key || String(stopIndex),
+              period: stop.period || undefined,
+              slot: (["flex","morning","midday","afternoon","evening","stay"].includes(stop.slot) ? stop.slot : "flex") as EditorialJourney["days"][number]["stops"][number]["slot"],
+              copy: stop.copy || undefined,
+              place: toCard(stop.place)
+            })).filter((stop: any) => Boolean(stop.place))
+          })).filter((day: any) => day.stops.length > 0)
+        } : undefined,
+
         places: linkedPlaces,
         stories: linkedStories,
         seoTitle: doc.seoTitle || undefined,

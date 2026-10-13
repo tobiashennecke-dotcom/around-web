@@ -147,6 +147,7 @@ export const DESTINATION_QUERY = defineQuery(`
     featured,aroundSelected,priority,seoTitle,seoDescription,
     "image": heroImage.asset->url,
     "socialImage": socialImage.asset->url,
+    itinerary{title,intro,days[]{_key,label,summary,stops[]{_key,period,slot,copy,"place":place->{${CARD_FIELDS}}}}},
     "places": places[]->{${CARD_FIELDS}},
     "stories": stories[]->{${CARD_FIELDS}}
   }

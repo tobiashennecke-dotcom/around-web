@@ -61,9 +61,17 @@ export type SeoFields = {
   socialImage?: string;
 };
 
+export type JourneySlot = "flex" | "morning" | "midday" | "afternoon" | "evening" | "stay";
+export type EditorialJourney = {
+  title: string;
+  intro?: string;
+  days: Array<{key:string;label:string;summary?:string;stops:Array<{key:string;period?:string;slot:JourneySlot;copy?:string;place:ContentCard}>}>;
+};
+
 export type Destination = ContentCard & SeoFields & {
   type: "destination";
   country: string;
+  itinerary?: EditorialJourney;
   latitude?: number;
   longitude?: number;
   whyGo: string;
