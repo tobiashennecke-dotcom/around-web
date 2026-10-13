@@ -2702,3 +2702,21 @@ img{display:block;max-width:100%}
 @media(max-width:380px){
   .tripItemRow--v18 .tripItemEditors--v15,.tripItemRow--v18 .tripItemEditors--v15.tripItemEditors--fixed{grid-template-columns:1fr}
 }
+
+
+/* AROUND mobile Place cards: progressive disclosure keeps essential trip data visible. */
+.tripItemMobileActions{display:none}
+@media(max-width:750px){
+  .tripItemRow--v18 .tripItemMobileActions{display:flex;flex-direction:column;align-items:stretch;gap:8px;min-width:0}
+  .tripItemRow--v18 .tripItemMobileEdit{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:50px;padding:12px 15px;border:1px solid var(--around-ink);background:transparent;color:var(--around-ink);font:900 12px/1.2 var(--around-font-sans);letter-spacing:.045em;text-align:left;cursor:pointer}
+  .tripItemRow--v18 .tripItemMobileEdit[aria-expanded="true"]{background:var(--around-ink);color:var(--around-warm)}
+  .tripItemRow--v18 .tripItemMobileEdit span{font-size:23px;line-height:1}
+  .tripItemRow--v18 .tripItemMobileSummary{font-size:11px;letter-spacing:.075em;font-weight:800;color:var(--around-muted)}
+  .tripItemRow--v18 .tripItemEditors--v15{display:none!important}
+  .tripItemRow--v18 .tripItemEditors--v15.tripItemEditors--mobileOpen{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 12px;padding-top:18px;border-top:1px solid var(--around-line)}
+  .tripItemRow--v18 .tripItemEditors--v15.tripItemEditors--mobileOpen .tripItemNote{grid-column:1/-1}
+  .tripItemRow--v18 .tripItemMobileEdit:focus-visible{outline:3px solid var(--around-blue);outline-offset:3px}
+}
+@media(max-width:380px){
+  .tripItemRow--v18 .tripItemEditors--v15.tripItemEditors--mobileOpen{grid-template-columns:1fr}
+}

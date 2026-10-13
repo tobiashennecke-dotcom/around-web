@@ -1256,6 +1256,7 @@ function TripItemRow({
   const suggestLabel = dayIndex === undefined && bestDayResult?.fit.eligible ? formatTripFitLabel(bestDayResult.fit) : undefined;
   const suggestTargetDayIndex = suggestLabel ? bestDayResult!.dayIndex : undefined;
   const [note, setNote] = useState(item.note || "");
+  const [mobileDetailsOpen, setMobileDetailsOpen] = useState(false);
   const type = plannerType(item);
   const itemSlot = (item.slot || "flex") as TripSlot;
   const canMoveBack = dayIndex !== undefined;
@@ -1350,11 +1351,18 @@ function TripItemRow({
           </div>
         ) : null}
       </div>
+      <div className="tripItemMobileActions">
+        <button type="button" className="tripItemMobileEdit" aria-expanded={mobileDetailsOpen}
+          aria-controls={`trip-item-details-${item.sourceId}`} onClick={() => setMobileDetailsOpen(open => !open)}>
+          {mobileDetailsOpen ? "DETAILS SCHLIESSEN" : "DETAILS BEARBEITEN"} <span aria-hidden="true">{mobileDetailsOpen ? "−" : "+"}</span>
+        </button>
+        <span className="tripItemMobileSummary">{dayIndex === undefined ? "TAG OFFEN" : `TAG ${dayIndex + 1}`}{item.isFixed && item.fixedTime ? ` · ${item.fixedTime} UHR` : ""}</span>
+      </div>
       <div className="tripItemMove" aria-label="Zwischen Tagen verschieben">
         <button type="button" onClick={() => onMove(item.sourceId, dayIndex, -1)} disabled={!canMoveBack} aria-label="Einen Tag zurück">←</button>
         <button type="button" onClick={() => onMove(item.sourceId, dayIndex, 1)} disabled={!canMoveForward} aria-label="Einen Tag weiter">→</button>
       </div>
-      <div className={`tripItemEditors tripItemEditors--v15 ${item.isFixed ? "tripItemEditors--fixed" : ""}`}>
+      <div id={`trip-item-details-${item.sourceId}`} className={`tripItemEditors tripItemEditors--v15 ${item.isFixed ? "tripItemEditors--fixed" : ""} ${mobileDetailsOpen ? "tripItemEditors--mobileOpen" : ""}`}>
         <label className="tripItemControl">
           <span>Tag</span>
           <select value={item.dayIndex === undefined ? "" : String(item.dayIndex)} onChange={event => onChange(item.sourceId, { dayIndex: event.target.value === "" ? undefined : Number(event.target.value) })}>
