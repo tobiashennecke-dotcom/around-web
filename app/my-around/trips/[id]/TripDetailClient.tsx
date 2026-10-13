@@ -124,7 +124,7 @@ function daysBetween(start?: string, end?: string) {
   if (!start || !end) return 3;
   // Calendar days, inclusive of arrival and departure. UTC avoids DST shifts.
   const dateToUtcDay = (value: string) => {
-    const parts = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(value);
+    const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
     if (!parts) return NaN;
     const date = Date.UTC(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]));
     const iso = new Date(date).toISOString().slice(0, 10);
