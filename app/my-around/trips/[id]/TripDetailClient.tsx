@@ -122,10 +122,18 @@ function plannerType(item: SavePayload) {
 
 function daysBetween(start?: string, end?: string) {
   if (!start || !end) return 3;
-  const startDate = new Date(`${start}T12:00:00`);
-  const endDate = new Date(`${end}T12:00:00`);
-  const difference = Math.round((endDate.getTime() - startDate.getTime()) / 86400000) + 1;
-  return Math.max(1, Math.min(14, difference));
+  // Calendar days, inclusive of arrival and departure. UTC avoids DST shifts.
+  const dateToUtcDay = (value: string) => {
+    const parts = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(value);
+    if (!parts) return NaN;
+    const date = Date.UTC(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]));
+    const iso = new Date(date).toISOString().slice(0, 10);
+    return iso === value ? date : NaN;
+  };
+  const first = dateToUtcDay(start);
+  const last = dateToUtcDay(end);
+  if (!Number.isFinite(first) || !Number.isFinite(last)) return 3;
+  return Math.max(1, Math.min(14, Math.round((last - first) / 86400000) + 1));
 }
 
 function dayDate(start: string | undefined, dayIndex: number) {
@@ -767,8 +775,8 @@ export function TripDetailClient({ id }: { id: string }) {
         <div className="container">
           <div className="tripMetaEditor tripMetaEditor--desktop">
             <label><span>Trip</span><input value={title} onChange={event => setTitle(event.target.value)} /></label>
-            <label><span>Von</span><input type="date" value={startDate} onChange={event => setStartDate(event.target.value)} /></label>
-            <label><span>Bis</span><input type="date" value={endDate} min={startDate || undefined} onChange={event => setEndDate(event.target.value)} /></label>
+            <label><span>Von</span><input type="date" value={startDate} onInput={event => setStartDate(event.currentTarget.value)} onChange={event => setStartDate(event.currentTarget.value)} /></label>
+            <label><span>Bis</span><input type="date" value={endDate} min={startDate || undefined} onInput={event => setEndDate(event.currentTarget.value)} onChange={event => setEndDate(event.currentTarget.value)} /></label>
             <label><span>Status</span><select value={status} onChange={event => setStatus(event.target.value as TripStatus)}><option value="idea">Idee</option><option value="planning">Planung</option><option value="booked">Gebucht</option><option value="completed">Erlebt</option></select></label>
             <button type="button" className="primary" onClick={saveMeta} disabled={savingMeta || !title.trim()}>{savingMeta ? "Speichert …" : "Plan speichern →"}</button>
           </div>
@@ -785,14 +793,19 @@ export function TripDetailClient({ id }: { id: string }) {
             <div className="tripMetaMobileFields">
               <label><span>Trip</span><input value={title} onChange={event => setTitle(event.target.value)} /></label>
               <div className="tripMetaMobileDates">
-                <label><span>Von</span><input type="date" value={startDate} onChange={event => setStartDate(event.target.value)} /></label>
-                <label><span>Bis</span><input type="date" value={endDate} min={startDate || undefined} onChange={event => setEndDate(event.target.value)} /></label>
+                <label><span>Von</span><input type="date" value={startDate} onInput={event => setStartDate(event.currentTarget.value)} onChange={event => setStartDate(event.currentTarget.value)} /></label>
+                <label><span>Bis</span><input type="date" value={endDate} min={startDate || undefined} onInput={event => setEndDate(event.currentTarget.value)} onChange={event => setEndDate(event.currentTarget.value)} /></label>
               </div>
               <label><span>Status</span><select value={status} onChange={event => setStatus(event.target.value as TripStatus)}><option value="idea">Idee</option><option value="planning">Planung</option><option value="booked">Gebucht</option><option value="completed">Erlebt</option></select></label>
               <button type="button" className="secondary tripMetaMobileSave" onClick={saveMeta} disabled={savingMeta || !title.trim()}>{savingMeta ? "Speichert …" : "Jetzt speichern"}</button>
             </div>
           </details>
 
+          <p className="tripDateLiveCount" aria-live="polite">
+            {startDate && endDate && endDate >= startDate
+              ? `${dayCount} Kalendertage · ${dayCount - 1} ${dayCount === 2 ? "Übernachtung" : "Übernachtungen"} · Tagesplanung wird automatisch angepasst`
+              : startDate && endDate ? "Bitte ein Abreisedatum nach dem Anreisedatum wählen." : "Bitte An- und Abreisedatum wählen. Bis dahin werden drei Planungstage angezeigt."}
+          </p>
           <div className={`tripSaveState ${saveError ? "tripSaveState--error" : ""}`} role="status" aria-live="polite">
             <span className="syncDot" />
             {saveError || saveMessage || (mode === "guest"
