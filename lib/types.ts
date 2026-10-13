@@ -65,6 +65,9 @@ export type JourneySlot = "flex" | "morning" | "midday" | "afternoon" | "evening
 export type EditorialJourney = {
   title: string;
   intro?: string;
+  durationAdvice?: string;
+  paceAdvice?: string;
+  alternatives?: Array<{key:string;reason?:string;place:ContentCard}>;
   days: Array<{key:string;label:string;summary?:string;stops:Array<{key:string;period?:string;slot:JourneySlot;copy?:string;place:ContentCard}>}>;
 };
 

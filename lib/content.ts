@@ -297,6 +297,11 @@ export async function getDestination(slug: string): Promise<Destination | null> 
         itinerary: doc.itinerary && Array.isArray(doc.itinerary.days) ? {
           title: doc.itinerary.title || doc.title,
           intro: doc.itinerary.intro || undefined,
+          durationAdvice: doc.itinerary.durationAdvice || undefined,
+          paceAdvice: doc.itinerary.paceAdvice || undefined,
+          alternatives: (doc.itinerary.alternatives || []).map((alt: any, index: number) => ({
+            key: alt._key || String(index), reason: alt.reason || undefined, place: toCard(alt.place)
+          })).filter((alt: any) => Boolean(alt.place)),
           days: doc.itinerary.days.map((day: any, dayIndex: number) => ({
             key: day._key || String(dayIndex),
             label: day.label || `Tag ${dayIndex + 1}`,

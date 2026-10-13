@@ -25,7 +25,7 @@ export function LisbonTripImport({ destinationId, journey }: { destinationId: st
     setStatus("");
     let createdTrip = false;
     try {
-      const trip = await createUserTrip(`48 HOURS · ${journey.title}`, { destinationSourceId: destinationId });
+      const trip = await createUserTrip(`AROUND JOURNEY · ${journey.title}`, { destinationSourceId: destinationId });
       createdTrip = true;
       const existing = new Set((await listSaves()).items.map(item => item.sourceId));
       for (const stop of resolved) {
@@ -51,7 +51,7 @@ export function LisbonTripImport({ destinationId, journey }: { destinationId: st
           note: `AROUND / DAY ${stop.dayIndex + 1}: ${stop.copy || stop.period || ""}`
         });
       }
-      setStatus(`Deine neue Reise wurde im Trip Planner angelegt: 48 HOURS · ${journey.title}. Du kannst dort Termine und Stationen flexibel anpassen.`);
+      setStatus(`Deine neue Reise wurde im Trip Planner angelegt: AROUND JOURNEY · ${journey.title}. Du kannst dort Termine und Stationen flexibel anpassen.`);
     } catch {
       setStatus(createdTrip
         ? "Die Reise konnte nur teilweise angelegt werden. Bitte prüfe den Trip Planner, bevor du erneut importierst."
@@ -63,7 +63,7 @@ export function LisbonTripImport({ destinationId, journey }: { destinationId: st
 
   return <div className="destination48Import">
     <button type="button" className="primary" onClick={importTrip} disabled={busy}>
-      {busy ? "Reise wird angelegt …" : "Alle {resolvedCount} Stationen in neuen Trip übernehmen →"}
+      {busy ? "Reise wird angelegt …" : "{`Beispielroute mit ${resolvedCount} Stationen übernehmen →`}"}
     </button>
     <p className="destination48ImportHint">Erstellt eine neue, editierbare Reise. Keine Buchungen und keine verbindlichen Zeiten.</p>
     {status && <p role="status" aria-live="polite" className="destination48ImportStatus">{status}</p>}
