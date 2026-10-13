@@ -266,6 +266,8 @@ export function TripDetailClient({ id }: { id: string }) {
   const [bestDayResults, setBestDayResults] = useState<Record<string, TripBestDayResult>>({});
   const [tripStoryRecommendations, setTripStoryRecommendations] = useState<TripStoryRecommendation[]>([]);
   const autosaveReady = useRef(false);
+  const [activeMobileDay, setActiveMobileDay] = useState(0);
+  const swipeStart = useRef<{x:number;y:number} | null>(null);
 
   async function load() {
     setLoading(true);
@@ -292,6 +294,9 @@ export function TripDetailClient({ id }: { id: string }) {
   }, [id]);
 
   const dayCount = useMemo(() => daysBetween(startDate, endDate), [startDate, endDate]);
+  useEffect(() => { setActiveMobileDay(current => Math.min(current, dayCount - 1)); }, [dayCount]);
+  function onMobileTouchStart(event: React.TouchEvent<HTMLDivElement>) { const touch = event.touches[0]; swipeStart.current = touch ? {x: touch.clientX,y: touch.clientY} : null; }
+  function onMobileTouchEnd(event: React.TouchEvent<HTMLDivElement>) { const touch = event.changedTouches[0]; const first = swipeStart.current; swipeStart.current = null; if(!touch || !first)return; const dx = touch.clientX-first.x; const dy=touch.clientY-first.y; if(Math.abs(dx)<65 || Math.abs(dx)<Math.abs(dy)*1.4)return; setActiveMobileDay(current=>Math.max(0,Math.min(dayCount-1,current+(dx<0?1:-1)))); }
 
   // Trip Fit / Best Day candidates are always regular, assigned, non-STAY Place
   // items - but the ENGINE/ADAPTER also depend on other trip items for context:
@@ -852,6 +857,18 @@ export function TripDetailClient({ id }: { id: string }) {
             />
           ) : null}
 
+          <div className="tripMobileDayPicker" aria-label="Reisetag auswählen">
+            <div className="tripMobilePickerHeader"><strong>DEINE TAGE.</strong><span>{activeMobileDay + 1} / {dayCount}</span></div>
+            <div className="tripMobileDayButtons" role="group" aria-label="Aktiver Reisetag">
+              {days.map(day => <button type="button" key={day.dayIndex} aria-pressed={activeMobileDay === day.dayIndex}
+                className={`tripMobileDayButton ${activeMobileDay === day.dayIndex ? "tripMobileDayButton--active" : ""}`}
+                onClick={() => setActiveMobileDay(day.dayIndex)}>
+                <b>{String(day.dayIndex + 1).padStart(2,"0")}</b>
+                <small>{startDate ? dayDate(startDate, day.dayIndex) : `Tag ${day.dayIndex + 1}`}</small>
+              </button>)}
+            </div>
+            <p>Wische nach links oder rechts, um den Tag zu wechseln.</p>
+          </div>
           <nav className="tripDayNav" aria-label="Trip-Tage">
             {unplanned.length ? <a href="#trip-open"><b>00</b><span>Offen</span><small>{unplanned.length}</small></a> : null}
             {days.map(day => <a href={`#trip-day-${day.dayIndex + 1}`} key={day.dayIndex}><b>{String(day.dayIndex + 1).padStart(2, "0")}</b><span>Day {day.dayIndex + 1}{startDate ? <em>{dayDate(startDate, day.dayIndex)}</em> : null}</span><small>{day.items.length}</small></a>)}
@@ -886,7 +903,9 @@ export function TripDetailClient({ id }: { id: string }) {
           ) : null}
 
           {days.map(day => (
-            <TripDayBlock
+            <div key={day.dayIndex} className={`tripMobileDayPanel ${activeMobileDay === day.dayIndex ? "tripMobileDayPanel--active" : ""}`}
+              onTouchStart={onMobileTouchStart} onTouchEnd={onMobileTouchEnd}>
+              <TripDayBlock
               id={`trip-day-${day.dayIndex + 1}`}
               key={day.dayIndex}
               dayIndex={day.dayIndex}
@@ -907,10 +926,16 @@ export function TripDetailClient({ id }: { id: string }) {
               onDrop={() => dropOnDay(day.dayIndex)}
               onQuickAdd={() => setQuickAdd({ kind: "stop", dayIndex: day.dayIndex })}
             />
+            </div>
           ))}
         </div>
       </section>
 
+      <div className="tripMobileAddDock">
+        <button type="button" onClick={() => setQuickAdd({kind:"stop",dayIndex:activeMobileDay})} aria-label={`Place für Tag ${activeMobileDay + 1} hinzufügen`}>
+          <span aria-hidden="true">＋</span> PLACE ZU TAG {activeMobileDay + 1} HINZUFÜGEN
+        </button>
+      </div>
       <TripStoryRail recommendations={tripStoryRecommendations} />
 
       <TripQuickAddDrawer
