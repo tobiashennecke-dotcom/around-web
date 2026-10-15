@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { MobileNav } from "@/components/MobileNav";
 import { Footer } from "@/components/Footer";
 import { ChromeGate } from "@/components/ChromeGate";
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: {
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ChromeGate>
           <MobileNav />
         </ChromeGate>
+        <Analytics />
       </body>
     </html>
   );
