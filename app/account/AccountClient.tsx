@@ -1,10 +1,14 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { notifySaveChange } from "@/lib/supabase/saves";
 
 export function AccountClient() {
+  const params = useSearchParams();
+  const authError = params.get("auth_error");
+  const authSuccess = params.get("auth_success");
   const [email,setEmail] = useState("");
   const [message,setMessage] = useState("");
   const [userEmail,setUserEmail] = useState<string | null>(null);

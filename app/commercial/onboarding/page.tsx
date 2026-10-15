@@ -1,0 +1,1 @@
+import { notFound } from "next/navigation";import type { Metadata } from "next";import Onboarding from "./onboarding";export const metadata:Metadata={title:"Partner Onboarding — AROUND LAB",robots:{index:false,follow:false}};export default function Page(){if(process.env.VERCEL_ENV!=="preview"&&process.env.COMMERCIAL_DESK_DEMO!=="true")notFound();return <Onboarding/>;}

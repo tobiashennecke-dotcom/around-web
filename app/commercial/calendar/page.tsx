@@ -1,0 +1,1 @@
+import { notFound } from "next/navigation";import type { Metadata } from "next";import CampaignCalendar from "./calendar";export const metadata:Metadata={title:"Campaign Calendar — AROUND LAB",robots:{index:false,follow:false}};export default function Page(){if(process.env.VERCEL_ENV!=="preview")notFound();return <CampaignCalendar/>;}
