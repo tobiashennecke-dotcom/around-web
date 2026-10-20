@@ -154,3 +154,7 @@ export default async function DiscoverPage() {
     </main>
   );
 }
+
+// AROUND editorial freshness: refresh published Sanity content (incl. the
+// Destination Online/Offline switch) without a redeploy.
+export const revalidate = 30;

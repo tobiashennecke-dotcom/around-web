@@ -233,6 +233,11 @@ export const place = defineType({
       description:"Operational/commercial flag only. Must never influence AROUND Selected, editorial priority, WHY PLAY IT or AROUND IT relevance."
     }),
 
+    defineField({
+      name:"visibility",title:"Sichtbarkeit",type:"string",group:"publishing",initialValue:"inherit",
+      options:{list:[{title:"Wie die Destination",value:"inherit"},{title:"Offline",value:"offline"}],layout:"radio"},
+      description:"„Wie die Destination“ folgt dem Online-Schalter der Destination. „Offline“ blendet nur diesen Place aus."
+    }),
     defineField({name:"featured",title:"Featured",type:"boolean",group:"publishing",initialValue:false}),
     defineField({name:"aroundSelected",title:"AROUND Selected",type:"boolean",group:"publishing",initialValue:false,description:"Editorial seal only. Never paid."}),
     defineField({name:"priority",title:"Editorial priority",type:"number",group:"publishing",initialValue:50,validation:r=>r.min(0).max(100)}),

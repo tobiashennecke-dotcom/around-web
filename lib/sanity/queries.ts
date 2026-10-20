@@ -1,6 +1,32 @@
 import { defineQuery } from "next-sanity";
 
+/**
+ * AROUND visibility switch (Destination Online/Offline).
+ *
+ * - destination.isOnline: editor switch. Missing field (all documents created
+ *   before the switch existed) counts as ONLINE, so nothing changes until an
+ *   editor deliberately switches a destination off. New destinations get
+ *   isOnline=false as initial value in the Studio.
+ * - place.visibility: "inherit" (default) follows its destination; "offline"
+ *   hides a single Place even when its destination is online.
+ * - story: visible when it relates to no destination/place at all (e.g. the
+ *   manifest) OR when at least one related destination/place is visible.
+ *
+ * Offline means "not on the website", NOT confidential: the dataset stays
+ * publicly readable via the Sanity API.
+ *
+ * Every public query must use these fragments - tests/visibility.test.cjs
+ * checks that.
+ */
+export const DESTINATION_ONLINE = `coalesce(isOnline, true) == true`;
+export const PLACE_ONLINE = `(coalesce(visibility, "inherit") != "offline" && coalesce(destination->isOnline, true) == true)`;
+const STORY_RELATION_FLAGS = `coalesce(array::compact(related[]->{"on": select(_type == "destination" => coalesce(isOnline, true), _type == "place" => coalesce(visibility, "inherit") != "offline" && coalesce(destination->isOnline, true), null)}.on), [])`;
+export const STORY_ONLINE = `(count(${STORY_RELATION_FLAGS}) == 0 || true in ${STORY_RELATION_FLAGS})`;
+/** Type-aware visibility for mixed-type lists (home, discover, search, collections). */
+export const CONTENT_ONLINE = `select(_type == "destination" => ${DESTINATION_ONLINE}, _type == "place" => ${PLACE_ONLINE}, _type == "story" => ${STORY_ONLINE}, true)`;
+
 const CARD_FIELDS = `
+  "aroundHidden": !${CONTENT_ONLINE},
   _id,_type,title,slug,kicker,teaserTitle,teaserDescription,placeType,featured,aroundSelected,priority,accessTier,
   defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,
   compatibleDayparts,effortLevel,environment,weatherSensitivity,
@@ -17,6 +43,7 @@ const CARD_FIELDS = `
  * never affects which Stories are selected or how they're ranked.
  */
 const STORY_CARD_FIELDS = `
+  "aroundHidden": !${STORY_ONLINE},
   _id,_type,title,slug,kicker,
   "summary": coalesce(deck, ""),
   format,publishedAt,readingTime,featured,aroundSelected,priority,accessTier,
@@ -31,7 +58,7 @@ const STORY_CARD_FIELDS = `
  * distribution - only the canonical related[] field may.
  */
 export const STORIES_RELATED_TO_IDS_QUERY = defineQuery(`
-  *[_type == "story" && count(related[_ref in $ids]) > 0]{${STORY_CARD_FIELDS}}
+  *[_type == "story" && count(related[_ref in $ids]) > 0 && ${STORY_ONLINE}]{${STORY_CARD_FIELDS}}
 `);
 
 /**
@@ -42,7 +69,7 @@ export const STORIES_RELATED_TO_IDS_QUERY = defineQuery(`
  * one, since relatedRefs is only needed for Trip-aware match explanation.
  */
 export const TRIP_STORIES_RELATED_TO_IDS_QUERY = defineQuery(`
-  *[_type == "story" && count(related[_ref in $ids]) > 0]{
+  *[_type == "story" && count(related[_ref in $ids]) > 0 && ${STORY_ONLINE}]{
     ${STORY_CARD_FIELDS},
     "relatedRefs": related[]._ref
   }
@@ -55,7 +82,7 @@ export const TRIP_STORIES_RELATED_TO_IDS_QUERY = defineQuery(`
  * an unrelated reference field on Place.
  */
 export const PLACE_IDS_FOR_DESTINATION_QUERY = defineQuery(`
-  *[_type == "place" && destination._ref == $destinationId]._id
+  *[_type == "place" && destination._ref == $destinationId && ${PLACE_ONLINE}]._id
 `);
 
 /**
@@ -69,7 +96,7 @@ export const PLACE_IDS_FOR_DESTINATION_QUERY = defineQuery(`
  */
 export const STORIES_HUB_QUERY = defineQuery(`
   {
-    "stories": *[_type == "story" && defined(slug.current)]{
+    "stories": *[_type == "story" && defined(slug.current) && ${STORY_ONLINE}]{
       _id,_type,title,slug,kicker,
       "summary": coalesce(deck, ""),
       format,publishedAt,readingTime,featured,aroundSelected,priority,accessTier,
@@ -85,9 +112,9 @@ export const STORIES_HUB_QUERY = defineQuery(`
       intro,
       "leadStoryId": leadStory->_id,
       "secondaryStoryIds": secondaryStories[]->_id,
-      "featuredDestinationIds": featuredDestinations[]->_id
+      "featuredDestinationIds": featuredDestinations[coalesce(@->isOnline, true) == true]->_id
     },
-    "allDestinations": *[_type == "destination" && defined(slug.current)]{
+    "allDestinations": *[_type == "destination" && defined(slug.current) && ${DESTINATION_ONLINE}]{
       _id,title,slug,kicker,country,priority,
       "image": heroImage.asset->url
     }
@@ -98,11 +125,11 @@ export const HOME_QUERY = defineQuery(`
   {
     "featured": *[
       _type in ["destination","place","story","person","product","collection"] &&
-      featured == true && defined(slug.current)
+      featured == true && defined(slug.current) && ${CONTENT_ONLINE}
     ] | order(priority desc, _updatedAt desc)[0...6]{${CARD_FIELDS}},
     "latest": *[
       _type in ["destination","place","story","person","product","collection"] &&
-      defined(slug.current)
+      defined(slug.current) && ${CONTENT_ONLINE}
     ] | order(priority desc, _updatedAt desc)[0...12]{${CARD_FIELDS}}
   }
 `);
@@ -127,7 +154,7 @@ export const HOMEPAGE_SETTINGS_QUERY = defineQuery(`
 export const DISCOVER_QUERY = defineQuery(`
   *[
     _type in ["destination","place","story","person","product","collection"] &&
-    defined(slug.current)
+    defined(slug.current) && ${CONTENT_ONLINE}
   ] | order(priority desc, _updatedAt desc)[0...36]{${CARD_FIELDS}}
 `);
 
@@ -137,12 +164,12 @@ export const DISCOVER_QUERY = defineQuery(`
 export const SEARCH_QUERY = defineQuery(`
   *[
     _type in ["destination","place","story","person","product","collection"] &&
-    defined(slug.current)
+    defined(slug.current) && ${CONTENT_ONLINE}
   ] | order(priority desc, _updatedAt desc){${CARD_FIELDS}}
 `);
 
 export const DESTINATION_QUERY = defineQuery(`
-  *[_type == "destination" && slug.current == $slug][0]{
+  *[_type == "destination" && slug.current == $slug && ${DESTINATION_ONLINE}][0]{
     _id,title,slug,kicker,summary,country,coordinates,whyGo,aroundTake,bestFor,
     featured,aroundSelected,priority,seoTitle,seoDescription,
     "image": heroImage.asset->url,
@@ -154,7 +181,7 @@ export const DESTINATION_QUERY = defineQuery(`
 `);
 
 export const PLACE_QUERY = defineQuery(`
-  *[_type == "place" && slug.current == $slug][0]{
+  *[_type == "place" && slug.current == $slug && ${PLACE_ONLINE}][0]{
     _id,title,slug,kicker,summary,placeType,defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,whyWeLikeIt,aroundTake,goodToKnow,
     compatibleDayparts,effortLevel,environment,weatherSensitivity,
     theFeel,bestFor,aroundMoment,knowBeforeYouGo,
@@ -180,7 +207,7 @@ export const PLACE_QUERY = defineQuery(`
 `);
 
 export const PLACE_RELEVANCE_CANDIDATES_QUERY = defineQuery(`
-  *[_type == "place" && defined(slug.current) && _id != $excludeId]{${CARD_FIELDS}}
+  *[_type == "place" && defined(slug.current) && _id != $excludeId && ${PLACE_ONLINE}]{${CARD_FIELDS}}
 `);
 
 export const PLACES_BY_IDS_QUERY = defineQuery(`
@@ -219,7 +246,7 @@ export const DESTINATION_GEO_QUERY = defineQuery(`
 `);
 
 export const STORY_QUERY = defineQuery(`
-  *[_type == "story" && slug.current == $slug][0]{
+  *[_type == "story" && slug.current == $slug && ${STORY_ONLINE}][0]{
     _id,title,slug,kicker,deck,format,publishedAt,readingTime,featured,aroundSelected,priority,
     accessTier,
     seoTitle,seoDescription,
@@ -254,6 +281,11 @@ export const STORY_QUERY = defineQuery(`
     "author": author->{_id,title,slug,role,"image":portrait.asset->url},
     "related": related[]->{${CARD_FIELDS}}
   }
+`);
+
+/** Which of the given content ids are currently switched offline (Saved Library hint). */
+export const OFFLINE_CONTENT_IDS_QUERY = defineQuery(`
+  *[_id in $ids && !(${CONTENT_ONLINE})]._id
 `);
 
 export const PERSON_QUERY = defineQuery(`

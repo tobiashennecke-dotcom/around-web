@@ -2720,3 +2720,7 @@ img{display:block;max-width:100%}
 @media(max-width:380px){
   .tripItemRow--v18 .tripItemEditors--v15.tripItemEditors--mobileOpen{grid-template-columns:1fr}
 }
+
+/* Destination Online/Offline switch: saved item whose content is currently offline */
+.savedOpen--unavailable{color:var(--around-muted);font-weight:700}
+.savedRowActions .savedOpen--unavailable{display:inline}
