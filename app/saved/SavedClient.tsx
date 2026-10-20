@@ -24,6 +24,7 @@ export function SavedClient() {
   const [filter, setFilter] = useState<SavedLibraryFilter>("all");
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [offlineIds, setOfflineIds] = useState<Set<string>>(new Set());
 
   async function load() {
     setLoading(true);
@@ -36,6 +37,23 @@ export function SavedClient() {
       setLoading(false);
     }
   }
+
+  // Destination Online/Offline switch: label saved items whose content is
+  // currently offline. Best-effort - a failed check simply shows the normal link.
+  useEffect(() => {
+    const ids = items.map(item => item.sourceId).filter(Boolean);
+    if (!ids.length) { setOfflineIds(new Set()); return; }
+    let cancelled = false;
+    fetch("/api/content-availability", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids })
+    })
+      .then(response => (response.ok ? response.json() : { offline: [] }))
+      .then(data => { if (!cancelled) setOfflineIds(new Set(Array.isArray(data?.offline) ? data.offline : [])); })
+      .catch(() => { if (!cancelled) setOfflineIds(new Set()); });
+    return () => { cancelled = true; };
+  }, [items]);
 
   useEffect(() => {
     load();
@@ -136,6 +154,7 @@ export function SavedClient() {
               index={index}
               removing={removingId === item.sourceId}
               onRemove={remove}
+              offline={offlineIds.has(item.sourceId)}
             />
           ))}
         </div>

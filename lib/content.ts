@@ -7,6 +7,7 @@ import {
   DESTINATION_QUERY,
   DISCOVER_QUERY,
   HOME_QUERY,
+  OFFLINE_CONTENT_IDS_QUERY,
   PERSON_QUERY,
   PLACE_IDS_FOR_DESTINATION_QUERY,
   PLACE_QUERY,
@@ -65,6 +66,9 @@ function normalizeType(type: string): ContentType | null {
 
 export function toCard(doc: any): ContentCard | null {
   if (!doc?._id || !doc?.title || !doc?.slug?.current) return null;
+  // Destination Online/Offline switch: offline content never becomes a card,
+  // wherever it is referenced (rails, itineraries, Story modules, collections).
+  if (doc.aroundHidden === true) return null;
   const type = normalizeType(doc._type);
   if (!type) return null;
 
@@ -254,6 +258,8 @@ export async function getHomepageContent(): Promise<{featured:ContentCard[];late
     const latest = compactCards(doc?.latest as any[] | undefined);
     if (featured.length || latest.length) return { featured, latest };
   }
+  // Sample content is a local-development fallback only, never shown when Sanity is configured.
+  if (sanity) return { featured: [], latest: [] };
   return { featured:[lisbon,cityGolf,stories[0]], latest:content.slice(0,12) };
 }
 
@@ -261,7 +267,7 @@ export async function getDiscoverContent(): Promise<ContentCard[]> {
   if (sanity) {
     const docs = await sanity.fetch(DISCOVER_QUERY);
     const cards = compactCards(docs as any[] | undefined);
-    if (cards.length) return cards;
+    return cards;
   }
   return content;
 }
@@ -325,6 +331,7 @@ export async function getDestination(slug: string): Promise<Destination | null> 
     }
   }
 
+  if (sanity) return null;
   if (slug !== lisbon.slug) return null;
   return {
     ...lisbon,
@@ -439,6 +446,7 @@ export async function getPlace(slug: string): Promise<Place | null> {
     }
   }
 
+  if (sanity) return null;
   const place = places.find(x => x.slug === slug);
   if (!place) return null;
   return {
@@ -495,6 +503,7 @@ export async function getStory(slug: string): Promise<Story | null> {
     }
   }
 
+  if (sanity) return null;
   const story = stories.find(x => x.slug === slug);
   if (!story) return null;
   const related = story.relatedIds
@@ -518,6 +527,7 @@ export async function getPerson(slug: string): Promise<Person | null> {
       };
     }
   }
+  if (sanity) return null;
   const item = content.find(x=>x.type === "person" && x.slug === slug);
   return item ? {...item,type:"person"} as Person : null;
 }
@@ -560,6 +570,7 @@ export async function getCollection(slug: string): Promise<AroundCollection | nu
     }
   }
 
+  if (sanity) return null;
   if (slug !== cityGolf.slug) return null;
   const items = cityGolf.itemIds
     .map(id => content.find(item => item.id === id))
@@ -624,7 +635,7 @@ export async function getSearchContent(query:string,type?:string,role?:string):P
   if (sanity) {
     const docs=await sanity.fetch(SEARCH_QUERY);
     const cards=compactCards(docs as any[] | undefined);
-    if (cards.length) return rankSearchResults(cards, query, type, role);
+    return rankSearchResults(cards, query, type, role);
   }
   return rankSearchResults(content, query, type, role);
 }
@@ -707,4 +718,18 @@ export async function getTripAwareSearchContent(
   }
 
   return rankSearchResults(eligible, query, type, role, item => geoScores.get(item.id) ?? 0);
+}
+
+
+/**
+ * Destination Online/Offline switch: which of these saved/planned content ids
+ * are currently offline. Used only to label saved items as unavailable -
+ * nothing is ever removed from a user's saves or trips.
+ */
+export async function getOfflineContentIds(ids: string[]): Promise<string[]> {
+  if (!sanity) return [];
+  const clean = Array.from(new Set(ids.filter(id => typeof id === "string" && id.length > 0 && id.length <= 128))).slice(0, 200);
+  if (!clean.length) return [];
+  const result = await sanity.fetch(OFFLINE_CONTENT_IDS_QUERY, { ids: clean });
+  return Array.isArray(result) ? result.filter((id: unknown): id is string => typeof id === "string") : [];
 }

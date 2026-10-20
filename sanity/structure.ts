@@ -26,5 +26,24 @@ export const structure: StructureResolver = S =>
         .id("partnerPreview")
         .child(S.document().schemaType("partnerPreview").documentId(PARTNER_PREVIEW_DOC_ID).title("Partner Preview")),
       S.divider(),
+      S.listItem()
+        .title("Destinationen online")
+        .id("destinationsOnline")
+        .child(
+          S.documentList()
+            .title("Destinationen online")
+            .schemaType("destination")
+            .filter('_type == "destination" && coalesce(isOnline, true) == true')
+        ),
+      S.listItem()
+        .title("Destinationen offline / in Vorbereitung")
+        .id("destinationsOffline")
+        .child(
+          S.documentList()
+            .title("Destinationen offline / in Vorbereitung")
+            .schemaType("destination")
+            .filter('_type == "destination" && isOnline == false')
+        ),
+      S.divider(),
       ...S.documentTypeListItems().filter(item => !SINGLETON_TYPES.has(item.getId() ?? ""))
     ]);

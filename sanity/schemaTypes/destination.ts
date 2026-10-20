@@ -1,5 +1,6 @@
 import { defineField, defineType } from "sanity";
 import { PlaceGalleryBulkInput } from "../components/PlaceGalleryBulkInput";
+import { DestinationOnlineInput } from "../components/DestinationOnlineInput";
 
 export const destination = defineType({
   name: "destination",
@@ -14,6 +15,11 @@ export const destination = defineType({
     { name: "seo", title: "SEO" }
   ],
   fields: [
+    defineField({
+      name:"isOnline", title:"Online", type:"boolean", group:["basics","publishing"], initialValue:false,
+      description:"Schalter für die Website. Aus = Destination, ihre Places und Stories, die nur zu ihr gehören, sind ausgeblendet. Inhalte bleiben im CMS erhalten. Fehlt der Wert bei älteren Destinationen, gilt sie als online.",
+      components:{ input: DestinationOnlineInput }
+    }),
     defineField({ name:"title", title:"Title", type:"string", group:"basics", validation:r=>r.required() }),
     defineField({ name:"slug", title:"Slug", type:"slug", group:"basics", options:{source:"title"}, validation:r=>r.required() }),
     defineField({ name:"kicker", title:"Kicker / Eyebrow", type:"string", group:"basics", description:"Small line above the headline, e.g. Portugal / Atlantic Coast." }),
