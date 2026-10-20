@@ -12,6 +12,22 @@ import { contentHref } from "@/components/ContentCard";
 import { splitStoryRelations } from "@/lib/story-relations";
 import { hasEntitlement } from "@/lib/access/entitlements";
 import { resolveStoryAccessState, splitStoryBodyAtPremiumGate } from "@/lib/story-access";
+import { StoryReadingProgress } from "@/components/StoryReadingProgress";
+import { StoryReadAloud } from "@/components/StoryReadAloud";
+import { getReadAloud, getStoryChapters, MIN_CHAPTERS, type StoryChapter } from "@/lib/story-modules";
+
+function ChapterNav({ chapters, className }: { chapters: StoryChapter[]; className: string }) {
+  return (
+    <nav className={`storyChapters ${className}`} aria-label="Kapitel">
+      <div className="eyebrow">Kapitel</div>
+      <ol>
+        {chapters.map((chapter, index) => (
+          <li key={chapter.id}><a href={`#${chapter.id}`}><span>{String(index + 1).padStart(2, "0")}</span>{chapter.title}</a></li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
 
 function formatDate(value?:string){
   if(!value) return null;
@@ -53,8 +69,14 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
     visibleBody = split.hasGate ? split.beforeGate : [];
   }
 
+  const chapters = getStoryChapters(visibleBody);
+  const showChapters = chapters.length >= MIN_CHAPTERS;
+  const readAloud = getReadAloud(visibleBody);
+  const firstDestination = destinations[0];
+
   return (
     <main>
+      <StoryReadingProgress />
       <section className="section storyHero">
         <div className="container">
           <div className="storyHeroTags">
@@ -69,12 +91,33 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
             {story.author && <span>Von {story.author.title}</span>}
             {date && <span>{date}</span>}
             {story.readingTime && <span>{story.readingTime} Min. Lesezeit</span>}
+            {story.disclosure && <a href="#hinweis-zur-recherche" className="storyMetaLink">Hinweis zur Recherche</a>}
           </div>
+          {readAloud && (
+            <div className="storyMetaActions">
+              <StoryReadAloud
+                src={readAloud.embed.src}
+                provider={readAloud.embed.provider}
+                title={readAloud.title}
+                speaker={readAloud.speaker}
+                duration={readAloud.duration}
+                height={readAloud.embed.height}
+              />
+            </div>
+          )}
         </div>
       </section>
 
       {story.image && (
-        <div className="storyHeroImage"><img src={story.image} alt="" /></div>
+        <figure className="storyHeroFigure">
+          <div className="storyHeroImage"><img src={story.image} alt={story.imageAlt || ""} /></div>
+          {(story.imageCaption || story.imageCredit) && (
+            <figcaption className="storyHeroCaption">
+              {story.imageCaption && <span>{story.imageCaption}</span>}
+              {story.imageCredit && <small>Foto: {story.imageCredit}</small>}
+            </figcaption>
+          )}
+        </figure>
       )}
 
       <div className="article">
@@ -84,15 +127,26 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
           <div style={{marginTop:22}}>
             <SaveButton sourceId={story.id} sourceType={story.type} title={story.title} slug={story.slug} label="Story merken" />
           </div>
+          {showChapters && <ChapterNav chapters={chapters} className="storyChapters--aside" />}
           <StoryRelationIndex related={related} />
         </aside>
         <article className="articleBody">
+          {showChapters && <ChapterNav chapters={chapters} className="storyChapters--inline" />}
           <StoryBody value={visibleBody} />
           {locked && <PremiumStoryGate />}
+          {readAloud?.transcript && (
+            <details className="storyTranscript">
+              <summary>Transkript der Vorlesefassung</summary>
+              <p>{readAloud.transcript}</p>
+            </details>
+          )}
+          {story.disclosure && (
+            <p id="hinweis-zur-recherche" className="storyDisclosure"><strong>Hinweis zur Recherche:</strong> {story.disclosure}</p>
+          )}
         </article>
       </div>
 
-      <StoryPlaceBridge places={places} />
+      <StoryPlaceBridge places={places} tripTitle={firstDestination?.title || story.title} destinationSourceId={firstDestination?.id} />
 
       {destinations.length > 0 && (
         <section className="section storyKeepExploring">

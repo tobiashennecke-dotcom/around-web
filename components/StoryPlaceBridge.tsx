@@ -1,4 +1,5 @@
 import { StoryPlaceCard } from "@/components/StoryPlaceCard";
+import { StoryTripActions } from "@/components/StoryTripActions";
 import type { ContentCard } from "@/lib/types";
 
 /**
@@ -8,7 +9,7 @@ import type { ContentCard } from "@/lib/types";
  * editor's related[] order - no ranking by priority/featured/distance/Trip
  * Fit/commercial state.
  */
-export function StoryPlaceBridge({ places }: { places: ContentCard[] }) {
+export function StoryPlaceBridge({ places, tripTitle, destinationSourceId }: { places: ContentCard[]; tripTitle?: string; destinationSourceId?: string }) {
   if (!places.length) return null;
 
   const isSingle = places.length === 1;
@@ -21,6 +22,7 @@ export function StoryPlaceBridge({ places }: { places: ContentCard[] }) {
         <div className="eyebrow blue">FROM THE STORY</div>
         <h2 className="sectionTitle storyPlaceBridgeTitle">{isSingle ? "GO DEEPER." : "BUILD THE TRIP."}</h2>
         {!isSingle && <p className="storyPlaceBridgeIntro">Die Orte aus dieser Geschichte – direkt als Reisebausteine.</p>}
+        {!isSingle && tripTitle && <StoryTripActions places={places} tripTitle={tripTitle} destinationSourceId={destinationSourceId} />}
         <div className={`storyPlaceBridgeGrid storyPlaceBridgeGrid--${layout}`}>
           {places.map((place, index) => (
             <StoryPlaceCard key={place.id} place={place} size={isSingle ? "wide" : isDuo ? "large" : index === 0 ? "large" : "regular"} />

@@ -244,6 +244,11 @@ export type Story = ContentCard & SeoFields & {
   author?: StoryAuthor;
   publishedAt?: string;
   readingTime?: number;
+  imageAlt?: string;
+  imageCaption?: string;
+  imageCredit?: string;
+  /** "Hinweis zur Recherche" - shown at the end of the Story, linked from the meta line. */
+  disclosure?: string;
   /** Controls a future reader access gate only - not editorial quality, not AROUND Selected. */
   accessTier: StoryAccessTier;
   relatedIds: string[];
