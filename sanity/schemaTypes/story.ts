@@ -1,5 +1,6 @@
 import { defineField, defineType } from "sanity";
 import { PlaceGalleryBulkInput } from "../components/PlaceGalleryBulkInput";
+import { storyAudio, storyFacts, storyHoleLine, storyOTon, storyVideo } from "./storyModules";
 
 function stripDraftPrefix(id?: string) {
   return id ? id.replace(/^drafts\./, "") : id;
@@ -163,6 +164,11 @@ export const story = defineType({
     defineField({name:"publishedAt",title:"Publication date",type:"datetime",group:"basics",initialValue:()=>new Date().toISOString()}),
     defineField({name:"readingTime",title:"Reading time (minutes)",type:"number",group:"basics",validation:r=>r.min(1).max(60)}),
     defineField({
+      name:"disclosure",title:"Hinweis zur Recherche",type:"text",rows:3,group:"basics",
+      description:"Optional, z. B. bei Pressereisen: „Die Reise wurde unterstützt von … Auswahl und Bewertung sind unabhängig.“ Steht am Ende der Story und ist oben verlinkt.",
+      validation:r=>r.max(400)
+    }),
+    defineField({
       name:"heroImage",title:"Hero image",type:"image",group:"basics",options:{hotspot:true},
       fields:[
         defineField({name:"alt",title:"Alt text",type:"string",description:"Important for accessibility and SEO."}),
@@ -236,12 +242,21 @@ export const story = defineType({
           }
         },
         placeModule,
+        storyVideo,
+        storyAudio,
+        storyOTon,
+        storyFacts,
+        storyHoleLine,
         premiumGate
       ],
       validation: r => r.custom((blocks: any) => {
         if (!Array.isArray(blocks)) return true;
         const gateCount = blocks.filter((block: any) => block?._type === "premiumGate").length;
         if (gateCount > 1) return "Eine Story darf maximal ein AROUND Premium Gate enthalten.";
+        const readAloudCount = blocks.filter((block: any) => block?._type === "storyAudio" && block?.kind === "readAloud").length;
+        if (readAloudCount > 1) return "Eine Story darf höchstens eine Vorlesefassung haben.";
+        const factsCount = blocks.filter((block: any) => block?._type === "storyFacts").length;
+        if (factsCount > 1) return "Eine Story darf höchstens einen Kasten „Auf einen Blick“ haben.";
         return true;
       })
     }),

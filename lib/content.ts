@@ -467,7 +467,11 @@ export async function getStory(slug: string): Promise<Story | null> {
       // shape to special-case. A broken/removed relation simply maps to
       // undefined, which the renderer treats as "render nothing".
       const body = Array.isArray(doc.body)
-        ? doc.body.map((block: any) => (block?._type === "placeModule" ? { ...block, place: toCard(block.place) || undefined } : block))
+        ? doc.body
+            .map((block: any) => (block?._type === "placeModule" || block?._type === "storyHoleLine" ? { ...block, place: toCard(block.place) || undefined } : block))
+            // Story 2.0: "Das Loch" belongs to a course. If that course is
+            // offline (or the reference is broken) the module disappears.
+            .filter((block: any) => !(block?._type === "storyHoleLine" && !block.place))
         : [];
       return {
         id: doc._id,
@@ -478,6 +482,10 @@ export async function getStory(slug: string): Promise<Story | null> {
         description: doc.deck || "",
         accent: "blue",
         image: doc.image || undefined,
+        imageAlt: doc.imageAlt || undefined,
+        imageCaption: doc.imageCaption || undefined,
+        imageCredit: doc.imageCredit || undefined,
+        disclosure: doc.disclosure || undefined,
         featured: Boolean(doc.featured),
         aroundSelected: Boolean(doc.aroundSelected),
         priority: typeof doc.priority === "number" ? doc.priority : undefined,

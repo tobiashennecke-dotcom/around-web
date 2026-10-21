@@ -251,6 +251,10 @@ export const STORY_QUERY = defineQuery(`
     accessTier,
     seoTitle,seoDescription,
     "image": heroImage.asset->url,
+    "imageAlt": heroImage.alt,
+    "imageCaption": heroImage.caption,
+    "imageCredit": heroImage.credit,
+    disclosure,
     "socialImage": socialImage.asset->url,
     body[]{
       ...,
@@ -272,6 +276,19 @@ export const STORY_QUERY = defineQuery(`
       _type == "placeModule" => {
         layout,
         editorialLine,
+        "place": place->{${CARD_FIELDS}}
+      },
+      _type == "storyVideo" => {
+        ...,
+        "posterUrl": poster.asset->url,
+        "posterAlt": poster.alt
+      },
+      _type == "storyOTon" => {
+        ...,
+        "person": person->{_id,title,role,slug}
+      },
+      _type == "storyHoleLine" => {
+        ...,
         "place": place->{${CARD_FIELDS}}
       },
       _type == "premiumGate" => {
