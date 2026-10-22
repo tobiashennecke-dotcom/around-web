@@ -2,7 +2,7 @@
 
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
-import { presentationTool } from "sanity/presentation";
+import { defineDocuments, defineLocations, presentationTool } from "sanity/presentation";
 import { schemaTypes } from "./sanity/schemaTypes";
 import { structure } from "./sanity/structure";
 import { ReitWinklSeedTool } from "./sanity/tools/ReitWinklSeedTool";
@@ -27,6 +27,21 @@ export default defineConfig({
         origin: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
         previewMode: {
           enable: "/api/draft-mode/enable"
+        }
+      },
+      // Story draft preview: opening a Story in the Studio offers
+      // "Vorschau auf der Website", and the preview route reads drafts.
+      resolve: {
+        mainDocuments: defineDocuments([
+          { route: "/stories/:slug", filter: `_type == "story" && slug.current == $slug` }
+        ]),
+        locations: {
+          story: defineLocations({
+            select: { title: "title", slug: "slug.current" },
+            resolve: (doc) => ({
+              locations: doc?.slug ? [{ title: doc.title || "Story", href: `/stories/${doc.slug}` }] : []
+            })
+          })
         }
       }
     })

@@ -15,6 +15,7 @@ import { resolveStoryAccessState, splitStoryBodyAtPremiumGate } from "@/lib/stor
 import { StoryReadingProgress } from "@/components/StoryReadingProgress";
 import { StoryReadAloud } from "@/components/StoryReadAloud";
 import { getReadAloud, getStoryChapters, MIN_CHAPTERS, type StoryChapter } from "@/lib/story-modules";
+import { isDraftPreview } from "@/lib/sanity/read-client";
 
 function ChapterNav({ chapters, className }: { chapters: StoryChapter[]; className: string }) {
   return (
@@ -73,10 +74,17 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
   const showChapters = chapters.length >= MIN_CHAPTERS;
   const readAloud = getReadAloud(visibleBody);
   const firstDestination = destinations[0];
+  const draftPreview = await isDraftPreview();
 
   return (
     <main>
       <StoryReadingProgress />
+      {draftPreview && (
+        <div className="storyDraftBanner" role="status">
+          <span>Vorschau mit Entwürfen. Nur für dich sichtbar.</span>
+          <a href="/api/draft-mode/disable">Vorschau beenden</a>
+        </div>
+      )}
       <section className="section storyHero">
         <div className="container">
           <div className="storyHeroTags">
