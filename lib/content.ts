@@ -1,4 +1,5 @@
 import { sanity } from "@/lib/sanity/client";
+import { storyReadClient } from "@/lib/sanity/read-client";
 import { normalizeContentRole } from "@/lib/content-role";
 import { normalizeStoryAccessTier } from "@/lib/story-access";
 import {
@@ -458,7 +459,9 @@ export async function getPlace(slug: string): Promise<Place | null> {
 
 export async function getStory(slug: string): Promise<Story | null> {
   if (sanity) {
-    const doc = await sanity.fetch(STORY_QUERY, { slug });
+    // Draft preview (Presentation tool) reads drafts; everyone else reads published.
+    const client = (await storyReadClient()) || sanity;
+    const doc = await client.fetch(STORY_QUERY, { slug });
     if (doc) {
       const related = compactCards(doc.related as any[] | undefined);
       // Inline placeModule body blocks reference a raw Place doc (CARD_FIELDS
