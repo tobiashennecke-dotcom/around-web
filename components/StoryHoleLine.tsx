@@ -51,6 +51,31 @@ export function StoryHoleLine({ holeNumber, par, length, teeLabel, placeTitle, p
     return () => media.removeEventListener?.("change", syncMotion);
   }, []);
 
+  // The section is only as tall as the panel plus the scroll distance the
+  // ball needs. The dark background sits on the panel itself, so there is
+  // never an empty dark area below the content.
+  useEffect(() => {
+    const section = sectionRef.current;
+    const sticky = stickyRef.current;
+    if (!section || !sticky) return;
+    if (isStatic) {
+      section.style.height = "";
+      return;
+    }
+    const size = () => {
+      const travel = Math.round(Math.min(Math.max(window.innerHeight * 0.7, 360), 720));
+      section.style.height = `${sticky.offsetHeight + travel}px`;
+    };
+    size();
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(size) : null;
+    observer?.observe(sticky);
+    window.addEventListener("resize", size);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", size);
+    };
+  }, [isStatic, narrow]);
+
   useEffect(() => {
     if (isStatic) {
       setProgress(1);
