@@ -84,6 +84,7 @@ export type Destination = ContentCard & SeoFields & {
   storyIds: string[];
   places?: ContentCard[];
   stories?: ContentCard[];
+  gallery?: PlaceMediaItem[];
 };
 
 export type PlaceType = "course" | "stay" | "eat" | "drink" | "do" | "shop" | "culture";

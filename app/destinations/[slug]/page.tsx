@@ -7,6 +7,7 @@ import { SaveButton } from "@/components/SaveButton";
 import { ContentCard } from "@/components/ContentCard";
 import { StoryRail } from "@/components/StoryRail";
 import { LisbonTripImport } from "@/components/LisbonTripImport";
+import { PlaceGallery } from "@/components/PlaceGallery";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
@@ -72,6 +73,18 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
           </div>
         </div>
       </section>
+
+      {Boolean(destination.gallery?.length) && (
+        <section className="section placeGallerySection destinationGallerySection">
+          <div className="container">
+            <div className="placeGalleryIntro">
+              <div className="eyebrow lime">DESTINATION / IMAGES</div>
+              <h2 className="sectionTitle">LOOK<br/>AROUND.</h2>
+            </div>
+            <PlaceGallery items={destination.gallery || []} title={destination.title} />
+          </div>
+        </section>
+      )}
 
       <section className="section destinationAroundSection" id="play">
         <div className="container">
