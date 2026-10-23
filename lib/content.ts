@@ -36,6 +36,7 @@ import {
   stories
 } from "@/lib/sample-content";
 import type {
+  PlaceMediaItem,
   AroundCollection,
   ContentCard,
   ContentType,
@@ -273,6 +274,24 @@ export async function getDiscoverContent(): Promise<ContentCard[]> {
   return content;
 }
 
+/** Destination gallery: same media shape the Place galleries use. */
+function mapDestinationGallery(raw: unknown): PlaceMediaItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((x: any) => x?.url).map((x: any) => ({
+    url: x.url,
+    alt: x.alt || undefined,
+    caption: x.caption || undefined,
+    credit: x.credit || undefined,
+    layout: "auto",
+    width: typeof x.width === "number" ? x.width : undefined,
+    height: typeof x.height === "number" ? x.height : undefined,
+    aspectRatio: typeof x.aspectRatio === "number" ? x.aspectRatio : undefined,
+    hotspot: x.hotspot && typeof x.hotspot.x === "number" && typeof x.hotspot.y === "number"
+      ? { x: x.hotspot.x, y: x.hotspot.y }
+      : undefined
+  }));
+}
+
 export async function getDestination(slug: string): Promise<Destination | null> {
   if (sanity) {
     const doc = await sanity.fetch(DESTINATION_QUERY, { slug });
@@ -301,6 +320,7 @@ export async function getDestination(slug: string): Promise<Destination | null> 
         bestFor: Array.isArray(doc.bestFor) ? doc.bestFor : [],
         placeIds: linkedPlaces.map(x => x.id),
         storyIds: linkedStories.map(x => x.id),
+        gallery: mapDestinationGallery(doc.gallery),
         itinerary: doc.itinerary && Array.isArray(doc.itinerary.days) ? {
           title: doc.itinerary.title || doc.title,
           intro: doc.itinerary.intro || undefined,
