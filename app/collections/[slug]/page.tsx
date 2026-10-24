@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCollection } from "@/lib/content";
+import { routePlaces, showsAsRoute } from "@/lib/collection-route";
 import { ContentCard } from "@/components/ContentCard";
+import { CollectionRoute } from "@/components/CollectionRoute";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
@@ -18,6 +20,9 @@ export default async function CollectionPage({params}:{params:Promise<{slug:stri
   const collection=await getCollection(slug);
   if(!collection) notFound();
   const items=collection.items || [];
+  const days=collection.days || [];
+  const isRoute=showsAsRoute(collection.format, days);
+  const places=isRoute ? routePlaces(days) : [];
 
   return <main>
     <section
@@ -30,11 +35,11 @@ export default async function CollectionPage({params}:{params:Promise<{slug:stri
         <p className="heroIntro">{collection.description}</p>
       </div>
     </section>
-    <section className="section"><div className="container">
+    {isRoute ? <CollectionRoute days={days} intro={collection.intro} places={places} tripTitle={collection.title} /> : <section className="section"><div className="container">
       <div className="eyebrow">CURATED / NOT COMPLETE</div>
       <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>Die Auswahl.</h2>
       {items.length ? <div className="cardGrid">{items.map(item=><ContentCard key={item.id} item={item}/>)}</div> : <p>Noch keine Inhalte in dieser Collection.</p>}
-    </div></section>
+    </div></section>}
   </main>;
 }
 

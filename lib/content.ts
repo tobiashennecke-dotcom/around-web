@@ -2,6 +2,7 @@ import { sanity } from "@/lib/sanity/client";
 import { storyReadClient } from "@/lib/sanity/read-client";
 import { normalizeContentRole } from "@/lib/content-role";
 import { normalizeStoryAccessTier } from "@/lib/story-access";
+import { normalizeCollectionDays } from "@/lib/collection-route";
 import {
   COLLECTION_QUERY,
   DESTINATION_GEO_QUERY,
@@ -594,6 +595,15 @@ export async function getCollection(slug: string): Promise<AroundCollection | nu
         priority: typeof doc.priority === "number" ? doc.priority : undefined,
         itemIds: items.map(x => x.id),
         items,
+        format: doc.format === "route" ? "route" : "selection",
+        intro: doc.intro || undefined,
+        days: normalizeCollectionDays(((doc as any).days as any[] | undefined)?.map((day: any) => ({
+          key: day?._key,
+          label: day?.label,
+          title: day?.title,
+          text: day?.text,
+          items: compactCards(day?.items)
+        }))),
         seoTitle: doc.seoTitle || undefined,
         seoDescription: doc.seoDescription || undefined,
         socialImage: doc.socialImage || undefined

@@ -328,10 +328,11 @@ export const PRODUCT_QUERY = defineQuery(`
 
 export const COLLECTION_QUERY = defineQuery(`
   *[_type == "collection" && slug.current == $slug][0]{
-    _id,title,slug,kicker,summary,featured,priority,seoTitle,seoDescription,
+    _id,title,slug,kicker,summary,featured,priority,seoTitle,seoDescription,format,intro,
     "image": heroImage.asset->url,
     "socialImage": socialImage.asset->url,
-    "items": items[]->{${CARD_FIELDS}}
+    "items": items[]->{${CARD_FIELDS}},
+    "days": days[]{_key,label,title,text,"items": items[]->{${CARD_FIELDS}}}
   }
 `);
 

@@ -256,8 +256,20 @@ export type Story = ContentCard & SeoFields & {
   related?: ContentCard[];
 };
 
+export type CollectionDay = {
+  key: string;
+  label: string;
+  title?: string;
+  text?: string;
+  items: ContentCard[];
+};
+
 export type AroundCollection = ContentCard & SeoFields & {
   type: "collection";
   itemIds: string[];
   items?: ContentCard[];
+  /** "route" shows the collection day by day (spec 16); default is "selection". */
+  format?: "selection" | "route";
+  intro?: string;
+  days?: CollectionDay[];
 };

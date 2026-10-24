@@ -2858,3 +2858,13 @@ img{display:block;max-width:100%}
 /* Story draft preview banner (only rendered in draft mode) */
 .storyDraftBanner{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:10px var(--around-pad);background:var(--around-blue);color:#fff;font:700 13px/1.3 Arial,Helvetica,sans-serif}
 .storyDraftBanner a{color:#fff;text-decoration:underline;text-underline-offset:3px}
+
+/* Collection als Route (spec 16) */
+.collectionRouteIntro{max-width:62ch;margin:0 0 36px;font-size:18px;line-height:1.55}
+.collectionRoute{list-style:none;margin:0;padding:0;display:grid;gap:56px}
+.collectionRouteDay{display:grid;gap:24px;padding-top:24px;border-top:2px solid var(--around-ink, currentColor)}
+.collectionRouteHead{display:grid;gap:10px;max-width:62ch}
+.collectionRouteHead h3{margin:0;font-size:clamp(28px,4vw,44px);line-height:1.05;text-wrap:balance}
+.collectionRouteHead p{margin:0;font-size:17px;line-height:1.55}
+.collectionRouteTrip{margin-top:56px;padding-top:24px;border-top:1px solid var(--around-line, rgba(0,0,0,.15))}
+.collectionRouteLabel{justify-self:start;padding:6px 9px;background:var(--around-lime);color:var(--around-ink);font:800 11px/1 var(--around-font-sans);letter-spacing:.12em;text-transform:uppercase}
