@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { SavedLibraryItem } from "@/components/SavedLibraryItem";
+import { AroundMark } from "@/components/AroundLogo";
 import type { SaveMode, SavePayload } from "@/lib/supabase/saves";
 import {
   listSaves,
@@ -103,7 +104,7 @@ export function SavedClient() {
   if (!items.length) {
     return (
       <div className="savedEmpty savedEmptyV14">
-        <span className="drop drop--empty" aria-hidden="true" />
+        <AroundMark className="mark mark--empty" />
         <div>
           <div className="eyebrow lime">Noch leer</div>
           <h2>Dein AROUND beginnt mit einem Drop.</h2>

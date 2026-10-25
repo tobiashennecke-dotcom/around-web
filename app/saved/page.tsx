@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SavedClient } from "./SavedClient";
+import { AroundMark } from "@/components/AroundLogo";
 
 export default function SavedPage() {
   return (
@@ -11,7 +12,7 @@ export default function SavedPage() {
             <h1>DEINE<br/>AUSWAHL.</h1>
           </div>
           <div className="myAroundHeroAside">
-            <span className="drop drop--my-around" aria-hidden="true" />
+            <AroundMark className="mark mark--my-around" />
             <p className="serif">Was du nicht verlieren willst, bleibt hier. Stories, Places und Ideen – gesammelt für später.</p>
           </div>
         </div>

@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { SaveCount } from "./SaveCount";
 import { HeaderAccount } from "./HeaderAccount";
+import { AroundMark, AroundWordmark } from "./AroundLogo";
 
 export function Header() {
   return (
     <header className="header">
       <div className="container headerInner">
         <Link href="/" className="wordmark" aria-label="AROUND Home">
-          ar<span className="o">o</span>und
+          <AroundWordmark className="wordmarkLogo" />
         </Link>
         <nav className="desktopNav" aria-label="Hauptnavigation">
           <Link href="/discover">Entdecken</Link>
@@ -19,7 +20,7 @@ export function Header() {
         <div className="headerActions">
           <Link className="headerSearch" href="/search" aria-label="Suche">⌕</Link>
           <Link className="headerMyAround" href="/my-around">
-            <span className="drop drop--mini" aria-hidden="true" />
+            <AroundMark className="mark mark--mini" />
             <span className="savedLabel">MY AROUND</span>
             <SaveCount className="saveCount--header" />
           </Link>
