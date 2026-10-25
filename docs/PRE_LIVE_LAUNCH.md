@@ -35,7 +35,7 @@ Die Schritt-für-Schritt-Anleitung für Mail, Domain und Rechtliches steht in [l
 - [ ] Impressum / Datenschutz: Platzhalter in `lib/legal.ts` ausfüllen und Text rechtlich prüfen
 - [ ] AVV/DPA mit Vercel, Supabase, Sanity, Brevo abschließen
 - [ ] Consent / Analytics: Tool entscheiden (cookielos = kein Banner nötig)
-- [ ] Konto-Löschung: Self-Service oder dokumentierter manueller Prozess
+- [ ] Konto-Löschung: `SUPABASE_SERVICE_ROLE_KEY` in Vercel (Production, nicht Preview) setzen und mit Test-Konto Ende-zu-Ende testen
 
 ## Trips / Planning
 

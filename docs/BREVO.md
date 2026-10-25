@@ -33,6 +33,7 @@ All of the following are **server-only**. None of them may ever be prefixed `NEX
 - **`PUT /api/communication-preferences`** writes the canonical Supabase row first, then best-effort syncs Brevo contact list membership to match. A Brevo failure never rolls back or blocks the Supabase write.
 - **`POST /api/communication-events`** forwards a narrow, consent-gated subset of canonical `user_events` (`content_saved`, `content_unsaved`, `trip_created`, `content_added_to_trip`, `trip_dates_set`) to `POST /v3/events` as deterministic `around_*` event names, only when the event's required preference is `true`.
 - **List sync** only ever adds/removes AROUND-owned list IDs on a contact. It never touches unrelated Brevo lists or attributes, never sets `emailBlacklisted` (a global Brevo unsubscribe is never silently reversed), and never deletes a contact — opting out of everything just unlinks the four AROUND lists.
+- **Account deletion** is the one exception: `DELETE /api/account` removes the user's Brevo contact (best effort) before deleting the Supabase auth user.
 
 ## Failure model
 

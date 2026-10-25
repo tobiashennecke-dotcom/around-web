@@ -58,12 +58,21 @@ Die Route `app/auth/confirm/route.ts` erwartet `token_hash` und `type`. Supabase
 
 Betreff/Text auf Deutsch und im AROUND-Ton setzen. Danach mit einer echten Adresse testen (Gmail **und** ein Outlook/GMX-Postfach, Spam-Ordner prüfen). Mit mail-tester.com eine Testmail auf Score ≥ 9 prüfen.
 
-## 7. Abschluss-QA
+## 7. Konto löschen aktivieren
+
+`/account` hat einen Button „Konto löschen“. Er braucht serverseitig den Supabase-Secret-Key:
+
+1. Supabase → Project Settings → API Keys → `service_role` (bzw. Secret Key) kopieren.
+2. Vercel → Settings → Environment Variables: `SUPABASE_SERVICE_ROLE_KEY`, Scope **Production** (für Tests auch Preview). Niemals mit `NEXT_PUBLIC_` davor.
+3. Mit einem Test-Konto prüfen: Saves, Collection und Trip anlegen → Konto löschen → im Supabase-Dashboard ist der User weg und es bleiben keine Zeilen mit seiner `user_id`.
+
+Ohne Key zeigt der Button einen Hinweis, sich per E-Mail zu melden.
+
+## 8. Abschluss-QA
 
 Die Punkte „Launch QA“ und „Trips / Planning“ in [PRE_LIVE_LAUNCH.md](../PRE_LIVE_LAUNCH.md) auf Safari iPhone, Safari macOS und Chrome Desktop durchgehen. Dabei mit einem **Test-Konto**, nicht mit echten Nutzerdaten.
 
 ## Bewusst noch offen (Entscheidung nötig)
 
-- **Konto löschen:** Es gibt keine Funktion zum Löschen des eigenen Kontos. Bis dahin Löschanfragen per E-Mail manuell im Supabase-Dashboard bearbeiten (die Datenschutzerklärung nennt diesen Weg). Eine Self-Service-Löschung braucht eine serverseitige Route mit Service-Role-Key.
 - **Analytics:** Aktuell gibt es nur die eigenen `user_events` für eingeloggte Nutzer. Für Reichweitenmessung wäre ein cookieloses Tool (z. B. Vercel Web Analytics, Plausible) ohne Consent-Banner möglich; jedes Tool mit Cookies braucht einen Consent-Banner. Vor Einbau Datenschutzerklärung ergänzen.
 - **Premium:** Siehe [PREMIUM.md](../PREMIUM.md) — vor dem ersten Euro muss der Story-Body aus dem öffentlichen Sanity-Dataset raus.
