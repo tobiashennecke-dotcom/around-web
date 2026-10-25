@@ -4,6 +4,7 @@ import { StoryFeature } from "@/components/StoryFeature";
 import { getHomepageContent } from "@/lib/content";
 import { getHomepageHero, heroImageUrl } from "@/lib/homepage-hero";
 import type { ContentCard as CardType, ContentType } from "@/lib/types";
+import { AroundMark } from "@/components/AroundLogo";
 
 const HERO_DESKTOP_ASPECT = 16 / 9;
 const HERO_MOBILE_ASPECT = 4 / 5;
@@ -229,7 +230,7 @@ export default async function HomePage() {
             <h2>Merken ist der<br />Anfang vom Planen.</h2>
           </div>
           <div className="dropCtaAside">
-            <span className="drop drop--hero" aria-hidden="true" />
+            <AroundMark className="mark mark--hero" />
             <p className="serif">Speichere Orte, Stories und Ideen. Kein Login-Zwang beim Entdecken.</p>
             <Link className="primary" href="/saved">MY AROUND öffnen →</Link>
           </div>

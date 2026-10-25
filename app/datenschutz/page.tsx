@@ -67,7 +67,7 @@ export default function DatenschutzPage() {
           <p>
             E-Mails wie das AROUND Journal oder Hinweise zu deinen Trips senden wir nur, wenn du sie in
             deinem Konto ausdrücklich aktiviert hast (Art. 6 Abs. 1 lit. a DSGVO). Für den Versand nutzen
-            wir Brevo (Sendinblue GmbH, Köpenicker Straße 126, 10179 Berlin). Übermittelt werden deine
+            wir Brevo (Brevo GmbH, Köpenicker Straße 126, 10179 Berlin). Übermittelt werden deine
             E-Mail-Adresse, deine gewählten Themen und, nur bei aktivierten Trip-Hinweisen, einzelne
             Planungsereignisse. Du kannst jede Einwilligung jederzeit in deinem Konto oder über den Link in
             jeder E-Mail widerrufen.
@@ -75,11 +75,27 @@ export default function DatenschutzPage() {
 
           <h2>7. Externe Medien</h2>
           <p>
-            Videos und Audio von YouTube (im erweiterten Datenschutzmodus), Vimeo, Spotify und Apple
-            Podcasts laden wir erst, wenn du auf den Player klickst. Erst dann werden Daten wie deine
-            IP-Adresse an den jeweiligen Anbieter übertragen, der eigene Cookies setzen kann
-            (Art. 6 Abs. 1 lit. a DSGVO). Es gelten die Datenschutzhinweise des Anbieters.
+            In einigen Beiträgen binden wir Videos von YouTube oder Vimeo und Audios von Spotify oder Apple
+            Podcasts bzw. Apple Music ein. Diese Player laden erst, wenn du auf „Abspielen“ klickst. Vorher
+            übertragen wir keine Daten an den Anbieter; das Vorschaubild stammt von uns. YouTube binden wir im
+            erweiterten Datenschutzmodus (youtube-nocookie.com) ein, Vimeo mit der Einstellung „Do Not Track“.
           </p>
+          <p>
+            Mit dem Klick willigst du ein, dass der Player geladen wird. Der Anbieter erhält dann mindestens
+            deine IP-Adresse, Angaben zu Browser und Gerät sowie die Adresse der Seite und kann Cookies oder
+            ähnliche Technologien auf deinem Gerät speichern. Bist du beim Anbieter angemeldet, kann er die
+            Nutzung deinem Konto zuordnen. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO,
+            § 25 Abs. 1 TDDDG). Sie gilt nur für den jeweiligen Player und wird nicht gespeichert; du widerrufst
+            sie, indem du die Seite neu lädst. Einige Anbieter verarbeiten Daten auch in den USA; die
+            Übermittlung stützt sich auf das EU-U.S. Data Privacy Framework, soweit der Anbieter danach
+            zertifiziert ist.
+          </p>
+          <ul className="legalList">
+            <li>YouTube: Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. <a href="https://policies.google.com/privacy">Datenschutzerklärung</a></li>
+            <li>Vimeo: Vimeo.com, Inc., USA. <a href="https://vimeo.com/privacy">Datenschutzerklärung</a></li>
+            <li>Spotify: Spotify AB, Regeringsgatan 19, 111 53 Stockholm, Schweden. <a href="https://www.spotify.com/de/legal/privacy-policy/">Datenschutzerklärung</a></li>
+            <li>Apple Podcasts und Apple Music: Apple Distribution International Ltd., Hollyhill Industrial Estate, Hollyhill, Cork, Irland. <a href="https://www.apple.com/de/legal/privacy/">Datenschutzerklärung</a></li>
+          </ul>
 
           <h2>8. Cookies und lokale Speicherung</h2>
           <p>

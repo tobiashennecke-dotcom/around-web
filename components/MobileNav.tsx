@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SaveCount } from "./SaveCount";
+import { AroundMark } from "./AroundLogo";
 
 function isMyAroundActive(pathname: string) {
   return pathname === "/my-around" || pathname.startsWith("/saved") || pathname.startsWith("/my-around/collections");
@@ -29,7 +30,7 @@ export function MobileNav() {
       </Link>
       <Link href="/my-around" className={myAroundActive ? "active" : ""} aria-current={myAroundActive ? "page" : undefined}>
         <span className="mobileNavSavedIcon" aria-hidden="true">
-          <span className="drop drop--nav" />
+          <AroundMark className="mark mark--nav" />
           <SaveCount className="saveCount--nav" />
         </span>
         <span>MY AROUND</span>

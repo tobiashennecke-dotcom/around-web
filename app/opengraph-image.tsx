@@ -1,12 +1,14 @@
 import { ImageResponse } from "next/og";
+import { LOGO_FULL_VIEWBOX, LOGO_LIME, RING_PATH, TAGLINE_PATH, WORDMARK_PATH } from "@/lib/brand-logo";
 
-export const alt = "THIS IS AROUND. Golf. Weiter gedacht.";
+export const alt = "AROUND. Golf. Weiter gedacht.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /**
  * Default social image for every page without its own Sanity socialImage/
  * hero image. Pages that set openGraph.images in generateMetadata win.
+ * Uses the October 2026 logo (wordmark with claim).
  */
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -16,22 +18,16 @@ export default function OpengraphImage() {
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "72px",
-          background: "#212322",
-          color: "#F5F3EE",
-          fontFamily: "sans-serif"
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#212322"
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
-          <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "#D6EA2A" }} />
-          <div style={{ fontSize: "24px", letterSpacing: "0.14em", fontWeight: 800, color: "#D6EA2A" }}>THIS IS AROUND</div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: "128px", fontWeight: 900, lineHeight: 0.9, letterSpacing: "-0.04em" }}>AROUND.</div>
-          <div style={{ fontSize: "44px", marginTop: "28px" }}>Golf. Weiter gedacht.</div>
-        </div>
+        <svg width="900" height="268" viewBox={LOGO_FULL_VIEWBOX}>
+          <path d={WORDMARK_PATH} fill="#F5F3EE" fillRule="evenodd" />
+          <path d={TAGLINE_PATH} fill="#F5F3EE" fillRule="evenodd" />
+          <path d={RING_PATH} fill={LOGO_LIME} fillRule="evenodd" />
+        </svg>
       </div>
     ),
     size
