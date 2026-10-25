@@ -2904,3 +2904,11 @@ img{display:block;max-width:100%}
   .homeStoriesLead .storyFeature--lead .storyFeatureMedia img{position:absolute;inset:0}
   .homeStoriesLead .storyFeature--lead .storyFeatureBody{flex:none}
 }
+
+/* Konto löschen */
+.accountDeleteToggle{display:block;margin-top:28px;background:none;border:0;border-bottom:1px solid currentColor;color:inherit;cursor:pointer;opacity:.7}
+.accountDelete{margin-top:32px;padding-top:24px;border-top:1px solid var(--around-line)}
+.accountDelete p{margin:10px 0 16px;line-height:1.5;max-width:520px}
+.accountDeleteLabel{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;margin-bottom:8px}
+.accountDeleteInput{max-width:280px}
+.accountDelete .textLink{background:none;border:0;border-bottom:1px solid currentColor;color:inherit;cursor:pointer}

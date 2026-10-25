@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { notifySaveChange } from "@/lib/supabase/saves";
+import { AccountDeletion } from "@/components/AccountDeletion";
 
 export function AccountClient() {
   const [email,setEmail] = useState("");
@@ -72,6 +73,7 @@ export function AccountClient() {
           </button>
         </div>
         {message && <p className="accountMessage">{message}</p>}
+        <AccountDeletion onDeleted={()=>{setUserEmail(null);setMessage("Dein Konto wurde gelöscht.");}} />
       </div>
     );
   }

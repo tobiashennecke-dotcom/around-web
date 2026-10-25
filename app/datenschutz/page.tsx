@@ -108,9 +108,10 @@ export default function DatenschutzPage() {
 
           <h2>9. Speicherdauer</h2>
           <p>
-            Kontodaten speichern wir, solange dein Konto besteht. Wenn du die Löschung deines Kontos
-            verlangst, löschen wir die zugehörigen Daten, soweit keine gesetzlichen Aufbewahrungspflichten
-            bestehen. Server-Logs werden vom Hoster nach kurzer Zeit automatisch gelöscht.
+            Kontodaten speichern wir, solange dein Konto besteht. Du kannst dein Konto jederzeit selbst
+            unter „Account“ löschen; dabei löschen wir dein Konto, deine Saves, Collections, Trips,
+            E-Mail-Einstellungen und Nutzungsereignisse sowie deinen Kontakt bei Brevo, soweit keine
+            gesetzlichen Aufbewahrungspflichten bestehen. Alternativ genügt eine E-Mail an uns. Server-Logs werden vom Hoster nach kurzer Zeit automatisch gelöscht.
           </p>
 
           <h2>10. Deine Rechte</h2>

@@ -161,3 +161,21 @@ test("after-golf recommendation needs an actual golf fixed point and geo context
   assert.equal(result.recommendationType, "after_golf");
   assert.ok(result.reasonCodes.includes("AFTER_MORNING_GOLF"));
 });
+
+const deletion = loadPureTs("lib/account-deletion.ts");
+
+test("account deletion needs the typed confirmation", () => {
+  for (const body of [undefined, null, {}, { confirmation: "" }, { confirmation: "ja" }, { confirmation: 1 }]) {
+    assert.equal(deletion.isAccountDeleteConfirmed(body), false);
+  }
+  assert.equal(deletion.isAccountDeleteConfirmed({ confirmation: "LÖSCHEN" }), true);
+  assert.equal(deletion.isAccountDeleteConfirmed({ confirmation: " löschen " }), true);
+});
+
+test("account deletion takes the user from the session and keeps the service key server-only", () => {
+  const route = readFileSync("app/api/account/route.ts", "utf8");
+  assert.match(route, /supabase\.auth\.getUser\(\)/);
+  assert.match(route, /deleteUser\(user\.id\)/);
+  const admin = readFileSync("lib/supabase/admin.ts", "utf8");
+  assert.match(admin, /^import "server-only";/);
+});
