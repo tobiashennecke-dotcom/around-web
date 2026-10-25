@@ -2871,3 +2871,15 @@ img{display:block;max-width:100%}
 .mark--my-around{width:104px;height:104px;color:var(--around-warm)}
 .mark--empty{width:96px;height:96px;color:var(--around-warm)}
 @media(max-width:900px){.mark--hero{grid-row:auto;width:80px;height:80px}}
+
+/* Startseite, Stories (Desktop): Die Nebenstories zeigen ihr Bild oben im
+   Querformat statt als schmalen Hochkant-Streifen. Der Aufmacher wächst mit,
+   damit neben den beiden Karten keine leere Fläche bleibt. */
+@media(min-width:1051px){
+  .homeStoriesSecondary .storyFeature--secondary{flex-direction:column}
+  .homeStoriesSecondary .storyFeature--secondary .storyFeatureMedia{width:100%;aspect-ratio:3/2;flex:none}
+  .homeStoriesSecondary .storyFeature--secondary .storyFeatureBody{padding:18px 20px 18px}
+  .homeStoriesLead .storyFeature--lead .storyFeatureMedia{flex:1 1 0;aspect-ratio:auto;min-height:420px;position:relative}
+  .homeStoriesLead .storyFeature--lead .storyFeatureMedia img{position:absolute;inset:0}
+  .homeStoriesLead .storyFeature--lead .storyFeatureBody{flex:none}
+}
