@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AroundWordmark } from "@/components/AroundLogo";
 
 /**
  * The header starts over the hero photograph and becomes opaque as soon as
@@ -22,7 +23,7 @@ export function PreviewHeader() {
     <header className="pv-header" data-scrolled={scrolled} data-enhanced={enhanced}>
       <div className="container pv-headerInner">
         <a href="#top" className="wordmark" aria-label="AROUND — zurück nach oben">
-          ar<span className="o">o</span>und
+          <AroundWordmark className="wordmarkLogo" />
         </a>
         <nav className="pv-headerNav" aria-label="Preview-Navigation">
           <a href="#about">ABOUT</a>

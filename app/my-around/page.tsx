@@ -1,4 +1,5 @@
 import { MyAroundHomeClient } from "./MyAroundHomeClient";
+import { AroundMark } from "@/components/AroundLogo";
 
 export default function MyAroundPage() {
   return (
@@ -10,7 +11,7 @@ export default function MyAroundPage() {
             <h1>YOUR<br/>AROUND.</h1>
           </div>
           <div className="myAroundHeroAside">
-            <span className="drop drop--my-around" aria-hidden="true" />
+            <AroundMark className="mark mark--my-around" />
             <p className="serif">Alles, was du behalten, ordnen und wirklich bereisen willst – an einem Ort.</p>
           </div>
         </div>

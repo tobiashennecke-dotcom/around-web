@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AroundMark } from "./AroundLogo";
 
 export function Footer() {
   return (
@@ -8,7 +9,7 @@ export function Footer() {
           <div className="eyebrow lime">THIS IS AROUND</div>
           <div className="footerStatement">Golf. Weiter gedacht.</div>
         </div>
-        <div className="footerDrop" aria-hidden="true"><span className="drop drop--footer" /></div>
+        <div className="footerDrop" aria-hidden="true"><AroundMark className="footerMark" /></div>
       </div>
       <div className="container footerGiant" aria-label="AROUND">THIS IS AROUND.</div>
       <div className="container footerLinks">
