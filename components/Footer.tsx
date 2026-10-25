@@ -22,6 +22,8 @@ export function Footer() {
         <div className="footerMeta">
           <span>thisisaround.de</span>
           <span>@thisisaround.de</span>
+          <Link href="/impressum">Impressum</Link>
+          <Link href="/datenschutz">Datenschutz</Link>
           <span>© AROUND</span>
         </div>
       </div>
