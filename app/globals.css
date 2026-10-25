@@ -2868,3 +2868,39 @@ img{display:block;max-width:100%}
 .collectionRouteHead p{margin:0;font-size:17px;line-height:1.55}
 .collectionRouteTrip{margin-top:56px;padding-top:24px;border-top:1px solid var(--around-line, rgba(0,0,0,.15))}
 .collectionRouteLabel{justify-self:start;padding:6px 9px;background:var(--around-lime);color:var(--around-ink);font:800 11px/1 var(--around-font-sans);letter-spacing:.12em;text-transform:uppercase}
+/* Launch foundation: legal pages + 404 */
+.legalInner{max-width:760px}
+.legalTitle{margin:18px 0 28px;overflow-wrap:break-word}
+.legalPage h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;margin:40px 0 10px}
+.legalPage p{line-height:1.6;margin:0 0 12px}
+.legalDraftNotice{border:1px solid var(--around-blue);color:var(--around-blue);padding:12px 14px;font-size:12px;letter-spacing:.06em;font-weight:800}
+.legalUpdated{margin-top:40px;color:#6b6d6a;font-size:13px}
+.footerMeta a:hover{color:var(--around-lime)}
+.notFoundTitle{margin:18px 0 24px;max-width:900px}
+.notFoundCopy{max-width:560px;line-height:1.6}
+.notFoundLinks{display:flex;flex-wrap:wrap;align-items:center;gap:24px;margin-top:32px}
+/* Logo Oktober 2026: SVG-Wortmarke und Bildmarke */
+.wordmark{display:inline-flex;align-items:center;line-height:0}
+.wordmarkLogo{display:block;height:30px;width:auto;color:var(--around-warm)}
+.footerMark{display:block;width:76px;height:76px;color:var(--around-warm)}
+@media(max-width:900px){.wordmarkLogo{height:26px}}
+.mark{display:inline-block;flex:none;vertical-align:middle}
+.mark--mini{width:16px;height:16px;color:var(--around-warm)}
+.mark--nav{width:18px;height:18px;color:currentColor}
+.mark--hero{width:124px;height:124px;color:var(--around-warm);grid-row:1/3}
+.mark--my-around{width:104px;height:104px;color:var(--around-warm)}
+.mark--empty{width:96px;height:96px;color:var(--around-warm)}
+@media(max-width:900px){.mark--hero{grid-row:auto;width:80px;height:80px}}
+.legalList{margin:0 0 12px;padding-left:18px;line-height:1.6}.legalList li{margin-bottom:6px}.legalList a{text-decoration:underline;text-underline-offset:3px}
+
+/* Startseite, Stories (Desktop): Die Nebenstories zeigen ihr Bild oben im
+   Querformat statt als schmalen Hochkant-Streifen. Der Aufmacher wächst mit,
+   damit neben den beiden Karten keine leere Fläche bleibt. */
+@media(min-width:1051px){
+  .homeStoriesSecondary .storyFeature--secondary{flex-direction:column}
+  .homeStoriesSecondary .storyFeature--secondary .storyFeatureMedia{width:100%;aspect-ratio:3/2;flex:none}
+  .homeStoriesSecondary .storyFeature--secondary .storyFeatureBody{padding:18px 20px 18px}
+  .homeStoriesLead .storyFeature--lead .storyFeatureMedia{flex:1 1 0;aspect-ratio:auto;min-height:420px;position:relative}
+  .homeStoriesLead .storyFeature--lead .storyFeatureMedia img{position:absolute;inset:0}
+  .homeStoriesLead .storyFeature--lead .storyFeatureBody{flex:none}
+}

@@ -410,3 +410,10 @@ export const PARTNER_PREVIEW_QUERY = defineQuery(`
     footer{ tagline, instagramLabel, instagramHref, closing }
   }
 `);
+
+/** Every public, online detail page for app/sitemap.ts. */
+export const SITEMAP_QUERY = defineQuery(`
+  *[_type in ["destination","place","story","person","product","collection"] && defined(slug.current) && ${CONTENT_ONLINE}]{
+    _type,"slug": slug.current,_updatedAt
+  }
+`);
