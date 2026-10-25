@@ -2,6 +2,8 @@
 
 Diese Liste sammelt Punkte, die für den aktuellen Produktaufbau nicht blockieren, aber vor dem öffentlichen Launch sauber abgeschlossen werden müssen.
 
+Die Schritt-für-Schritt-Anleitung für Mail, Domain und Rechtliches steht in [launch/LAUNCH_RUNBOOK.md](launch/LAUNCH_RUNBOOK.md).
+
 ## Auth & E-Mail — BLOCKER VOR LIVE
 
 - [ ] Eigene Transaktions-Mail-Lösung auswählen (z. B. Brevo, Resend oder Postmark)
@@ -29,8 +31,11 @@ Diese Liste sammelt Punkte, die für den aktuellen Produktaufbau nicht blockiere
 - [ ] Safari macOS
 - [ ] Chrome Desktop
 - [ ] Login / Logout / Save / Collection vollständig testen
-- [ ] SEO Metadata / OpenGraph / Social Image prüfen
-- [ ] Impressum / Datenschutz / Consent / Analytics finalisieren
+- [ ] SEO Metadata / OpenGraph / Social Image prüfen (Basis: `metadataBase`, Default-OG-Bild, `sitemap.xml`, 404 sind angelegt)
+- [ ] Impressum / Datenschutz: Platzhalter in `lib/legal.ts` ausfüllen und Text rechtlich prüfen
+- [ ] AVV/DPA mit Vercel, Supabase, Sanity, Brevo abschließen
+- [ ] Consent / Analytics: Tool entscheiden (cookielos = kein Banner nötig)
+- [ ] Konto-Löschung: Self-Service oder dokumentierter manueller Prozess
 
 ## Trips / Planning
 
