@@ -3,7 +3,7 @@
  * Coordinates are in the artwork's pixel space; the viewBoxes below crop it.
  * Letters use currentColor, the ring uses the logo lime.
  */
-export const LOGO_LIME = "#D1D855";
+export const LOGO_LIME = "#D6EA2A";
 
 export const WORDMARK_VIEWBOX = "79 111 1813 382";
 export const LOGO_FULL_VIEWBOX = "79 111 1813 539";
