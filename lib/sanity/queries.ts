@@ -25,6 +25,13 @@ export const STORY_ONLINE = `(count(${STORY_RELATION_FLAGS}) == 0 || true in ${S
 /** Type-aware visibility for mixed-type lists (home, discover, search, collections). */
 export const CONTENT_ONLINE = `select(_type == "destination" => ${DESTINATION_ONLINE}, _type == "place" => ${PLACE_ONLINE}, _type == "story" => ${STORY_ONLINE}, true)`;
 
+/**
+ * Direct-link-only destinations (destination.unlisted): reachable by URL and
+ * usable in saves and trips, but kept out of home, discover, search and sitemap.
+ * Geo-based trip suggestions stay unfiltered: they only surface nearby places.
+ */
+export const CONTENT_LISTED = `select(_type == "destination" => coalesce(unlisted, false) != true, _type == "place" => coalesce(destination->unlisted, false) != true, true)`;
+
 const CARD_FIELDS = `
   "aroundHidden": !${CONTENT_ONLINE},
   _id,_type,title,slug,kicker,teaserTitle,teaserDescription,placeType,featured,aroundSelected,priority,accessTier,
@@ -114,7 +121,7 @@ export const STORIES_HUB_QUERY = defineQuery(`
       "secondaryStoryIds": secondaryStories[]->_id,
       "featuredDestinationIds": featuredDestinations[coalesce(@->isOnline, true) == true]->_id
     },
-    "allDestinations": *[_type == "destination" && defined(slug.current) && ${DESTINATION_ONLINE}]{
+    "allDestinations": *[_type == "destination" && defined(slug.current) && ${DESTINATION_ONLINE} && coalesce(unlisted, false) != true]{
       _id,title,slug,kicker,country,priority,
       "image": heroImage.asset->url
     }
@@ -125,11 +132,11 @@ export const HOME_QUERY = defineQuery(`
   {
     "featured": *[
       _type in ["destination","place","story","person","product","collection"] &&
-      featured == true && defined(slug.current) && ${CONTENT_ONLINE}
+      featured == true && defined(slug.current) && ${CONTENT_ONLINE} && ${CONTENT_LISTED}
     ] | order(priority desc, _updatedAt desc)[0...6]{${CARD_FIELDS}},
     "latest": *[
       _type in ["destination","place","story","person","product","collection"] &&
-      defined(slug.current) && ${CONTENT_ONLINE}
+      defined(slug.current) && ${CONTENT_ONLINE} && ${CONTENT_LISTED}
     ] | order(priority desc, _updatedAt desc)[0...12]{${CARD_FIELDS}}
   }
 `);
@@ -154,7 +161,7 @@ export const HOMEPAGE_SETTINGS_QUERY = defineQuery(`
 export const DISCOVER_QUERY = defineQuery(`
   *[
     _type in ["destination","place","story","person","product","collection"] &&
-    defined(slug.current) && ${CONTENT_ONLINE}
+    defined(slug.current) && ${CONTENT_ONLINE} && ${CONTENT_LISTED}
   ] | order(priority desc, _updatedAt desc)[0...36]{${CARD_FIELDS}}
 `);
 
@@ -164,14 +171,14 @@ export const DISCOVER_QUERY = defineQuery(`
 export const SEARCH_QUERY = defineQuery(`
   *[
     _type in ["destination","place","story","person","product","collection"] &&
-    defined(slug.current) && ${CONTENT_ONLINE}
+    defined(slug.current) && ${CONTENT_ONLINE} && ${CONTENT_LISTED}
   ] | order(priority desc, _updatedAt desc){${CARD_FIELDS}}
 `);
 
 export const DESTINATION_QUERY = defineQuery(`
   *[_type == "destination" && slug.current == $slug && ${DESTINATION_ONLINE}][0]{
     _id,title,slug,kicker,summary,country,coordinates,whyGo,aroundTake,bestFor,
-    featured,aroundSelected,priority,seoTitle,seoDescription,
+    featured,aroundSelected,priority,seoTitle,seoDescription,unlisted,
     "image": heroImage.asset->url,
     "socialImage": socialImage.asset->url,
     gallery[]{
@@ -200,6 +207,7 @@ export const PLACE_QUERY = defineQuery(`
     address,website,instagram,coordinates,featured,aroundSelected,priority,
     bookingUrl,bookingLabel,operatorStatus,commercialPartner,
     seoTitle,seoDescription,
+    "unlisted": destination->unlisted,
     "image": heroImage.asset->url,
     "socialImage": socialImage.asset->url,
     gallery[]{
@@ -413,7 +421,7 @@ export const PARTNER_PREVIEW_QUERY = defineQuery(`
 
 /** Every public, online detail page for app/sitemap.ts. */
 export const SITEMAP_QUERY = defineQuery(`
-  *[_type in ["destination","place","story","person","product","collection"] && defined(slug.current) && ${CONTENT_ONLINE}]{
+  *[_type in ["destination","place","story","person","product","collection"] && defined(slug.current) && ${CONTENT_ONLINE} && ${CONTENT_LISTED}]{
     _type,"slug": slug.current,_updatedAt
   }
 `);

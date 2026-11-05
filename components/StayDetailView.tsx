@@ -29,7 +29,7 @@ const aroundItGroupLabels: Record<TripGroupKey, string> = {
   play: "PLAY",
   eat: "EAT",
   do: "DO",
-  stay: "STAY ALTERNATIVES",
+  stay: "ANDERE STAYS",
   other: "OTHER"
 };
 const aroundItGroupOrder: TripGroupKey[] = ["play", "eat", "do", "stay", "other"];
@@ -98,8 +98,8 @@ export function StayDetailView({ place }: { place: Place }) {
     { label: "STAY", value: place.roomSummary },
     { label: "SPA", value: place.spaSummary },
     { label: "FOOD", value: place.foodSummary },
-    { label: "BREAKFAST", value: place.breakfastSummary },
-    { label: "PARKING", value: place.parkingSummary },
+    { label: "FRÜHSTÜCK", value: place.breakfastSummary },
+    { label: "PARKEN", value: place.parkingSummary },
     { label: "DOGS", value: place.dogPolicy },
     { label: "CHECK-IN", value: place.checkIn },
     { label: "CHECK-OUT", value: place.checkOut }
@@ -145,11 +145,11 @@ export function StayDetailView({ place }: { place: Place }) {
         <section className="section staySection">
           <div className="container">
             <div className="eyebrow lime">STAY / EDITORIAL</div>
-            <h2 className="sectionTitle">WHY STAY HERE.</h2>
+            <h2 className="sectionTitle">WARUM HIER SCHLAFEN.</h2>
             {place.whyWeLikeIt ? <p className="stayWhyLead">{place.whyWeLikeIt}</p> : null}
             {place.aroundTake ? (
               <div className="stayAroundTake">
-                <span className="stayAroundTakeLabel">THE AROUND TAKE.</span>
+                <span className="stayAroundTakeLabel">UNSERE SICHT.</span>
                 <p>{place.aroundTake}</p>
               </div>
             ) : null}
@@ -158,25 +158,25 @@ export function StayDetailView({ place }: { place: Place }) {
               <div className="stayWhyGrid">
                 {place.theFeel?.length ? (
                   <div className="stayWhyBlock">
-                    <span className="stayWhyLabel">THE FEEL.</span>
+                    <span className="stayWhyLabel">DAS GEFÜHL.</span>
                     <div className="stayTagList">{place.theFeel.map(tag => <span key={tag}>{tag}</span>)}</div>
                   </div>
                 ) : null}
                 {place.bestFor?.length ? (
                   <div className="stayWhyBlock">
-                    <span className="stayWhyLabel">BEST FOR.</span>
+                    <span className="stayWhyLabel">IDEAL FÜR.</span>
                     <div className="stayTagList">{place.bestFor.map(tag => <span key={tag}>{tag}</span>)}</div>
                   </div>
                 ) : null}
                 {place.aroundMoment ? (
                   <div className="stayWhyBlock">
-                    <span className="stayWhyLabel">THE AROUND MOMENT.</span>
+                    <span className="stayWhyLabel">DER MOMENT.</span>
                     <p>{place.aroundMoment}</p>
                   </div>
                 ) : null}
                 {place.knowBeforeYouGo ? (
                   <div className="stayWhyBlock">
-                    <span className="stayWhyLabel">KNOW BEFORE YOU GO.</span>
+                    <span className="stayWhyLabel">BEVOR DU FÄHRST.</span>
                     <p>{place.knowBeforeYouGo}</p>
                   </div>
                 ) : null}
@@ -190,7 +190,7 @@ export function StayDetailView({ place }: { place: Place }) {
         <section className="section staySection">
           <div className="container">
             <div className="eyebrow blue">STAY / DETAILS</div>
-            <h2 className="sectionTitle">YOUR STAY.</h2>
+            <h2 className="sectionTitle">DEIN AUFENTHALT.</h2>
             <div className="stayFactsGrid">
               {yourStayFacts.map(fact => <div className="fact" key={fact.label}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
             </div>
@@ -201,7 +201,7 @@ export function StayDetailView({ place }: { place: Place }) {
       {goodToKnow.length > 0 && (
         <section className="section staySection stayGoodToKnow">
           <div className="container">
-            <div className="eyebrow stayGoodToKnowEyebrow">GOOD TO KNOW</div>
+            <div className="eyebrow stayGoodToKnowEyebrow">GUT ZU WISSEN</div>
             <div className="factsGrid">
               {goodToKnow.map((fact,index)=><div className="fact" key={`${fact.label}-${index}`}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
             </div>
@@ -213,7 +213,7 @@ export function StayDetailView({ place }: { place: Place }) {
         <section className="section staySection">
           <div className="container">
             <div className="eyebrow lime">STAY / GOLF</div>
-            <h2 className="sectionTitle">WHY IT WORKS FOR GOLF.</h2>
+            <h2 className="sectionTitle">WARUM DAS FÜR GOLFER PASST.</h2>
             {place.golfBaseWhy ? <p className="stayWhyLead">{place.golfBaseWhy}</p> : null}
             {place.nearbyCourses && place.nearbyCourses.length ? (
               <div className="cardGrid" style={{marginTop:30}}>
@@ -244,16 +244,16 @@ export function StayDetailView({ place }: { place: Place }) {
 
       <StoryRail
         stories={place.stories || []}
-        eyebrow="STORIES FROM HERE"
-        title="MORE THAN A HOTEL."
+        eyebrow="GESCHICHTEN VON HIER"
+        title="MEHR ALS EIN HOTEL."
         className="staySection"
       />
 
       {hasOfficialInfo ? (
         <section className="section staySection">
           <div className="container">
-            <div className="eyebrow lime">STAY / OFFICIAL INFO</div>
-            <h2 className="sectionTitle">OFFICIAL INFO.</h2>
+            <div className="eyebrow lime">STAY / OFFIZIELLE INFOS</div>
+            <h2 className="sectionTitle">OFFIZIELLE INFOS.</h2>
             <div className="stayOfficialPanel">
               <div className="stayOfficialStatus">
                 {operatorConfirmed ? (
@@ -282,7 +282,7 @@ export function StayDetailView({ place }: { place: Place }) {
         <section className="section staySection">
           <div className="container">
             <div className="eyebrow lime">STAY / TRIP</div>
-            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>MAKE A TRIP OF IT.</h2>
+            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>DARAUS WIRD EINE REISE.</h2>
             {aroundItGroups.map(group => (
               <div className="stayTripGroup" key={group.role}>
                 <div className="stayTripGroupLabel">{group.label}</div>
@@ -297,7 +297,7 @@ export function StayDetailView({ place }: { place: Place }) {
         <section className="section staySection">
           <div className="container">
             <div className="eyebrow lime">STAY / TRIP</div>
-            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>MAKE A TRIP OF IT.</h2>
+            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>DARAUS WIRD EINE REISE.</h2>
             <p>
               Entdecke mehr rund um dieses Stay in{" "}
               <Link className="textLink" href={`/destinations/${place.destination.slug}`}>{place.destination.title}</Link>.

@@ -53,7 +53,7 @@ const components: any = {
       return (
         <figure className={`storyImage storyImage--${layout}`}>
           <div className="storyImageFrame" style={{ "--around-story-image-ratio": ratio } as any}>
-            <img src={value.url} alt={value.alt || ""} loading="lazy" />
+            <img src={value.url?.includes("cdn.sanity.io/") ? `${value.url}?w=1400&auto=format&q=75&fit=max` : value.url} alt={value.alt || ""} loading="lazy" />
             {(value.caption || value.credit) && (
               <figcaption>
                 {value.caption && <span>{value.caption}</span>}

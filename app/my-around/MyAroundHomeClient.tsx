@@ -70,7 +70,7 @@ export function MyAroundHomeClient() {
 
   const focus = useMemo(() => selectFocusTrip(trips), [trips]);
 
-  // READ BEFORE YOU GO reuses the exact v1.26c Story Graph edge (POST
+  // VOR DER REISE LESEN reuses the exact v1.26c Story Graph edge (POST
   // /api/trip-stories) - no matching/ranking logic is duplicated here. Key
   // only reflects the focus Trip's Place/Destination membership, never day
   // assignment, timing, notes or status, so unrelated Planner edits never
@@ -131,11 +131,11 @@ export function MyAroundHomeClient() {
     return (
       <div className="myAroundHomeEmpty">
         <div className="eyebrow lime">NOCH LEER</div>
-        <h2>YOUR AROUND<br/>STARTS HERE.</h2>
+        <h2>DEIN AROUND<br/>BEGINNT HIER.</h2>
         <p className="serif">Speichere eine Story, einen Place oder eine Destination – und AROUND wird zu deinem persönlichen Raum.</p>
         <div className="myAroundHomeEmptyActions">
-          <Link className="primary" href="/discover">DISCOVER →</Link>
-          {saveMode === "guest" && <Link className="textLink" href="/account">SIGN IN →</Link>}
+          <Link className="primary" href="/discover">ENTDECKEN →</Link>
+          {saveMode === "guest" && <Link className="textLink" href="/account">ANMELDEN →</Link>}
         </div>
       </div>
     );
@@ -151,7 +151,7 @@ export function MyAroundHomeClient() {
     <>
       <div className="myAroundHomeStatus" role="status">
         <span className={`syncDot ${saveMode === "account" ? "syncDot--account" : ""}`} />
-        <strong>{saveMode === "account" ? "SYNCED WITH MY AROUND" : "Auf diesem Gerät gespeichert."}</strong>
+        <strong>{saveMode === "account" ? "MIT MY AROUND SYNCHRON" : "Auf diesem Gerät gespeichert."}</strong>
         {saveMode === "guest" && <Link href="/account">AUF ALLEN GERÄTEN SICHERN →</Link>}
       </div>
 
@@ -172,7 +172,7 @@ export function MyAroundHomeClient() {
 
       {focusTrip ? (
         <section className="myAroundFocusTrip" aria-labelledby="my-around-focus-trip-title">
-          <div className="eyebrow lime">{focus!.heading === "next-trip" ? "YOUR NEXT TRIP" : "CONTINUE PLANNING"}</div>
+          <div className="eyebrow lime">{focus!.heading === "next-trip" ? "DEINE NÄCHSTE REISE" : "WEITERPLANEN"}</div>
           <h3 id="my-around-focus-trip-title">{focusTrip.title}</h3>
           <div className="myAroundFocusTripMeta">
             <span>{formatTripDateRange(focusTrip.startDate, focusTrip.endDate)}</span>
@@ -181,17 +181,17 @@ export function MyAroundHomeClient() {
             {focusTrip.planReady ? <span>Plan bereit</span> : null}
           </div>
           <div className="myAroundFocusTripActions">
-            <Link className="primary" href={`/my-around/trips/${focusTrip.id}`}>OPEN TRIP →</Link>
-            <Link className="textLink" href="/my-around/trips">ALL TRIPS →</Link>
+            <Link className="primary" href={`/my-around/trips/${focusTrip.id}`}>TRIP ÖFFNEN →</Link>
+            <Link className="textLink" href="/my-around/trips">ALLE TRIPS →</Link>
           </div>
         </section>
       ) : (
         <section className="myAroundEmptyTrip" aria-labelledby="my-around-no-trip-title">
           <div className="eyebrow lime">MY AROUND / TRIPS</div>
-          <h3 id="my-around-no-trip-title">NO TRIP YET.</h3>
+          <h3 id="my-around-no-trip-title">NOCH KEIN TRIP.</h3>
           <p className="serif">Trips sind für Reisen, die du wirklich planen willst – nicht jedes gespeicherte Fundstück muss dorthin führen.</p>
           <div className="myAroundFocusTripActions">
-            <Link className="primary" href="/my-around/trips">START A TRIP →</Link>
+            <Link className="primary" href="/my-around/trips">TRIP STARTEN →</Link>
           </div>
         </section>
       )}
@@ -208,10 +208,10 @@ export function MyAroundHomeClient() {
         <section className="section" aria-labelledby="my-around-saved-title">
           <div className="myAroundSectionHead">
             <div>
-              <div className="eyebrow lime">SAVED</div>
-              <h2 className="sectionTitle" id="my-around-saved-title">SAVED FOR LATER.</h2>
+              <div className="eyebrow lime">GEMERKT</div>
+              <h2 className="sectionTitle" id="my-around-saved-title">FÜR SPÄTER GEMERKT.</h2>
             </div>
-            <Link className="textLink" href="/saved">ALL SAVED →</Link>
+            <Link className="textLink" href="/saved">ALLE GEMERKTEN →</Link>
           </div>
           <div className="myAroundSavedPreview">
             {savedPreview.map(item => (
@@ -233,7 +233,7 @@ export function MyAroundHomeClient() {
             <div className="eyebrow lime">COLLECTIONS</div>
             <h2 className="sectionTitle" id="my-around-collections-title">ORDNEN.</h2>
           </div>
-          <Link className="textLink" href="/my-around/collections">ALL COLLECTIONS →</Link>
+          <Link className="textLink" href="/my-around/collections">ALLE SAMMLUNGEN →</Link>
         </div>
         {collectionsPreview.length ? (
           <div className="myAroundPreviewGrid">
@@ -242,7 +242,7 @@ export function MyAroundHomeClient() {
                 <span>{collection.items.length} {collection.items.length === 1 ? "Fundstück" : "Fundstücke"}</span>
                 <h4>{collection.title}</h4>
                 {collection.description ? <p>{collection.description}</p> : null}
-                <Link className="textLink" href={`/my-around/collections/${collection.id}`}>OPEN →</Link>
+                <Link className="textLink" href={`/my-around/collections/${collection.id}`}>ÖFFNEN →</Link>
               </article>
             ))}
           </div>
@@ -261,7 +261,7 @@ export function MyAroundHomeClient() {
               <div className="eyebrow lime">TRIPS</div>
               <h2 className="sectionTitle" id="my-around-trips-title">DEINE REISEN.</h2>
             </div>
-            <Link className="textLink" href="/my-around/trips">ALL TRIPS →</Link>
+            <Link className="textLink" href="/my-around/trips">ALLE TRIPS →</Link>
           </div>
           <div className="myAroundPreviewGrid">
             {tripsPreview.map(trip => (
@@ -269,7 +269,7 @@ export function MyAroundHomeClient() {
                 <span>{formatTripDateRange(trip.startDate, trip.endDate)} · {tripStatusLabel(trip.status)}</span>
                 <h4>{trip.title}</h4>
                 <span>{trip.items.length} {trip.items.length === 1 ? "Fundstück" : "Fundstücke"}</span>
-                <Link className="textLink" href={`/my-around/trips/${trip.id}`}>OPEN →</Link>
+                <Link className="textLink" href={`/my-around/trips/${trip.id}`}>ÖFFNEN →</Link>
               </article>
             ))}
           </div>

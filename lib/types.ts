@@ -30,6 +30,8 @@ export type ContentCard = {
   image?: string;
   featured?: boolean;
   aroundSelected?: boolean;
+  /** Direct-link-only draft: noindex plus visible research note. */
+  unlisted?: boolean;
   priority?: number;
   /** Semantic role for place cards: course/stay/eat/do. */
   placeType?: string;
