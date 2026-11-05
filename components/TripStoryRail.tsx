@@ -6,9 +6,9 @@ function matchContextLabel(recommendation: TripStoryRecommendation): string {
     return `MATCHES ${recommendation.matchedPlaceIds.length} PLACES IN YOUR TRIP`;
   }
   if (recommendation.matchedPlaceIds.length === 1) {
-    return "MATCHES A PLACE IN YOUR TRIP";
+    return "PASST ZU EINEM ORT IN DEINEM TRIP";
   }
-  return "FROM YOUR DESTINATION";
+  return "AUS DEINER DESTINATION";
 }
 
 type Props = {
@@ -41,8 +41,8 @@ export function TripStoryRail({
 
   const content = (
     <>
-      <div className="eyebrow blue">AROUND / READ BEFORE YOU GO</div>
-      <h2 className="sectionTitle" id="trip-story-rail-title">READ BEFORE YOU GO.</h2>
+      <div className="eyebrow blue">AROUND / VOR DER REISE LESEN</div>
+      <h2 className="sectionTitle" id="trip-story-rail-title">VOR DER REISE LESEN.</h2>
       <p className="storyRailIntro">{intro}</p>
       <div className="cardGrid">
         {recommendations.map(recommendation => (

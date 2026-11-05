@@ -18,7 +18,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
   const title=place.seoTitle || `${place.title} — AROUND`;
   const description=place.seoDescription || place.description;
   const image=place.socialImage || place.image;
-  return {title,description,openGraph:{title,description,images:image?[image]:undefined}};
+  return {title,description,openGraph:{title,description,images:image?[image]:undefined},...(place.unlisted?{robots:{index:false,follow:false}}:{})};
 }
 
 export default async function PlacePage({ params }: { params: Promise<{slug:string}>}) {
@@ -62,7 +62,7 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
           </div>
           <div className="featureCard placeFallbackTake">
             <p className="placeFallbackTakeQuote">{place.whyWeLikeIt}</p>
-            {place.aroundTake && <div><div className="eyebrow">AROUND TAKE</div><p>{place.aroundTake}</p></div>}
+            {place.aroundTake && <div><div className="eyebrow">UNSERE SICHT</div><p>{place.aroundTake}</p></div>}
           </div>
         </div>
       </section>
@@ -83,7 +83,7 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
       {place.goodToKnow && place.goodToKnow.length > 0 && (
         <section className="section">
           <div className="container">
-            <div className="eyebrow lime">GOOD TO KNOW</div>
+            <div className="eyebrow lime">GUT ZU WISSEN</div>
             <div className="factsGrid">
               {place.goodToKnow.map((fact,index)=><div className="fact" key={`${fact.label}-${index}`}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
             </div>
@@ -94,7 +94,7 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
       <section className="section">
         <div className="container">
           <div className="eyebrow lime">PLAY / STAY / EAT / DO</div>
-          <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>AROUND IT.</h2>
+          <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>DRUMHERUM.</h2>
           {place.aroundIt && place.aroundIt.length > 0 ? (
             <div className="cardGrid">{place.aroundIt.map(item => <ContentCard key={item.id} item={item}/>)}</div>
           ) : (

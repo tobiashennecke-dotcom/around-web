@@ -20,6 +20,10 @@ export const destination = defineType({
       description:"Schalter für die Website. Aus = Destination, ihre Places und Stories, die nur zu ihr gehören, sind ausgeblendet. Inhalte bleiben im CMS erhalten. Fehlt der Wert bei älteren Destinationen, gilt sie als online.",
       components:{ input: DestinationOnlineInput }
     }),
+    defineField({
+      name:"unlisted", title:"Nur per Direktlink", type:"boolean", group:["basics","publishing"], initialValue:false,
+      description:"An = erreichbar über den Link, aber nicht auf Start, Entdecken, Suche und Sitemap. Dazu noindex und der Hinweis „Recherche-Entwurf“. Online muss dafür an sein."
+    }),
     defineField({ name:"title", title:"Title", type:"string", group:"basics", validation:r=>r.required() }),
     defineField({ name:"slug", title:"Slug", type:"slug", group:"basics", options:{source:"title"}, validation:r=>r.required() }),
     defineField({ name:"kicker", title:"Kicker / Eyebrow", type:"string", group:"basics", description:"Small line above the headline, e.g. Portugal / Atlantic Coast." }),

@@ -2904,3 +2904,8 @@ img{display:block;max-width:100%}
   .homeStoriesLead .storyFeature--lead .storyFeatureMedia img{position:absolute;inset:0}
   .homeStoriesLead .storyFeature--lead .storyFeatureBody{flex:none}
 }
+
+/* Direct-link drafts: says plainly that nobody from AROUND has been there yet. */
+.researchDraftNote{background:var(--around-lime,#D6EA2A);color:var(--around-ink,#212322);padding:12px 20px;font-size:14px;line-height:1.35}
+.researchDraftNote strong{letter-spacing:.04em}
+@media (max-width:760px){.headerMyAround{position:relative}}

@@ -57,6 +57,13 @@ function accentFor(type: ContentType, placeType?: string): ContentCard["accent"]
   return "lime";
 }
 
+/** Sanity serves any size on request; originals here run up to 5 MB. */
+export function sizedImage(url: unknown, width: number): string | undefined {
+  if (typeof url !== "string" || !url) return undefined;
+  if (!url.includes("cdn.sanity.io/") || url.includes("?")) return url;
+  return `${url}?w=${width}&auto=format&q=75&fit=max`;
+}
+
 function normalizeType(type: string): ContentType | null {
   if (type === "destination") return "destination";
   if (type === "place") return "place";
@@ -101,7 +108,7 @@ export function toCard(doc: any): ContentCard | null {
     readingTime: type === "story" && typeof doc.readingTime === "number" ? doc.readingTime : undefined,
     accessTier: type === "story" ? normalizeStoryAccessTier(doc.accessTier) : undefined,
     accent: accentFor(type, doc.placeType),
-    image: doc.image || undefined,
+    image: sizedImage(doc.image, 1000),
     featured: Boolean(doc.featured),
     aroundSelected: Boolean(doc.aroundSelected),
     priority: typeof doc.priority === "number" ? doc.priority : undefined
@@ -309,13 +316,14 @@ export async function getDestination(slug: string): Promise<Destination | null> 
         kicker: doc.kicker || undefined,
         description: doc.summary || "",
         accent: "lime",
-        image: doc.image || undefined,
+        image: sizedImage(doc.image, 1600),
         featured: Boolean(doc.featured),
         aroundSelected: Boolean(doc.aroundSelected),
         priority: typeof doc.priority === "number" ? doc.priority : undefined,
         country: doc.country || "",
         latitude: doc.coordinates?.lat,
         longitude: doc.coordinates?.lng,
+        unlisted: doc.unlisted === true,
         whyGo: doc.whyGo || "",
         aroundTake: doc.aroundTake || undefined,
         bestFor: Array.isArray(doc.bestFor) ? doc.bestFor : [],
@@ -379,10 +387,11 @@ export async function getPlace(slug: string): Promise<Place | null> {
         kicker: doc.kicker || undefined,
         description: doc.summary || "",
         accent: accentFor("place", doc.placeType),
-        image: doc.image || undefined,
+        image: sizedImage(doc.image, 1600),
         featured: Boolean(doc.featured),
         aroundSelected: Boolean(doc.aroundSelected),
         priority: typeof doc.priority === "number" ? doc.priority : undefined,
+        unlisted: doc.unlisted === true,
         destinationId: destination?.id || "",
         destination: destination || undefined,
         placeType: doc.placeType || "do",
@@ -505,7 +514,7 @@ export async function getStory(slug: string): Promise<Story | null> {
         kicker: doc.kicker || undefined,
         description: doc.deck || "",
         accent: "blue",
-        image: doc.image || undefined,
+        image: sizedImage(doc.image, 1600),
         imageAlt: doc.imageAlt || undefined,
         imageCaption: doc.imageCaption || undefined,
         imageCredit: doc.imageCredit || undefined,
@@ -552,7 +561,7 @@ export async function getPerson(slug: string): Promise<Person | null> {
       return {
         id:doc._id,type:"person",slug:doc.slug.current,title:doc.title,
         kicker:doc.role || "People to Know",description:doc.summary || "",accent:"pink",
-        image:doc.image || undefined,featured:Boolean(doc.featured),priority:doc.priority,
+        image:sizedImage(doc.image, 1600),featured:Boolean(doc.featured),priority:doc.priority,
         role:doc.role || undefined,location:doc.location || undefined,bio:Array.isArray(doc.bio)?doc.bio:[],
         website:doc.website || undefined,instagram:doc.instagram || undefined,
         stories: storiesForPerson
@@ -570,7 +579,7 @@ export async function getProduct(slug: string): Promise<Product | null> {
     if (doc) return {
       id:doc._id,type:"product",slug:doc.slug.current,title:doc.title,
       kicker:doc.brand || doc.category || "The Good Stuff",description:doc.summary || "",accent:"blue",
-      image:doc.image || undefined,featured:Boolean(doc.featured),aroundSelected:Boolean(doc.aroundSelected),priority:doc.priority,
+      image:sizedImage(doc.image, 1600),featured:Boolean(doc.featured),aroundSelected:Boolean(doc.aroundSelected),priority:doc.priority,
       brand:doc.brand || undefined,category:doc.category || undefined,whyItMatters:doc.whyItMatters || undefined,url:doc.url || undefined
     };
   }
@@ -590,7 +599,7 @@ export async function getCollection(slug: string): Promise<AroundCollection | nu
         kicker: doc.kicker || undefined,
         description: doc.summary || "",
         accent: "lime",
-        image: doc.image || undefined,
+        image: sizedImage(doc.image, 1600),
         featured: Boolean(doc.featured),
         priority: typeof doc.priority === "number" ? doc.priority : undefined,
         itemIds: items.map(x => x.id),

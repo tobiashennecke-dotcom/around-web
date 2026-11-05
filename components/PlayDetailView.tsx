@@ -48,7 +48,7 @@ type TripGroupKey = ContentRole | "shop" | "other";
 const aroundItGroupLabels: Record<TripGroupKey, string> = {
   stay: "STAY",
   eat: "EAT",
-  play: "PLAY NEXT",
+  play: "ALS NÄCHSTES SPIELEN",
   do: "DO",
   shop: "SHOP",
   other: "OTHER"
@@ -99,12 +99,12 @@ export function PlayDetailView({ place }: { place: Place }) {
 
   const gettingAround = [place.walkability, place.cartAvailability].filter(Boolean).join(" · ") || undefined;
   const planFacts = [
-    { label: "BEST TIME", value: daypartLabel(place.suggestedDaypart) },
-    { label: "ROUND", value: formatDuration(place.suggestedDurationMinutes) },
-    { label: "GETTING AROUND", value: gettingAround },
-    { label: "PRACTICE", value: place.practiceFacilities?.length ? place.practiceFacilities.join(" · ") : undefined },
-    { label: "GUEST PLAY", value: place.guestPlay },
-    { label: "SEASON", value: place.season }
+    { label: "BESTE ZEIT", value: daypartLabel(place.suggestedDaypart) },
+    { label: "RUNDE", value: formatDuration(place.suggestedDurationMinutes) },
+    { label: "ZU FUSS ODER CART", value: gettingAround },
+    { label: "ÜBEN", value: place.practiceFacilities?.length ? place.practiceFacilities.join(" · ") : undefined },
+    { label: "GÄSTE", value: place.guestPlay },
+    { label: "SAISON", value: place.season }
   ].filter((fact): fact is { label: string; value: string } => Boolean(fact.value));
 
   const hasOfficialInfo = Boolean(place.website || place.bookingUrl);
@@ -145,11 +145,11 @@ export function PlayDetailView({ place }: { place: Place }) {
         <section className="section playSection">
           <div className="container">
             <div className="eyebrow lime">PLAY / EDITORIAL</div>
-            <h2 className="sectionTitle">WHY PLAY IT.</h2>
+            <h2 className="sectionTitle">WARUM SPIELEN.</h2>
             {place.whyWeLikeIt ? <p className="playWhyLead">{place.whyWeLikeIt}</p> : null}
             {place.aroundTake ? (
               <div className="playAroundTake">
-                <span className="playAroundTakeLabel">THE AROUND TAKE.</span>
+                <span className="playAroundTakeLabel">UNSERE SICHT.</span>
                 <p>{place.aroundTake}</p>
               </div>
             ) : null}
@@ -158,25 +158,25 @@ export function PlayDetailView({ place }: { place: Place }) {
               <div className="playWhyGrid">
                 {place.theFeel?.length ? (
                   <div className="playWhyBlock">
-                    <span className="playWhyLabel">THE FEEL.</span>
+                    <span className="playWhyLabel">DAS GEFÜHL.</span>
                     <div className="playTagList">{place.theFeel.map(tag => <span key={tag}>{tag}</span>)}</div>
                   </div>
                 ) : null}
                 {place.bestFor?.length ? (
                   <div className="playWhyBlock">
-                    <span className="playWhyLabel">BEST FOR.</span>
+                    <span className="playWhyLabel">IDEAL FÜR.</span>
                     <div className="playTagList">{place.bestFor.map(tag => <span key={tag}>{tag}</span>)}</div>
                   </div>
                 ) : null}
                 {place.aroundMoment ? (
                   <div className="playWhyBlock">
-                    <span className="playWhyLabel">THE AROUND MOMENT.</span>
+                    <span className="playWhyLabel">DER MOMENT.</span>
                     <p>{place.aroundMoment}</p>
                   </div>
                 ) : null}
                 {place.knowBeforeYouGo ? (
                   <div className="playWhyBlock">
-                    <span className="playWhyLabel">KNOW BEFORE YOU GO.</span>
+                    <span className="playWhyLabel">BEVOR DU FÄHRST.</span>
                     <p>{place.knowBeforeYouGo}</p>
                   </div>
                 ) : null}
@@ -202,7 +202,7 @@ export function PlayDetailView({ place }: { place: Place }) {
       <StoryRail
         stories={place.stories || []}
         eyebrow="STORIES / PLAY"
-        title="THE STORY BEHIND THE PLACE."
+        title="DIE GESCHICHTE DAHINTER."
         className="playSection"
       />
 
@@ -210,7 +210,7 @@ export function PlayDetailView({ place }: { place: Place }) {
         <section className="section playSection">
           <div className="container">
             <div className="eyebrow blue">PLAY / PLANNING</div>
-            <h2 className="sectionTitle">PLAN YOUR ROUND.</h2>
+            <h2 className="sectionTitle">RUNDE PLANEN.</h2>
             <div className="planFactsGrid">
               {planFacts.map(fact => <div className="fact" key={fact.label}><small>{fact.label}</small><strong title={fact.value}>{fact.value}</strong></div>)}
             </div>
@@ -221,7 +221,7 @@ export function PlayDetailView({ place }: { place: Place }) {
       {place.goodToKnow && place.goodToKnow.length > 0 && (
         <section className="section playSection">
           <div className="container">
-            <div className="eyebrow lime">GOOD TO KNOW</div>
+            <div className="eyebrow lime">GUT ZU WISSEN</div>
             <div className="factsGrid">
               {place.goodToKnow.map((fact,index)=><div className="fact" key={`${fact.label}-${index}`}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
             </div>
@@ -232,8 +232,8 @@ export function PlayDetailView({ place }: { place: Place }) {
       {hasOfficialInfo ? (
         <section className="section playSection">
           <div className="container">
-            <div className="eyebrow lime">PLAY / OFFICIAL INFO</div>
-            <h2 className="sectionTitle">OFFICIAL INFO.</h2>
+            <div className="eyebrow lime">PLAY / OFFIZIELLE INFOS</div>
+            <h2 className="sectionTitle">OFFIZIELLE INFOS.</h2>
             <div className="playOfficialPanel">
               <div className="playOfficialStatus">
                 {operatorConfirmed ? (
@@ -262,7 +262,7 @@ export function PlayDetailView({ place }: { place: Place }) {
         <section className="section playSection">
           <div className="container">
             <div className="eyebrow lime">PLAY / TRIP</div>
-            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>MAKE A TRIP OF IT.</h2>
+            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>DARAUS WIRD EINE REISE.</h2>
             {aroundItGroups.map(group => (
               <div className="playTripGroup" key={group.role}>
                 <div className="playTripGroupLabel">{group.label}</div>
@@ -277,7 +277,7 @@ export function PlayDetailView({ place }: { place: Place }) {
         <section className="section playSection">
           <div className="container">
             <div className="eyebrow lime">PLAY / TRIP</div>
-            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>MAKE A TRIP OF IT.</h2>
+            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>DARAUS WIRD EINE REISE.</h2>
             <p>
               Entdecke mehr rund um diesen Platz in{" "}
               <Link className="textLink" href={`/destinations/${place.destination.slug}`}>{place.destination.title}</Link>.

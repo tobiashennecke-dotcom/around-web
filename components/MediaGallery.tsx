@@ -64,7 +64,7 @@ export function MediaGallery({ items, title }: { items: MediaItem[]; title: stri
               aria-label={label}
             >
               <img
-                src={item.url}
+                src={item.url.includes("cdn.sanity.io/") ? `${item.url}?w=1000&auto=format&q=75&fit=max` : item.url}
                 alt={item.alt || `${title} – Bild ${index + 1}`}
                 loading={index < 3 ? "eager" : "lazy"}
                 style={hotspotStyle(item)}

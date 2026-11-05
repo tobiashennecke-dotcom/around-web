@@ -41,7 +41,7 @@ export function LisbonTripImport({ destinationId, journey }: { destinationId: st
     setStatus("");
     let createdTrip = false;
     try {
-      const trip = await createUserTrip(`AROUND JOURNEY · ${journey.title}`, { destinationSourceId: destinationId });
+      const trip = await createUserTrip(journey.title, { destinationSourceId: destinationId });
       createdTrip = true;
       const existing = new Set((await listSaves()).items.map(item => item.sourceId));
       for (const stop of resolved) {
@@ -64,10 +64,10 @@ export function LisbonTripImport({ destinationId, journey }: { destinationId: st
         await updateTripItem(trip.id, place.id, {
           dayIndex: stop.dayIndex,
           slot: stop.slot,
-          note: `AROUND / DAY ${stop.dayIndex + 1}: ${stop.copy || stop.period || ""}`
+          note: `AROUND / TAG ${stop.dayIndex + 1}: ${stop.copy || stop.period || ""}`
         });
       }
-      setStatus(`Deine neue Reise wurde im Trip Planner angelegt: AROUND JOURNEY · ${journey.title}. Du kannst dort Termine und Stationen flexibel anpassen.`);
+      router.push(`/my-around/trips/${trip.id}`);
     } catch {
       setStatus(createdTrip
         ? "Die Reise konnte nur teilweise angelegt werden. Bitte prüfe den Trip Planner, bevor du erneut importierst."
@@ -78,20 +78,20 @@ export function LisbonTripImport({ destinationId, journey }: { destinationId: st
   }
 
   return <section className="destinationJourneyChoose" aria-label="Deine Reise planen">
-    <div className="eyebrow lime">YOUR TRIP. YOUR RULES.</div>
+    <div className="eyebrow lime">DEINE REISE. DEINE REGELN.</div>
     <h3>SO GEHT DEINE REISE WEITER.</h3>
     <p className="destinationJourneyChooseIntro">Nutze unseren Reisevorschlag als Ausgangspunkt – oder starte mit einem leeren Trip und stelle dir deine eigenen Places zusammen.</p>
     <div className="destinationJourneyChoiceGrid">
       <div className="destinationJourneyChoice destinationJourneyChoice--edit">
-        <span className="destinationJourneyChoiceIndex">01 / AROUND EDIT</span>
+        <span className="destinationJourneyChoiceIndex">01 / VON AROUND</span>
         <h4>BEISPIELREISE ÜBERNEHMEN.</h4>
-        <p>Wir legen dir die ${resolvedCount} kuratierten Stationen mit Tageszuordnung in deinen Trip. Danach kannst du alles ändern.</p>
+        <p>Wir legen dir die {resolvedCount} kuratierten Stationen mit Tageszuordnung in deinen Trip. Danach kannst du alles ändern.</p>
         <button type="button" className="destinationJourneyChoiceButton" onClick={importTrip} disabled={busy || newTripBusy}>
           {busy ? "Reise wird angelegt …" : "Beispielroute übernehmen →"}
         </button>
       </div>
       <div className="destinationJourneyChoice destinationJourneyChoice--own">
-        <span className="destinationJourneyChoiceIndex">02 / YOUR WAY</span>
+        <span className="destinationJourneyChoiceIndex">02 / DEIN WEG</span>
         <h4>EIGENE REISE PLANEN.</h4>
         <p>Beginne ohne vorgegebene Stationen. Wähle Golfplätze, Hotels, Restaurants und Erlebnisse in deinem Tempo.</p>
         <button type="button" className="destinationJourneyChoiceButton destinationJourneyChoiceButton--outline" onClick={startOwnTrip} disabled={busy || newTripBusy}>

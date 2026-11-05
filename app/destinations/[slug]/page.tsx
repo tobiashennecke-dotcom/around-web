@@ -8,6 +8,7 @@ import { ContentCard } from "@/components/ContentCard";
 import { StoryRail } from "@/components/StoryRail";
 import { LisbonTripImport } from "@/components/LisbonTripImport";
 import { PlaceGallery } from "@/components/PlaceGallery";
+import { ResearchDraftNote } from "@/components/ResearchDraftNote";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
@@ -16,7 +17,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
   const title=destination.seoTitle || `${destination.title} — AROUND`;
   const description=destination.seoDescription || destination.description;
   const image=destination.socialImage || destination.image;
-  return {title,description,openGraph:{title,description,images:image?[image]:undefined}};
+  return {title,description,openGraph:{title,description,images:image?[image]:undefined},...(destination.unlisted?{robots:{index:false,follow:false}}:{})};
 }
 
 export default async function DestinationPage({ params }: { params: Promise<{ slug:string }> }) {
@@ -40,6 +41,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
 
   return (
     <main className="destinationPage">
+      {destination.unlisted && <ResearchDraftNote />}
       <section
         className={`hero destinationHero ${destination.image ? "heroWithImage" : ""}`}
         style={destination.image ? {backgroundImage:`url(${destination.image})`} : undefined}
@@ -61,12 +63,12 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
       <section className="section destinationWhySection">
         <div className="container editorialGrid destinationWhyGrid">
           <div>
-            <div className="eyebrow lime">WHY GO</div>
+            <div className="eyebrow lime">DER GRUND</div>
             <h2 className="sectionTitle destinationWhyHeading">WARUM<br/>HIN?</h2>
             <p className="destinationWhyCopy">{destination.whyGo}</p>
           </div>
           <div className="destinationTake">
-            <div className="eyebrow lime destinationTakeLabel">AROUND TAKE</div>
+            <div className="eyebrow lime destinationTakeLabel">UNSERE SICHT</div>
             <p className="destinationTakeQuote">
               „{destination.aroundTake || "Eine Destination ist dann gut, wenn die Runde nicht der einzige Grund war, hinzufahren."}“
             </p>
@@ -78,7 +80,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
         <section className="section placeGallerySection destinationGallerySection">
           <div className="container">
             <div className="placeGalleryIntro">
-              <div className="eyebrow lime">DESTINATION / IMAGES</div>
+              <div className="eyebrow lime">BILDER</div>
               <h2 className="sectionTitle">LOOK<br/>AROUND.</h2>
             </div>
             <PlaceGallery items={destination.gallery || []} title={destination.title} />
@@ -89,7 +91,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
       <section className="section destinationAroundSection" id="play">
         <div className="container">
           <div className="eyebrow lime">PLAY / STAY / EAT / DO</div>
-          <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>AROUND IT.</h2>
+          <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>DRUMHERUM.</h2>
           {linkedPlaces.length > 0 ? (
             <div className="destinationRoleSections">
               {roleSections.map(section => (
@@ -116,7 +118,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
           <div className="container">
             <div className="eyebrow lime">THE AROUND EDIT / YOUR WAY</div>
             <div className="destination48Intro">
-              <h2 className="sectionTitle" id="destination48-heading">THE LONG WEEKEND.<br/>{destination.itinerary.title.toUpperCase()}.</h2>
+              <h2 className="sectionTitle" id="destination48-heading">DAS LANGE WOCHENENDE.<br/>{destination.itinerary.title.toUpperCase()}.</h2>
               {destination.itinerary.intro && <p>{destination.itinerary.intro}</p>}
             </div>
             {(destination.itinerary.durationAdvice || destination.itinerary.paceAdvice) && (
@@ -171,7 +173,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
 
       <StoryRail
         stories={linkedStories}
-        eyebrow="STORIES FROM HERE"
+        eyebrow="GESCHICHTEN VON HIER"
         title="READ THE PLACE."
       />
     </main>

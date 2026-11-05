@@ -708,7 +708,7 @@ export function TripDetailClient({ id }: { id: string }) {
     if (!candidate) return;
     await changeItem(candidate.sourceId, { stayFullTrip: false, stayEndDay: gap.end });
     setShowReadiness(false);
-    setSaveMessage(`${candidate.title} wurde bis Day ${gap.end + 1} verlängert.`);
+    setSaveMessage(`${candidate.title} wurde bis Tag ${gap.end + 1} verlängert.`);
   }
 
   async function startNextStayEarlier() {
@@ -724,7 +724,7 @@ export function TripDetailClient({ id }: { id: string }) {
     if (!candidate) return;
     await changeItem(candidate.sourceId, { stayFullTrip: false, stayStartDay: gap.start });
     setShowReadiness(false);
-    setSaveMessage(`${candidate.title} beginnt jetzt ab Day ${gap.start + 1}.`);
+    setSaveMessage(`${candidate.title} beginnt jetzt ab Tag ${gap.start + 1}.`);
   }
 
   if (loading) return <section className="section"><div className="container savedLoading">Trip wird geladen …</div></section>;
@@ -910,7 +910,7 @@ export function TripDetailClient({ id }: { id: string }) {
               key={day.dayIndex}
               dayIndex={day.dayIndex}
               displayIndex={String(day.dayIndex + 1).padStart(2, "0")}
-              title={`DAY ${day.dayIndex + 1}`}
+              title={`TAG ${day.dayIndex + 1}`}
               dateLabel={fullDayDate(startDate, day.dayIndex)}
               items={day.items}
               dayCount={dayCount}

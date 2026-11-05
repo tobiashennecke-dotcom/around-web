@@ -183,16 +183,16 @@ function nextFreeTime(items: TripItem[], dayIndex: number | undefined, preferred
 }
 
 function dayLabel(startDate: string | undefined, dayIndex: number) {
-  if (!startDate) return `Day ${dayIndex + 1}`;
+  if (!startDate) return `Tag ${dayIndex + 1}`;
   const date = new Date(`${startDate}T12:00:00`);
   date.setDate(date.getDate() + dayIndex);
   const formatted = new Intl.DateTimeFormat("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" }).format(date);
-  return `Day ${dayIndex + 1} · ${formatted}`;
+  return `Tag ${dayIndex + 1} · ${formatted}`;
 }
 
 function nightSpanLabel(startDate: string | undefined, start?: number, end?: number) {
   if (start === undefined || end === undefined || end <= start) return "Zeitraum auswählen";
-  if (!startDate) return `Day ${start + 1} → Day ${end + 1}`;
+  if (!startDate) return `Tag ${start + 1} → Tag ${end + 1}`;
   const from = new Date(`${startDate}T12:00:00`);
   const to = new Date(`${startDate}T12:00:00`);
   from.setDate(from.getDate() + start);

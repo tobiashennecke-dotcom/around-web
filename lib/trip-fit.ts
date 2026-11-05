@@ -517,15 +517,15 @@ export function evaluateTripFit(input: TripFitInput): TripFitResult {
 // ---------------------------------------------------------------------------
 
 const REASON_LABELS: Partial<Record<TripFitReasonCode, string>> = {
-  AFTER_MORNING_GOLF: "GOOD AFTER YOUR MORNING ROUND",
-  AFTER_GOLF: "GOOD AFTER YOUR ROUND",
-  BEFORE_FIXED_DINNER: "FITS BEFORE YOUR DINNER"
+  AFTER_MORNING_GOLF: "GUT NACH DER MORGENRUNDE",
+  AFTER_GOLF: "GUT NACH DER RUNDE",
+  BEFORE_FIXED_DINNER: "PASST VOR DEM ABENDESSEN"
 };
 
 const RECOMMENDATION_LABELS: Record<TripFitRecommendationType, string> = {
-  after_golf: "GOOD AFTER YOUR ROUND",
-  before_dinner: "FITS BEFORE YOUR DINNER",
-  fits_available_window: "FITS YOUR DAY"
+  after_golf: "GUT NACH DER RUNDE",
+  before_dinner: "PASST VOR DEM ABENDESSEN",
+  fits_available_window: "PASST IN DEINEN TAG"
 };
 
 /**

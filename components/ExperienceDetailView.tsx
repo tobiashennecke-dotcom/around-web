@@ -19,11 +19,11 @@ type ExperienceConfig = {
 };
 
 const EXPERIENCE_CONFIG: Record<ExperiencePlaceType, ExperienceConfig> = {
-  eat: { roleLabel: "EAT", whyHeading: "WHY EAT HERE.", utilityHeading: "THE TABLE.", bookingIsPrimaryCta: true, defaultBookingLabel: "Tisch reservieren" },
-  drink: { roleLabel: "DRINK", whyHeading: "WHY DRINK HERE.", utilityHeading: "THE BAR.", bookingIsPrimaryCta: true, defaultBookingLabel: "Tisch reservieren" },
-  do: { roleLabel: "DO", whyHeading: "WHY GO.", utilityHeading: "PLAN THE EXPERIENCE.", bookingIsPrimaryCta: false, defaultBookingLabel: "Jetzt buchen" },
-  culture: { roleLabel: "CULTURE", whyHeading: "WHY GO.", utilityHeading: "PLAN THE EXPERIENCE.", bookingIsPrimaryCta: false, defaultBookingLabel: "Jetzt buchen" },
-  shop: { roleLabel: "SHOP", whyHeading: "WHY GO.", utilityHeading: "GOOD TO KNOW.", bookingIsPrimaryCta: false, defaultBookingLabel: "Jetzt buchen" }
+  eat: { roleLabel: "EAT", whyHeading: "WARUM HIER ESSEN.", utilityHeading: "DER TISCH.", bookingIsPrimaryCta: true, defaultBookingLabel: "Tisch reservieren" },
+  drink: { roleLabel: "DRINK", whyHeading: "WARUM HIER TRINKEN.", utilityHeading: "DIE BAR.", bookingIsPrimaryCta: true, defaultBookingLabel: "Tisch reservieren" },
+  do: { roleLabel: "DO", whyHeading: "WARUM HIN.", utilityHeading: "ERLEBNIS PLANEN.", bookingIsPrimaryCta: false, defaultBookingLabel: "Jetzt buchen" },
+  culture: { roleLabel: "CULTURE", whyHeading: "WARUM HIN.", utilityHeading: "ERLEBNIS PLANEN.", bookingIsPrimaryCta: false, defaultBookingLabel: "Jetzt buchen" },
+  shop: { roleLabel: "SHOP", whyHeading: "WARUM HIN.", utilityHeading: "GUT ZU WISSEN.", bookingIsPrimaryCta: false, defaultBookingLabel: "Jetzt buchen" }
 };
 
 function resolveConfig(placeType: string): ExperienceConfig {
@@ -139,25 +139,25 @@ function buildExperienceFacts(place: Place): Fact[] {
   return [
     { label: "TYPE", value: place.experienceType },
     { label: "TIME", value: place.experienceDurationLabel || formatDuration(place.suggestedDurationMinutes) },
-    { label: "BEST TIME", value: bestTime },
-    { label: "FLEXIBILITY", value: flexibilityLabel(place.defaultPlanningMode) },
-    { label: "EFFORT", value: effortLabel(place.effortLevel) },
-    { label: "ENVIRONMENT", value: environmentLabel(place.environment) },
-    { label: "WEATHER", value: weatherLabel(place.weatherSensitivity) },
-    { label: "SEASON", value: place.season },
-    { label: "BOOKING", value: place.bookingAdvice }
+    { label: "BESTE ZEIT", value: bestTime },
+    { label: "FLEXIBILITÄT", value: flexibilityLabel(place.defaultPlanningMode) },
+    { label: "AUFWAND", value: effortLabel(place.effortLevel) },
+    { label: "UMGEBUNG", value: environmentLabel(place.environment) },
+    { label: "WETTER", value: weatherLabel(place.weatherSensitivity) },
+    { label: "SAISON", value: place.season },
+    { label: "BUCHEN", value: place.bookingAdvice }
   ].filter((fact): fact is Fact => Boolean(fact.value));
 }
 
 function buildEatFacts(place: Place): Fact[] {
   return [
-    { label: "CHARACTER", value: place.eatCharacter },
+    { label: "CHARAKTER", value: place.eatCharacter },
     { label: "MEAL", value: titleCaseJoin(place.mealTypes) },
-    { label: "CUISINE", value: titleCaseJoin(place.cuisine) },
-    { label: "SETTING", value: place.setting },
-    { label: "PRICE", value: place.priceLevel },
-    { label: "RESERVATION", value: place.reservationAdvice },
-    { label: "DIETARY", value: place.dietaryNotes }
+    { label: "KÜCHE", value: titleCaseJoin(place.cuisine) },
+    { label: "LAGE", value: place.setting },
+    { label: "PREIS", value: place.priceLevel },
+    { label: "RESERVIERUNG", value: place.reservationAdvice },
+    { label: "ERNÄHRUNG", value: place.dietaryNotes }
   ].filter((fact): fact is Fact => Boolean(fact.value));
 }
 
@@ -237,7 +237,7 @@ export function ExperienceDetailView({ place }: { place: Place }) {
             {place.whyWeLikeIt ? <p className="experienceWhyLead">{place.whyWeLikeIt}</p> : null}
             {place.aroundTake ? (
               <div className="experienceAroundTake">
-                <span className="experienceAroundTakeLabel">THE AROUND TAKE.</span>
+                <span className="experienceAroundTakeLabel">UNSERE SICHT.</span>
                 <p>{place.aroundTake}</p>
               </div>
             ) : null}
@@ -246,25 +246,25 @@ export function ExperienceDetailView({ place }: { place: Place }) {
               <div className="experienceWhyGrid">
                 {place.theFeel?.length ? (
                   <div className="experienceWhyBlock">
-                    <span className="experienceWhyLabel">THE FEEL.</span>
+                    <span className="experienceWhyLabel">DAS GEFÜHL.</span>
                     <div className="experienceTagList">{place.theFeel.map(tag => <span key={tag}>{tag}</span>)}</div>
                   </div>
                 ) : null}
                 {place.bestFor?.length ? (
                   <div className="experienceWhyBlock">
-                    <span className="experienceWhyLabel">BEST FOR.</span>
+                    <span className="experienceWhyLabel">IDEAL FÜR.</span>
                     <div className="experienceTagList">{place.bestFor.map(tag => <span key={tag}>{tag}</span>)}</div>
                   </div>
                 ) : null}
                 {place.aroundMoment ? (
                   <div className="experienceWhyBlock">
-                    <span className="experienceWhyLabel">THE AROUND MOMENT.</span>
+                    <span className="experienceWhyLabel">DER MOMENT.</span>
                     <p>{place.aroundMoment}</p>
                   </div>
                 ) : null}
                 {place.knowBeforeYouGo ? (
                   <div className="experienceWhyBlock">
-                    <span className="experienceWhyLabel">KNOW BEFORE YOU GO.</span>
+                    <span className="experienceWhyLabel">BEVOR DU FÄHRST.</span>
                     <p>{place.knowBeforeYouGo}</p>
                   </div>
                 ) : null}
@@ -289,7 +289,7 @@ export function ExperienceDetailView({ place }: { place: Place }) {
       {legacyGoodToKnow.length > 0 && (
         <section className="section experienceSection experienceGoodToKnow">
           <div className="container">
-            <div className="eyebrow experienceGoodToKnowEyebrow">GOOD TO KNOW</div>
+            <div className="eyebrow experienceGoodToKnowEyebrow">GUT ZU WISSEN</div>
             <div className="factsGrid">
               {legacyGoodToKnow.map((fact,index)=><div className="fact" key={`${fact.label}-${index}`}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
             </div>
@@ -312,16 +312,16 @@ export function ExperienceDetailView({ place }: { place: Place }) {
 
       <StoryRail
         stories={place.stories || []}
-        eyebrow="STORIES FROM HERE"
-        title="GO DEEPER."
+        eyebrow="GESCHICHTEN VON HIER"
+        title="WEITERLESEN."
         className="experienceSection"
       />
 
       {hasOfficialInfo ? (
         <section className="section experienceSection">
           <div className="container">
-            <div className="eyebrow lime">{config.roleLabel} / OFFICIAL INFO</div>
-            <h2 className="sectionTitle">OFFICIAL INFO.</h2>
+            <div className="eyebrow lime">{config.roleLabel} / OFFIZIELLE INFOS</div>
+            <h2 className="sectionTitle">OFFIZIELLE INFOS.</h2>
             <div className="experienceOfficialPanel">
               <div className="experienceOfficialStatus">
                 {operatorConfirmed ? (
@@ -348,7 +348,7 @@ export function ExperienceDetailView({ place }: { place: Place }) {
         <section className="section experienceSection">
           <div className="container">
             <div className="eyebrow lime">{config.roleLabel} / TRIP</div>
-            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>MAKE A TRIP OF IT.</h2>
+            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>DARAUS WIRD EINE REISE.</h2>
             {aroundItGroups.map(group => (
               <div className="experienceTripGroup" key={group.role}>
                 <div className="experienceTripGroupLabel">{group.label}</div>
@@ -363,7 +363,7 @@ export function ExperienceDetailView({ place }: { place: Place }) {
         <section className="section experienceSection">
           <div className="container">
             <div className="eyebrow lime">{config.roleLabel} / TRIP</div>
-            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>MAKE A TRIP OF IT.</h2>
+            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>DARAUS WIRD EINE REISE.</h2>
             <p>
               Entdecke mehr rund um diesen Ort in{" "}
               <Link className="textLink" href={`/destinations/${place.destination.slug}`}>{place.destination.title}</Link>.
