@@ -519,6 +519,7 @@ export async function getStory(slug: string): Promise<Story | null> {
         imageCaption: doc.imageCaption || undefined,
         imageCredit: doc.imageCredit || undefined,
         disclosure: doc.disclosure || undefined,
+        unlisted: doc.unlisted === true,
         featured: Boolean(doc.featured),
         aroundSelected: Boolean(doc.aroundSelected),
         priority: typeof doc.priority === "number" ? doc.priority : undefined,

@@ -118,7 +118,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
           <div className="container">
             <div className="eyebrow lime">THE AROUND EDIT / YOUR WAY</div>
             <div className="destination48Intro">
-              <h2 className="sectionTitle" id="destination48-heading">DAS LANGE WOCHENENDE.<br/>{destination.itinerary.title.toUpperCase()}.</h2>
+              <h2 className="sectionTitle" id="destination48-heading">{destination.itinerary.days.length > 4 ? "DIE ROUTE." : "DAS LANGE WOCHENENDE."}<br/>{destination.itinerary.title.toUpperCase()}.</h2>
               {destination.itinerary.intro && <p>{destination.itinerary.intro}</p>}
             </div>
             {(destination.itinerary.durationAdvice || destination.itinerary.paceAdvice) && (

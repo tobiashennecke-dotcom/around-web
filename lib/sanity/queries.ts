@@ -30,7 +30,8 @@ export const CONTENT_ONLINE = `select(_type == "destination" => ${DESTINATION_ON
  * usable in saves and trips, but kept out of home, discover, search and sitemap.
  * Geo-based trip suggestions stay unfiltered: they only surface nearby places.
  */
-export const CONTENT_LISTED = `select(_type == "destination" => coalesce(unlisted, false) != true, _type == "place" => coalesce(destination->unlisted, false) != true, true)`;
+export const STORY_LISTED = `count(related[@->unlisted == true || @->destination->unlisted == true]) == 0`;
+export const CONTENT_LISTED = `select(_type == "destination" => coalesce(unlisted, false) != true, _type == "place" => coalesce(destination->unlisted, false) != true, _type == "story" => ${STORY_LISTED}, true)`;
 
 const CARD_FIELDS = `
   "aroundHidden": !${CONTENT_ONLINE},
@@ -103,7 +104,7 @@ export const PLACE_IDS_FOR_DESTINATION_QUERY = defineQuery(`
  */
 export const STORIES_HUB_QUERY = defineQuery(`
   {
-    "stories": *[_type == "story" && defined(slug.current) && ${STORY_ONLINE}]{
+    "stories": *[_type == "story" && defined(slug.current) && ${STORY_ONLINE} && ${STORY_LISTED}]{
       _id,_type,title,slug,kicker,
       "summary": coalesce(deck, ""),
       format,publishedAt,readingTime,featured,aroundSelected,priority,accessTier,
@@ -270,6 +271,7 @@ export const STORY_QUERY = defineQuery(`
     "imageCaption": heroImage.caption,
     "imageCredit": heroImage.credit,
     disclosure,
+    "unlisted": !(${STORY_LISTED}),
     "socialImage": socialImage.asset->url,
     body[]{
       ...,
