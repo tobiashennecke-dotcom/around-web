@@ -349,7 +349,7 @@ export async function getDestination(slug: string): Promise<Destination | null> 
               copy: stop.copy || undefined,
               place: toCard(stop.place)
             })).filter((stop: any) => Boolean(stop.place))
-          })).filter((day: any) => day.stops.length > 0)
+          })).filter((day: any, dayIndex: number) => day.stops.length > 0 || !(doc.itinerary.days[dayIndex]?.stops || []).length)
         } : undefined,
 
         places: linkedPlaces,
