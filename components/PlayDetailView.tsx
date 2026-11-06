@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ImmersiveRun } from "./ImmersiveRun";
+import { ResearchDraftNote } from "./ResearchDraftNote";
 import { SaveButton } from "@/components/SaveButton";
 import { TripPicker } from "@/components/TripPicker";
 import { ContentCard } from "@/components/ContentCard";
@@ -83,6 +85,7 @@ function groupAroundIt(items: Place["aroundIt"]) {
 
 export function PlayDetailView({ place }: { place: Place }) {
   const gallery = place.gallery || [];
+  const immersive = Boolean(place.unlisted && gallery.length >= 4);
   const savePayload = { sourceId: place.id, sourceType: place.type, sourceRole: "play" as ContentRole, title: place.title, slug: place.slug };
 
   const utilityFacts = [
@@ -116,8 +119,8 @@ export function PlayDetailView({ place }: { place: Place }) {
   return (
     <main>
       <section
-        className={`hero playHero ${place.image ? "heroWithImage" : ""}`}
-        style={place.image ? {backgroundImage:`linear-gradient(rgba(18,20,19,.25),rgba(18,20,19,.8)),url(${place.image})`} : undefined}
+        className={`hero playHero ${place.image ? "heroWithImage" : ""} ${immersive ? "heroImmersive" : ""}`}
+        style={place.image ? {backgroundImage:`linear-gradient(${immersive ? "rgba(18,20,19,0) 35%,rgba(18,20,19,.82)" : "rgba(18,20,19,.25),rgba(18,20,19,.8)"}),url(${place.image})`} : undefined}
       >
         <div className="container">
           <div className={`eyebrow ${place.accent}`}>{place.aroundSelected ? "AROUND SELECTED · PLAY" : "PLAY"}</div>
@@ -141,13 +144,17 @@ export function PlayDetailView({ place }: { place: Place }) {
         </section>
       ) : null}
 
+      {immersive ? <ImmersiveRun items={gallery} title={place.title} /> : null}
+      {immersive && place.aroundTake ? <section className="immersiveStatement"><div className="container"><span>UNSERE SICHT.</span><p>{place.aroundTake}</p></div></section> : null}
+      {immersive ? <ResearchDraftNote /> : null}
+
       {hasWhyPlayIt ? (
         <section className="section playSection">
           <div className="container">
             <div className="eyebrow lime">PLAY / EDITORIAL</div>
             <h2 className="sectionTitle">WARUM SPIELEN.</h2>
             {place.whyWeLikeIt ? <p className="playWhyLead">{place.whyWeLikeIt}</p> : null}
-            {place.aroundTake ? (
+            {place.aroundTake && !immersive ? (
               <div className="playAroundTake">
                 <span className="playAroundTakeLabel">UNSERE SICHT.</span>
                 <p>{place.aroundTake}</p>
@@ -186,7 +193,7 @@ export function PlayDetailView({ place }: { place: Place }) {
         </section>
       ) : null}
 
-      {gallery.length > 0 && (
+      {gallery.length > 0 && !immersive && (
         <section className="section playSection placeGallerySection">
           <div className="container">
             <div className="placeGalleryIntro">

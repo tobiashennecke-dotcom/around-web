@@ -9,6 +9,7 @@ import { StoryRail } from "@/components/StoryRail";
 import { LisbonTripImport } from "@/components/LisbonTripImport";
 import { PlaceGallery } from "@/components/PlaceGallery";
 import { ResearchDraftNote } from "@/components/ResearchDraftNote";
+import { ImmersiveRun } from "@/components/ImmersiveRun";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
@@ -41,16 +42,15 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
 
   return (
     <main className="destinationPage">
-      {destination.unlisted && <ResearchDraftNote />}
       <section
-        className={`hero destinationHero ${destination.image ? "heroWithImage" : ""}`}
+        className={`hero destinationHero ${destination.image ? "heroWithImage" : ""} ${destination.unlisted ? "heroImmersive" : ""}`}
         style={destination.image ? {backgroundImage:`url(${destination.image})`} : undefined}
       >
         <div className="container">
           <div className="eyebrow lime destinationHeroEyebrow">{destination.aroundSelected ? "AROUND SELECTED · " : ""}{destination.kicker}</div>
           <h1>{destination.title.toUpperCase()}</h1>
           <p className="heroIntro destinationHeroIntro">{destination.description}</p>
-          {destination.bestFor && destination.bestFor.length > 0 && (
+          {destination.bestFor && destination.bestFor.length > 0 && !destination.unlisted && (
             <div className="metaPills">{destination.bestFor.map(item=><span key={item}>{item}</span>)}</div>
           )}
           <div className="heroActions">
@@ -59,6 +59,10 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
           </div>
         </div>
       </section>
+
+      {destination.unlisted && destination.aroundTake && <section className="immersiveStatement"><div className="container"><span>UNSERE SICHT.</span><p>{destination.aroundTake}</p></div></section>}
+      {destination.unlisted && <ResearchDraftNote />}
+      {destination.unlisted && (destination.gallery?.length || 0) >= 4 && <ImmersiveRun items={destination.gallery || []} title={destination.title} />}
 
       <section className="section destinationWhySection">
         <div className="container editorialGrid destinationWhyGrid">
@@ -76,7 +80,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
         </div>
       </section>
 
-      {Boolean(destination.gallery?.length) && (
+      {Boolean(destination.gallery?.length) && !destination.unlisted && (
         <section className="section placeGallerySection destinationGallerySection">
           <div className="container">
             <div className="placeGalleryIntro">

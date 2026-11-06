@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ImmersiveRun } from "./ImmersiveRun";
+import { ResearchDraftNote } from "./ResearchDraftNote";
 import { SaveButton } from "@/components/SaveButton";
 import { TripPicker } from "@/components/TripPicker";
 import { ContentCard } from "@/components/ContentCard";
@@ -82,6 +84,7 @@ function groupAroundIt(items: Place["aroundIt"]) {
 
 export function StayDetailView({ place }: { place: Place }) {
   const gallery = place.gallery || [];
+  const immersive = Boolean(place.unlisted && gallery.length >= 4);
   const savePayload = { sourceId: place.id, sourceType: place.type, sourceRole: "stay" as ContentRole, title: place.title, slug: place.slug };
 
   const snapshotFacts = [
@@ -116,8 +119,8 @@ export function StayDetailView({ place }: { place: Place }) {
   return (
     <main>
       <section
-        className={`hero stayHero ${place.image ? "heroWithImage" : ""}`}
-        style={place.image ? {backgroundImage:`linear-gradient(rgba(18,20,19,.25),rgba(18,20,19,.8)),url(${place.image})`} : undefined}
+        className={`hero stayHero ${place.image ? "heroWithImage" : ""} ${immersive ? "heroImmersive" : ""}`}
+        style={place.image ? {backgroundImage:`linear-gradient(${immersive ? "rgba(18,20,19,0) 35%,rgba(18,20,19,.82)" : "rgba(18,20,19,.25),rgba(18,20,19,.8)"}),url(${place.image})`} : undefined}
       >
         <div className="container">
           <div className={`eyebrow ${place.accent}`}>{place.aroundSelected ? "AROUND SELECTED · STAY" : "STAY"}</div>
@@ -141,13 +144,17 @@ export function StayDetailView({ place }: { place: Place }) {
         </section>
       ) : null}
 
+      {immersive ? <ImmersiveRun items={gallery} title={place.title} /> : null}
+      {immersive && place.aroundTake ? <section className="immersiveStatement"><div className="container"><span>UNSERE SICHT.</span><p>{place.aroundTake}</p></div></section> : null}
+      {immersive ? <ResearchDraftNote /> : null}
+
       {hasWhyStayHere ? (
         <section className="section staySection">
           <div className="container">
             <div className="eyebrow lime">STAY / EDITORIAL</div>
             <h2 className="sectionTitle">WARUM HIER SCHLAFEN.</h2>
             {place.whyWeLikeIt ? <p className="stayWhyLead">{place.whyWeLikeIt}</p> : null}
-            {place.aroundTake ? (
+            {place.aroundTake && !immersive ? (
               <div className="stayAroundTake">
                 <span className="stayAroundTakeLabel">UNSERE SICHT.</span>
                 <p>{place.aroundTake}</p>
@@ -229,7 +236,7 @@ export function StayDetailView({ place }: { place: Place }) {
         </section>
       ) : null}
 
-      {gallery.length > 0 && (
+      {gallery.length > 0 && !immersive && (
         <section className="section staySection placeGallerySection">
           <div className="container">
             <div className="placeGalleryIntro">
