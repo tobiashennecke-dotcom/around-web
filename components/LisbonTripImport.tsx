@@ -58,8 +58,10 @@ export function LisbonTripImport({ destinationId, journey }: { destinationId: st
           await toggleSave(payload);
           existing.add(place.id);
         }
+        const stayStarts = resolved.filter(item => item.place?.placeType === "stay").map(item => item.dayIndex);
+        const nextStay = stayStarts.find(dayIndex => dayIndex > stop.dayIndex);
         await addItemToTrip(trip.id, payload, place.placeType === "stay"
-          ? { stayStartDay: stop.dayIndex, stayEndDay: journey.days.length, stayFullTrip: stop.dayIndex === 0 }
+          ? { stayStartDay: stop.dayIndex, stayEndDay: nextStay ?? journey.days.length - 1, stayFullTrip: stayStarts.length === 1 }
           : {});
         await updateTripItem(trip.id, place.id, {
           dayIndex: stop.dayIndex,

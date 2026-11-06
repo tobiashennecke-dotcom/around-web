@@ -2909,3 +2909,22 @@ img{display:block;max-width:100%}
 .researchDraftNote{background:var(--around-lime,#D6EA2A);color:var(--around-ink,#212322);padding:12px 20px;font-size:14px;line-height:1.35}
 .researchDraftNote strong{letter-spacing:.04em}
 @media (max-width:760px){.headerMyAround{position:relative}}
+
+/* Direct-link demo pages: open big, then one picture per screen. */
+.hero.heroImmersive,.destinationPage .destinationHero.heroImmersive{min-height:calc(100svh - 72px);display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;padding:24px 0 92px;background-position:center}
+.hero.heroImmersive h1,.destinationPage .destinationHero.heroImmersive h1{font-size:clamp(3.6rem,15.5vw,12rem);font-weight:900;line-height:.86;letter-spacing:-.065em;margin:14px 0 18px;text-transform:uppercase;overflow-wrap:normal}
+.hero.heroImmersive .heroIntro{font-size:clamp(1.05rem,4.4vw,1.5rem);line-height:1.3;max-width:34em}
+.destinationPage .destinationHero.heroImmersive::before{background:linear-gradient(180deg,rgba(12,15,14,0) 30%,rgba(12,15,14,.85))}
+.immersiveRun{background:var(--around-ink)}
+.immersiveShot{position:relative;margin:0;min-height:92svh;display:flex;align-items:flex-end;overflow:hidden;border-bottom:4px solid var(--around-ink)}
+.immersiveShot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.immersiveShot::after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(180deg,rgba(12,15,14,0),rgba(12,15,14,.72) 55%,rgba(12,15,14,.92))}
+.immersiveShot figcaption{position:absolute;left:0;right:0;bottom:0;z-index:1;padding-top:24px;padding-bottom:92px;color:#fff;display:flex;flex-direction:column;gap:12px}
+.immersiveIndex{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--around-lime,#D6EA2A)}
+.immersiveShot strong{display:block;font-size:clamp(2.2rem,10.4vw,6.5rem);font-weight:900;line-height:.94;letter-spacing:-.045em;text-transform:uppercase;max-width:15em}
+.immersiveShot small{font-size:11px;opacity:.65}
+.immersiveStatement{background:var(--around-lime,#D6EA2A);color:var(--around-ink,#212322);padding:72px 0}
+.immersiveStatement span{display:block;font-size:12px;font-weight:800;letter-spacing:.14em;margin-bottom:18px}
+.immersiveStatement p{margin:0;font-size:clamp(2.4rem,11vw,7rem);font-weight:900;line-height:.95;letter-spacing:-.05em;text-transform:uppercase}
+@supports (animation-timeline:view()){@media (prefers-reduced-motion:no-preference){.immersiveShot img{animation:immersiveDrift linear both;animation-timeline:view()}@keyframes immersiveDrift{from{transform:scale(1.14)}to{transform:scale(1)}}}}
+@media (min-width:761px){.immersiveShot figcaption{padding-bottom:64px}.hero.heroImmersive,.destinationPage .destinationHero.heroImmersive{padding-bottom:64px}.hero.heroImmersive h1,.destinationPage .destinationHero.heroImmersive h1{font-size:clamp(4rem,11vw,12rem)}}

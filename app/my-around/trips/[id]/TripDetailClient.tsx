@@ -293,7 +293,14 @@ export function TripDetailClient({ id }: { id: string }) {
     });
   }, [id]);
 
-  const dayCount = useMemo(() => daysBetween(startDate, endDate), [startDate, endDate]);
+  const planItems = trip?.items;
+  const dayCount = useMemo(() => {
+    const byDates = daysBetween(startDate, endDate);
+    if (startDate && endDate) return byDates;
+    // Without dates an imported route must keep its length (the planner caps at 14 days).
+    const lastPlannedDay = Math.max(0, ...(planItems || []).map(item => Math.max(item.dayIndex ?? 0, item.stayEndDay ?? 0)));
+    return Math.min(14, Math.max(byDates, lastPlannedDay + 1));
+  }, [startDate, endDate, planItems]);
   useEffect(() => { setActiveMobileDay(current => Math.min(current, dayCount - 1)); }, [dayCount]);
   function onMobileTouchStart(event: React.TouchEvent<HTMLDivElement>) { const touch = event.touches[0]; swipeStart.current = touch ? {x: touch.clientX,y: touch.clientY} : null; }
   function onMobileTouchEnd(event: React.TouchEvent<HTMLDivElement>) { const touch = event.changedTouches[0]; const first = swipeStart.current; swipeStart.current = null; if(!touch || !first)return; const dx = touch.clientX-first.x; const dy=touch.clientY-first.y; if(Math.abs(dx)<65 || Math.abs(dx)<Math.abs(dy)*1.4)return; setActiveMobileDay(current=>Math.max(0,Math.min(dayCount-1,current+(dx<0?1:-1)))); }
@@ -818,7 +825,7 @@ export function TripDetailClient({ id }: { id: string }) {
               ) : endDate ? (
                 <><strong>Schritt 1 fehlt: Wann reist du an?</strong><span>Wähle oben bei „01 Anreise“ den ersten Reisetag.</span></>
               ) : (
-                <><strong>Lege zuerst Anreise und Abreise fest.</strong><span>Die drei angezeigten Tage sind nur eine vorläufige Planungsvorlage.</span></>
+                <><strong>Lege zuerst Anreise und Abreise fest.</strong><span>Die angezeigten Tage sind nur eine vorläufige Planungsvorlage.</span></>
               )}
             </div>
           </div>
@@ -1084,7 +1091,7 @@ function StayLane({
                     }}
                   >
                     <option value="">Offen</option>
-                    {Array.from({ length: dayCount }, (_, index) => <option value={index} key={index}>Day {index + 1}{startDate ? ` · ${dayDate(startDate,index)}` : ""}</option>)}
+                    {Array.from({ length: dayCount }, (_, index) => <option value={index} key={index}>Tag {index + 1}{startDate ? ` · ${dayDate(startDate,index)}` : ""}</option>)}
                   </select>
                 </label>
                 <label>
@@ -1097,7 +1104,7 @@ function StayLane({
                     <option value="">Offen</option>
                     {Array.from({ length: Math.max(0,dayCount - 1) }, (_, offset) => offset + 1)
                       .filter(index => range.start === undefined || index > range.start)
-                      .map(index => <option value={index} key={index}>Day {index + 1}{startDate ? ` · ${dayDate(startDate,index)}` : ""}</option>)}
+                      .map(index => <option value={index} key={index}>Tag {index + 1}{startDate ? ` · ${dayDate(startDate,index)}` : ""}</option>)}
                   </select>
                 </label>
                 <div className="tripStayModeRow">
@@ -1367,7 +1374,7 @@ function TripItemRow({
           <span>Tag</span>
           <select value={item.dayIndex === undefined ? "" : String(item.dayIndex)} onChange={event => onChange(item.sourceId, { dayIndex: event.target.value === "" ? undefined : Number(event.target.value) })}>
             <option value="">Offen</option>
-            {Array.from({ length: dayCount }, (_, index) => <option value={index} key={index}>Day {index + 1}</option>)}
+            {Array.from({ length: dayCount }, (_, index) => <option value={index} key={index}>Tag {index + 1}</option>)}
           </select>
         </label>
 

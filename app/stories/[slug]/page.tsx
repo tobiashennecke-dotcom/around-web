@@ -42,7 +42,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
   const title=story.seoTitle || `${story.title} — AROUND`;
   const description=story.seoDescription || story.deck;
   const image=story.socialImage || story.image;
-  return {title,description,openGraph:{title,description,type:"article",images:image?[image]:undefined}};
+  return {title,description,openGraph:{title,description,type:"article",images:image?[image]:undefined},...(story.unlisted?{robots:{index:false,follow:false}}:{})};
 }
 
 export default async function StoryPage({ params }: { params: Promise<{slug:string}>}) {

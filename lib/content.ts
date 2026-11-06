@@ -349,7 +349,7 @@ export async function getDestination(slug: string): Promise<Destination | null> 
               copy: stop.copy || undefined,
               place: toCard(stop.place)
             })).filter((stop: any) => Boolean(stop.place))
-          })).filter((day: any) => day.stops.length > 0)
+          })).filter((day: any, dayIndex: number) => day.stops.length > 0 || !(doc.itinerary.days[dayIndex]?.stops || []).length)
         } : undefined,
 
         places: linkedPlaces,
@@ -519,6 +519,7 @@ export async function getStory(slug: string): Promise<Story | null> {
         imageCaption: doc.imageCaption || undefined,
         imageCredit: doc.imageCredit || undefined,
         disclosure: doc.disclosure || undefined,
+        unlisted: doc.unlisted === true,
         featured: Boolean(doc.featured),
         aroundSelected: Boolean(doc.aroundSelected),
         priority: typeof doc.priority === "number" ? doc.priority : undefined,
