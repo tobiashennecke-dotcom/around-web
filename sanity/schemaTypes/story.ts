@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { topicsField } from "./topic";
 import { PlaceGalleryBulkInput } from "../components/PlaceGalleryBulkInput";
 import { storyAudio, storyFacts, storyHoleLine, storyOTon, storyVideo } from "./storyModules";
 
@@ -269,6 +270,7 @@ export const story = defineType({
       ]}]
     }),
 
+    topicsField("publishing"),
     defineField({name:"featured",title:"Featured",type:"boolean",group:"publishing",initialValue:false}),
     defineField({name:"aroundSelected",title:"AROUND Selected",type:"boolean",group:"publishing",initialValue:false}),
     defineField({name:"priority",title:"Editorial priority",type:"number",group:"publishing",initialValue:50,validation:r=>r.min(0).max(100)}),

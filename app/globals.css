@@ -2953,3 +2953,65 @@ img{display:block;max-width:100%}
   .editSection .leadSupport--2 .card p{display:none}
   .editSection .leadSupport--2 .cardMeta{margin-top:8px}
 }
+
+/* Themen & Schlagwörter - chips used on destination, place, story and topic pages */
+.topicLinks{padding:34px 0;border-top:1px solid var(--around-line);background:var(--around-warm)}
+.topicLinks--dark{background:var(--around-ink);color:var(--around-warm);border-top-color:rgba(255,255,255,.14)}
+.topicLinksInner{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.topicLinksInner ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0}
+.topicChip{display:inline-flex;align-items:center;min-height:34px;padding:0 13px;border:1px solid currentColor;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;transition:background .2s ease,color .2s ease,border-color .2s ease}
+.topicChip--theme{background:var(--around-lime);color:var(--around-ink);border-color:var(--around-lime)}
+.topicChip--tag{text-transform:none;letter-spacing:.02em;font-size:13px;font-weight:700}
+.topicChip:hover{background:var(--around-ink);color:var(--around-lime);border-color:var(--around-ink)}
+.topicLinks--dark .topicChip:hover{background:var(--around-lime);color:var(--around-ink);border-color:var(--around-lime)}
+
+/* Reisefakten - stable destination facts directly under the hero */
+.travelFacts{background:var(--around-ink);color:var(--around-warm);border-top:1px solid rgba(255,255,255,.12)}
+.travelFactsGrid{display:grid;gap:0}
+.travelFactsGrid--1{grid-template-columns:1fr}.travelFactsGrid--2{grid-template-columns:repeat(2,1fr)}.travelFactsGrid--3{grid-template-columns:repeat(3,1fr)}
+.travelFact{display:flex;flex-direction:column;gap:6px;padding:26px 24px 26px 0}
+.travelFact + .travelFact{border-left:1px solid rgba(255,255,255,.14);padding-left:24px}
+.travelFactLabel{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--around-lime)}
+.travelFactValue{font-size:clamp(24px,2.4vw,36px);line-height:1;letter-spacing:-.03em;font-weight:800}
+.travelFactNote{font-size:13px;line-height:1.35;opacity:.72}
+@media(max-width:720px){
+  .travelFactsGrid--2,.travelFactsGrid--3{grid-template-columns:1fr}
+  .travelFact{padding:18px 0}
+  .travelFact + .travelFact{border-left:0;border-top:1px solid rgba(255,255,255,.14);padding-left:0}
+}
+
+/* Regionen - a destination split into its corners */
+.destinationRegions{background:#ebe8e1}
+.destinationRegionsGrid{display:grid;gap:18px}
+.destinationRegionsGrid--2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.destinationRegionsGrid--3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.destinationRegion{background:#fff;border:1px solid var(--around-line);border-top:3px solid var(--around-lime);padding:26px;display:flex;flex-direction:column}
+.destinationRegion:nth-child(2){border-top-color:var(--around-blue)}
+.destinationRegion:nth-child(3){border-top-color:var(--around-pink)}
+.destinationRegionNumber{font-size:12px;font-weight:800;letter-spacing:.14em;color:#777}
+.destinationRegion h3{font-size:clamp(28px,2.8vw,42px);line-height:.92;letter-spacing:-.045em;text-transform:uppercase;margin:10px 0 12px}
+.destinationRegion p{font-size:16px;line-height:1.45;color:#4d514d;margin:0 0 18px}
+.destinationRegionPlaces{list-style:none;padding:0;margin:0;border-top:1px solid var(--around-line)}
+.destinationRegionPlaces a{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--around-line);font-weight:700}
+.destinationRegionPlaces a:hover{color:var(--around-blue)}
+.destinationRegionRole{font-size:10px;font-weight:800;letter-spacing:.12em;color:#777}
+@media(max-width:1050px){.destinationRegionsGrid--3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.destinationRegionsGrid--2,.destinationRegionsGrid--3{grid-template-columns:1fr}}
+
+/* Kontakt zur Redaktion - own lime band directly above the footer, never inside it */
+.contactBand{background:var(--around-lime);color:var(--around-ink);padding:clamp(56px,8vw,104px) 0}
+.contactBandGrid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px;align-items:end}
+.contactBandTitle{margin:0;font-family:Arial,Helvetica,sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(54px,7.4vw,124px);line-height:.8;letter-spacing:-.065em}
+.contactBandAside p{font-size:clamp(20px,1.9vw,28px);line-height:1.15;margin:0 0 26px;max-width:520px}
+.contactBandActions{display:flex;flex-wrap:wrap;gap:10px}
+.contactBandPrimary,.contactBandSecondary{display:inline-flex;align-items:center;min-height:48px;padding:0 20px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--around-ink);transition:background .2s ease,color .2s ease}
+.contactBandPrimary{background:var(--around-ink);color:var(--around-lime)}
+.contactBandPrimary:hover{background:transparent;color:var(--around-ink)}
+.contactBandSecondary{text-transform:none;letter-spacing:.02em;font-size:14px}
+.contactBandSecondary:hover{background:var(--around-ink);color:var(--around-lime)}
+@media(max-width:900px){.contactBandGrid{grid-template-columns:1fr;gap:26px}}
+
+/* Footer wordmark sized to its own container so "THIS IS AROUND." never clips */
+.footerGiantWrap{container-type:inline-size}
+.footerGiantWrap .footerGiant{font-size:min(13.5cqi,210px);padding-right:.04em}
+@media(max-width:620px){.footerGiantWrap .footerGiant{font-size:68px}}

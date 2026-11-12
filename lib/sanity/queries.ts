@@ -33,6 +33,9 @@ export const CONTENT_ONLINE = `select(_type == "destination" => ${DESTINATION_ON
 export const STORY_LISTED = `count(related[@->unlisted == true || @->destination->unlisted == true]) == 0`;
 export const CONTENT_LISTED = `select(_type == "destination" => coalesce(unlisted, false) != true, _type == "place" => coalesce(destination->unlisted, false) != true, _type == "story" => ${STORY_LISTED}, true)`;
 
+/** Visible topics (Themen & Schlagwörter) only - hidden topics never reach the frontend. */
+const TOPIC_LINKS = `"topics": topics[@->isVisible == true && defined(@->slug.current)]->{"id": _id,title,"slug": slug.current,kind}`;
+
 const CARD_FIELDS = `
   "aroundHidden": !${CONTENT_ONLINE},
   _id,_type,title,slug,kicker,teaserTitle,teaserDescription,placeType,featured,aroundSelected,priority,accessTier,
@@ -206,6 +209,9 @@ export const DESTINATION_QUERY = defineQuery(`
   *[_type == "destination" && slug.current == $slug && ${DESTINATION_ONLINE}][0]{
     _id,title,slug,kicker,summary,country,coordinates,whyGo,aroundTake,bestFor,
     featured,aroundSelected,priority,seoTitle,seoDescription,unlisted,
+    timeZone,bestMonths,seasonNote,airport{code,name,transferMinutes},
+    "regions": regions[]{_key,title,summary,"places": places[]->{${CARD_FIELDS}}},
+    ${TOPIC_LINKS},
     "image": heroImage.asset->url,
     "socialImage": socialImage.asset->url,
     gallery[]{
@@ -234,6 +240,7 @@ export const PLACE_QUERY = defineQuery(`
     address,website,instagram,coordinates,featured,aroundSelected,priority,
     bookingUrl,bookingLabel,operatorStatus,commercialPartner,
     seoTitle,seoDescription,
+    ${TOPIC_LINKS},
     "unlisted": destination->unlisted,
     "image": heroImage.asset->url,
     "socialImage": socialImage.asset->url,
@@ -292,6 +299,7 @@ export const STORY_QUERY = defineQuery(`
     _id,title,slug,kicker,deck,format,publishedAt,readingTime,featured,aroundSelected,priority,
     accessTier,
     seoTitle,seoDescription,
+    ${TOPIC_LINKS},
     "image": heroImage.asset->url,
     "imageAlt": heroImage.alt,
     "imageCaption": heroImage.caption,
@@ -449,7 +457,41 @@ export const PARTNER_PREVIEW_QUERY = defineQuery(`
 
 /** Every public, online detail page for app/sitemap.ts. */
 export const SITEMAP_QUERY = defineQuery(`
-  *[_type in ["destination","place","story","person","product","collection"] && defined(slug.current) && ${CONTENT_ONLINE} && ${CONTENT_LISTED}]{
+  *[(_type in ["destination","place","story","person","product","collection"] && defined(slug.current) && ${CONTENT_ONLINE} && ${CONTENT_LISTED})
+    || (_type == "topic" && isVisible == true && defined(slug.current))]{
     _type,"slug": slug.current,_updatedAt
+  }
+`);
+
+/**
+ * Themen & Schlagwörter. A topic page only exists while the topic is switched
+ * visible; its items are the content whose own topics[] references it, with
+ * the same online/listed rules as every other public list.
+ */
+const TOPIC_ITEM_FILTER = `_type in ["destination","place","story","person","product","collection"] && defined(slug.current) && ${CONTENT_ONLINE} && ${CONTENT_LISTED}`;
+
+export const TOPIC_QUERY = defineQuery(`
+  *[_type == "topic" && slug.current == $slug && isVisible == true][0]{
+    _id,title,slug,kind,kicker,intro,
+    "image": heroImage.asset->url,
+    "imageAlt": heroImage.alt,
+    "imageCredit": heroImage.credit,
+    "items": *[${TOPIC_ITEM_FILTER} && ^._id in topics[]._ref] | order(priority desc, _updatedAt desc){${CARD_FIELDS}},
+    "related": *[_type == "topic" && isVisible == true && _id != ^._id && defined(slug.current)] | order(priority desc)[0...12]{"id": _id,title,"slug": slug.current,kind}
+  }
+`);
+
+export const TOPICS_INDEX_QUERY = defineQuery(`
+  *[_type == "topic" && isVisible == true && defined(slug.current)] | order(kind asc, priority desc, title asc){
+    "id": _id,title,"slug": slug.current,kind,kicker,intro,
+    "image": heroImage.asset->url,
+    "count": count(*[${TOPIC_ITEM_FILTER} && ^._id in topics[]._ref])
+  }
+`);
+
+/** Editorial contact channel singleton (Studio: Kontakt zur Redaktion). */
+export const CONTACT_QUERY = defineQuery(`
+  *[_type == "contactSettings" && _id == "around-contact"][0]{
+    isEnabled,headline,text,whatsappNumber,whatsappPrefill,email,showInFooter
   }
 `);

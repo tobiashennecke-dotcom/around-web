@@ -16,6 +16,7 @@ import { StoryReadingProgress } from "@/components/StoryReadingProgress";
 import { StoryReadAloud } from "@/components/StoryReadAloud";
 import { getReadAloud, getStoryChapters, MIN_CHAPTERS, type StoryChapter } from "@/lib/story-modules";
 import { isDraftPreview } from "@/lib/sanity/read-client";
+import { TopicLinks } from "@/components/TopicLinks";
 
 function ChapterNav({ chapters, className }: { chapters: StoryChapter[]; className: string }) {
   return (
@@ -153,6 +154,8 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
           )}
         </article>
       </div>
+
+      <TopicLinks topics={story.topics} />
 
       <StoryPlaceBridge places={places} tripTitle={firstDestination?.title || story.title} destinationSourceId={firstDestination?.id} />
 

@@ -10,6 +10,9 @@ import {
   DISCOVER_QUERY,
   HOME_QUERY,
   HOMEPAGE_CURATION_QUERY,
+  TOPIC_QUERY,
+  TOPICS_INDEX_QUERY,
+  CONTACT_QUERY,
   OFFLINE_CONTENT_IDS_QUERY,
   PERSON_QUERY,
   PLACE_IDS_FOR_DESTINATION_QUERY,
@@ -37,7 +40,7 @@ import {
   places,
   stories
 } from "@/lib/sample-content";
-import type {
+import type { TopicLink,
   PlaceMediaItem,
   AroundCollection,
   ContentCard,
@@ -114,6 +117,13 @@ export function toCard(doc: any): ContentCard | null {
     aroundSelected: Boolean(doc.aroundSelected),
     priority: typeof doc.priority === "number" ? doc.priority : undefined
   };
+}
+
+function mapTopicLinks(raw: unknown): TopicLink[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((t: any) => t && typeof t.slug === "string" && typeof t.title === "string")
+    .map((t: any) => ({ id: String(t.id), title: t.title, slug: t.slug, kind: t.kind === "theme" ? "theme" : "tag" }));
 }
 
 function compactCards(items: any[] | null | undefined): ContentCard[] {
@@ -389,6 +399,23 @@ export async function getDestination(slug: string): Promise<Destination | null> 
 
         places: linkedPlaces,
         stories: linkedStories,
+        topics: mapTopicLinks(doc.topics),
+        facts: {
+          timeZone: typeof doc.timeZone === "string" ? doc.timeZone : undefined,
+          bestMonths: Array.isArray(doc.bestMonths) ? doc.bestMonths.map(Number).filter((m: number) => m >= 1 && m <= 12) : undefined,
+          seasonNote: doc.seasonNote || undefined,
+          airport: doc.airport && (doc.airport.code || doc.airport.name) ? {
+            code: doc.airport.code || undefined,
+            name: doc.airport.name || undefined,
+            transferMinutes: typeof doc.airport.transferMinutes === "number" ? doc.airport.transferMinutes : undefined
+          } : undefined
+        },
+        regions: (Array.isArray(doc.regions) ? doc.regions : []).map((region: any, index: number) => ({
+          key: region._key || String(index),
+          title: region.title || "",
+          summary: region.summary || undefined,
+          places: compactCards(region.places as any[] | undefined)
+        })).filter((region: any) => region.title && region.places.length > 0),
         seoTitle: doc.seoTitle || undefined,
         seoDescription: doc.seoDescription || undefined,
         socialImage: doc.socialImage || undefined
@@ -505,6 +532,7 @@ export async function getPlace(slug: string): Promise<Place | null> {
         aroundIt,
         nearbyCourses,
         stories: storiesForPlace,
+        topics: mapTopicLinks(doc.topics),
         seoTitle: doc.seoTitle || undefined,
         seoDescription: doc.seoDescription || undefined,
         socialImage: doc.socialImage || undefined
@@ -573,6 +601,7 @@ export async function getStory(slug: string): Promise<Story | null> {
         accessTier: normalizeStoryAccessTier(doc.accessTier),
         relatedIds: related.map(x => x.id),
         related,
+        topics: mapTopicLinks(doc.topics),
         seoTitle: doc.seoTitle || undefined,
         seoDescription: doc.seoDescription || undefined,
         socialImage: doc.socialImage || undefined
@@ -818,4 +847,80 @@ export async function getOfflineContentIds(ids: string[]): Promise<string[]> {
   if (!clean.length) return [];
   const result = await sanity.fetch(OFFLINE_CONTENT_IDS_QUERY, { ids: clean });
   return Array.isArray(result) ? result.filter((id: unknown): id is string => typeof id === "string") : [];
+}
+
+export type TopicPage = TopicLink & {
+  kicker?: string;
+  intro?: string;
+  image?: string;
+  imageAlt?: string;
+  imageCredit?: string;
+  items: ContentCard[];
+  related: TopicLink[];
+};
+
+export type TopicIndexEntry = TopicLink & { kicker?: string; intro?: string; image?: string; count: number };
+
+/** A visible Thema/Schlagwort with its content. Hidden topics resolve to null (404). */
+export async function getTopic(slug: string): Promise<TopicPage | null> {
+  if (!sanity) return null;
+  const doc = (await sanity.fetch(TOPIC_QUERY, { slug })) as any;
+  if (!doc) return null;
+  return {
+    id: doc._id,
+    title: doc.title,
+    slug: doc.slug?.current || slug,
+    kind: doc.kind === "theme" ? "theme" : "tag",
+    kicker: doc.kicker || undefined,
+    intro: doc.intro || undefined,
+    image: doc.image ? sizedImage(doc.image, 1600) : undefined,
+    imageAlt: doc.imageAlt || undefined,
+    imageCredit: doc.imageCredit || undefined,
+    items: compactCards(doc.items as any[] | undefined),
+    related: mapTopicLinks(doc.related)
+  };
+}
+
+export async function getTopicsIndex(): Promise<TopicIndexEntry[]> {
+  if (!sanity) return [];
+  const docs = (await sanity.fetch(TOPICS_INDEX_QUERY)) as any[];
+  return (docs || []).map(doc => ({
+    ...mapTopicLinks([doc])[0],
+    kicker: doc.kicker || undefined,
+    intro: doc.intro || undefined,
+    image: doc.image ? sizedImage(doc.image, 900) : undefined,
+    count: typeof doc.count === "number" ? doc.count : 0
+  })).filter(entry => Boolean(entry?.slug));
+}
+
+export type ContactChannel = {
+  headline: string;
+  text?: string;
+  whatsappUrl?: string;
+  email?: string;
+  showInFooter: boolean;
+};
+
+/** Editorial contact channel. Null when switched off or no channel is filled. */
+export async function getContactChannel(): Promise<ContactChannel | null> {
+  if (!sanity) return null;
+  try {
+    const doc = (await sanity.fetch(CONTACT_QUERY)) as any;
+    if (!doc || doc.isEnabled !== true) return null;
+    const digits = typeof doc.whatsappNumber === "string" ? doc.whatsappNumber.replace(/[^0-9]/g, "") : "";
+    const whatsappUrl = digits.length >= 7
+      ? `https://wa.me/${digits}${doc.whatsappPrefill ? `?text=${encodeURIComponent(doc.whatsappPrefill)}` : ""}`
+      : undefined;
+    const email = typeof doc.email === "string" && doc.email.includes("@") ? doc.email : undefined;
+    if (!whatsappUrl && !email) return null;
+    return {
+      headline: doc.headline || "TIPP FÜR UNS?",
+      text: doc.text || undefined,
+      whatsappUrl,
+      email,
+      showInFooter: doc.showInFooter !== false
+    };
+  } catch {
+    return null;
+  }
 }

@@ -10,6 +10,7 @@ import { PlayDetailView } from "@/components/PlayDetailView";
 import { StayDetailView } from "@/components/StayDetailView";
 import { ExperienceDetailView } from "@/components/ExperienceDetailView";
 import { contentTypeLabel } from "@/lib/content-role";
+import { TopicLinks } from "@/components/TopicLinks";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
@@ -25,9 +26,10 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
   const { slug } = await params;
   const place = await getPlace(slug);
   if (!place) notFound();
-  if (place.placeType === "course") return <PlayDetailView place={place} />;
-  if (place.placeType === "stay") return <StayDetailView place={place} />;
-  if (["eat","drink","do","culture","shop"].includes(place.placeType)) return <ExperienceDetailView place={place} />;
+  // Topic chips sit after every Place view, so they need no change inside the type-specific views.
+  if (place.placeType === "course") return <><PlayDetailView place={place} /><TopicLinks topics={place.topics} /></>;
+  if (place.placeType === "stay") return <><StayDetailView place={place} /><TopicLinks topics={place.topics} /></>;
+  if (["eat","drink","do","culture","shop"].includes(place.placeType)) return <><ExperienceDetailView place={place} /><TopicLinks topics={place.topics} /></>;
   // Safe fallback for any unrecognized placeType - generic template below.
   const roleLabel = contentTypeLabel("place", place.placeType);
   const gallery = place.gallery || [];
@@ -102,6 +104,7 @@ export default async function PlacePage({ params }: { params: Promise<{slug:stri
           )}
         </div>
       </section>
+      <TopicLinks topics={place.topics} />
     </main>
   );
 }
