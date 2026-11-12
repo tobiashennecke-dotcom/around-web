@@ -3015,3 +3015,62 @@ img{display:block;max-width:100%}
 .footerGiantWrap{container-type:inline-size}
 .footerGiantWrap .footerGiant{font-size:min(13.5cqi,210px);padding-right:.04em}
 @media(max-width:620px){.footerGiantWrap .footerGiant{font-size:68px}}
+
+/* ===== Startseite: jeder Bereich passt auf einen Laptop-Bildschirm =====
+   Wie THE EDIT: ab 1051px richtet sich die Höhe der Module nach der Fensterhöhe,
+   Überschrift + Bilder sind ohne Scrollen auf einen Blick zu sehen. */
+@media (min-width:1051px){
+  .storiesSection,.travelSectionV13,.indexSection{--fit-pad:clamp(40px,6vh,80px);padding-top:var(--fit-pad);padding-bottom:var(--fit-pad)}
+  .storiesSection .sectionHead,.travelSectionV13 .sectionHead,.indexSection .sectionHead{margin-bottom:clamp(18px,3vh,32px)}
+  .storiesSection .sectionTitle,.travelSectionV13 .sectionTitle,.indexSection .sectionTitle{font-size:clamp(44px,min(5.4vw,9.5vh),100px)}
+
+  /* STORIES: Aufmacher + zwei Nebenstories in fester Höhe */
+  .homeStoriesEditorial .homeStoriesGrid{height:clamp(440px,calc(100svh - 76px - 2 * clamp(40px,6vh,80px) - min(10.5vw,19vh) - 40px),720px)}
+  .homeStoriesEditorial .homeStoriesLead,.homeStoriesEditorial .homeStoriesLead .storyFeature{height:100%;min-height:0}
+  /* Aufmacher: Bild füllt die ganze Kachel, Text liegt unten auf einem Verlauf */
+  .homeStoriesEditorial .homeStoriesLead .storyFeature--lead{position:relative;overflow:hidden}
+  .homeStoriesEditorial .homeStoriesLead .storyFeature--lead .storyFeatureMedia{position:absolute;inset:0;min-height:0;aspect-ratio:auto}
+  .homeStoriesEditorial .homeStoriesLead .storyFeature--lead .storyFeatureMedia::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,16,15,0) 35%,rgba(15,16,15,.88) 100%);pointer-events:none}
+  .homeStoriesEditorial .homeStoriesLead .storyFeature--lead .storyFeatureBody{position:relative;z-index:1;margin-top:auto;flex:none;padding:28px 30px 24px;gap:8px;pointer-events:none}
+  .homeStoriesEditorial .homeStoriesLead .storyFeature--lead .storyFeatureBody a,.homeStoriesEditorial .homeStoriesLead .storyFeature--lead .storyFeatureBody button{pointer-events:auto}
+  .homeStoriesEditorial .homeStoriesLead .storyFeature--lead .storyFeatureDeck{max-width:62ch}
+  .homeStoriesEditorial .homeStoriesLead .storyFeature--lead .storyFeatureFooter{border-top-color:rgba(245,243,238,.28)}
+  .homeStoriesEditorial .homeStoriesLead .storyFeatureTitle{font-size:clamp(26px,min(2.6vw,4.6vh),44px)}
+  .homeStoriesEditorial .homeStoriesLead .storyFeatureDeck{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .homeStoriesEditorial .homeStoriesSecondary{height:100%;grid-template-rows:repeat(2,minmax(0,1fr));min-height:0}
+  .homeStoriesEditorial .homeStoriesSecondary--solo{grid-template-rows:minmax(0,1fr)}
+  .homeStoriesEditorial .homeStoriesSecondary .storyFeature--secondary{flex-direction:row;min-height:0;height:100%}
+  .homeStoriesEditorial .homeStoriesSecondary .storyFeature--secondary .storyFeatureMedia{width:42%;aspect-ratio:auto;flex:none;position:relative}
+  .homeStoriesEditorial .homeStoriesSecondary .storyFeature--secondary .storyFeatureMedia img{position:absolute;inset:0}
+  .homeStoriesEditorial .homeStoriesSecondary .storyFeature--secondary .storyFeatureBody{padding:16px 18px;min-width:0}
+  .homeStoriesEditorial .homeStoriesSecondary .storyFeatureTitle{font-size:clamp(18px,min(1.6vw,3vh),24px)}
+  .homeStoriesEditorial .homeStoriesSecondary .storyFeatureFooter{flex-wrap:wrap;gap:10px}
+  .homeStoriesEditorial .homeStoriesSecondary .saveLabelButton{min-height:40px}
+
+  /* WORTH THE TRIP: Karten flacher, Text auf zwei Zeilen */
+  .travelSectionV13 .travelGrid.adaptiveGrid--3 .cardMedia{aspect-ratio:auto;height:clamp(200px,calc(100svh - 520px),360px)}
+  .travelSectionV13 .travelGrid.adaptiveGrid--2 .card .cardMedia{aspect-ratio:auto;height:clamp(240px,calc(100svh - 500px),420px)}
+  .travelSectionV13 .travelGrid.adaptiveGrid--1 .card,.travelSectionV13 .travelGrid.adaptiveGrid--1 .cardMedia{min-height:clamp(380px,calc(100svh - 330px),560px)}
+  .travelSectionV13 .travelGrid .card p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .travelSectionV13 .travelGrid .cardBody{padding:20px}
+  .travelSectionV13 .travelGrid .cardMeta{margin-top:12px}
+
+  /* AROUND SELECTED: drei Karten in einer Reihe statt 2 + 1 */
+  .homeSelectedGallery--3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .homeSelectedGallery--3 .card:nth-child(3){grid-column:auto}
+  .homeSelectedGallery--3 .card .cardMedia,.homeSelectedGallery--3 .card:nth-child(3) .cardMedia{aspect-ratio:4/5}
+  .homeSelectedGallery .card p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .homeSelectedGallery{align-content:center}
+  .selectedManifesto{padding-top:clamp(40px,6vh,72px);padding-bottom:clamp(40px,6vh,72px)}
+  .selectedManifesto h2{font-size:clamp(26px,min(11.5cqw,10vh),92px)}
+
+  /* AROUND INDEX: zwei Spalten statt einer langen Liste */
+  .indexGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:48px}
+  .indexItem{padding:clamp(14px,2.2vh,24px) 4px}
+  .indexItem strong{font-size:clamp(24px,min(2.6vw,4.4vh),40px)}
+}
+
+/* Bildstrecke (immersiveRun): jedes Bild genau einen Bildschirm hoch, abzüglich Kopfzeile
+   (mobil auch abzüglich der unteren Navigation) - nie höher als das sichtbare Fenster. */
+.immersiveShot{min-height:calc(100svh - 76px)}
+@media(max-width:900px){.immersiveShot{min-height:calc(100svh - 68px - 72px)}}
