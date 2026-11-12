@@ -532,6 +532,11 @@ export async function getPlace(slug: string): Promise<Place | null> {
         aroundIt,
         nearbyCourses,
         stories: storiesForPlace,
+        destinationFacts: doc.destinationFacts ? {
+          timeZone: typeof doc.destinationFacts.timeZone === "string" ? doc.destinationFacts.timeZone : undefined,
+          bestMonths: Array.isArray(doc.destinationFacts.bestMonths) ? doc.destinationFacts.bestMonths.map(Number).filter((m: number) => m >= 1 && m <= 12) : undefined,
+          seasonNote: doc.destinationFacts.seasonNote || undefined
+        } : undefined,
         topics: mapTopicLinks(doc.topics),
         seoTitle: doc.seoTitle || undefined,
         seoDescription: doc.seoDescription || undefined,

@@ -7,7 +7,9 @@ import { ContentCard } from "@/components/ContentCard";
 import { PlaceGallery } from "@/components/PlaceGallery";
 import { StoryRail } from "@/components/StoryRail";
 import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
-import type { Place } from "@/lib/types";
+import type { Place, PlaceMediaItem } from "@/lib/types";
+import { sizedImage } from "@/lib/content";
+import { formatMonthRanges, timeDifference } from "@/lib/travel-facts";
 
 function formatDate(value?: string) {
   if (!value) return undefined;
@@ -19,11 +21,13 @@ function formatDate(value?: string) {
 }
 
 function nightsRange(min?: number, max?: number) {
-  if (min && max) return min === max ? `${min} NIGHTS` : `${min}–${max} NIGHTS`;
-  if (min) return `${min}+ NIGHTS`;
-  if (max) return `UP TO ${max} NIGHTS`;
+  if (min && max) return min === max ? `${min} Nächte` : `${min}–${max} Nächte`;
+  if (min) return `ab ${min} Nächten`;
+  if (max) return `bis ${max} Nächte`;
   return undefined;
 }
+
+type Chapter = { key: string; label: string; title: string; text: string; tags?: string[]; image?: PlaceMediaItem };
 
 type TripGroupKey = ContentRole | "other";
 
@@ -87,46 +91,97 @@ export function StayDetailView({ place }: { place: Place }) {
   const immersive = Boolean(place.unlisted && gallery.length >= 4);
   const savePayload = { sourceId: place.id, sourceType: place.type, sourceRole: "stay" as ContentRole, title: place.title, slug: place.slug };
 
-  const snapshotFacts = [
-    place.stayCharacter?.toUpperCase(),
-    ...(place.accommodationTypes || []).map(item => item.toUpperCase()),
-    place.spaSummary ? "SPA" : undefined,
-    nightsRange(place.recommendedNightsMin, place.recommendedNightsMax)
-  ].filter((value): value is string => Boolean(value));
+  // ---- Verdict card (from proposal C): the decision at a glance, right under the hero
+  const nights = nightsRange(place.recommendedNightsMin, place.recommendedNightsMax);
+  const months = formatMonthRanges(place.destinationFacts?.bestMonths);
+  const time = timeDifference(place.destinationFacts?.timeZone);
+  const golfFact = (place.goodToKnow || []).find(fact => /golf/i.test(fact.label))?.value
+    || (place.nearbyCourses?.[0] ? `${place.nearbyCourses[0].title} · ~${Math.round(place.nearbyCourses[0].distanceKm)} km` : undefined);
+  const verdictFacts = [
+    { label: "IDEAL FÜR", value: place.bestFor?.length ? place.bestFor.join(", ") : undefined },
+    { label: "BLEIBEN", value: nights },
+    { label: "GOLF", value: golfFact },
+    { label: "REISEZEIT", value: [months, time ? `${time.label === "Keine" ? "keine Zeitverschiebung" : time.label}` : undefined].filter(Boolean).join(" · ") || undefined },
+    { label: "CHARAKTER", value: place.stayCharacter }
+  ].filter((fact): fact is { label: string; value: string } => Boolean(fact.value)).slice(0, 4);
 
-  const hasWhyStayHereGrid = Boolean(place.theFeel?.length || place.bestFor?.length || place.aroundMoment || place.knowBeforeYouGo);
-  const hasWhyStayHere = Boolean(place.whyWeLikeIt || hasWhyStayHereGrid);
+  // ---- Chapters (proposal A): image and text alternate, each fed by an existing field.
+  // Images come from the gallery in editor order; when they run out a chapter stays text-only.
+  const chapterSources = [
+    { key: "why", label: "WARUM HIER", title: "Warum hier schlafen.", text: place.whyWeLikeIt, tags: place.theFeel },
+    { key: "golf", label: "PLAY", title: "Warum das für Golfer passt.", text: place.golfBaseWhy },
+    { key: "rooms", label: "ZIMMER", title: "Das Zimmer.", text: place.roomSummary },
+    { key: "spa", label: "SPA", title: "Runterkommen.", text: place.spaSummary },
+    { key: "food", label: "ESSEN", title: "Am Tisch.", text: [place.foodSummary, place.breakfastSummary].filter(Boolean).join(" ") || undefined }
+  ];
+  let imageIndex = 0;
+  const nextImage = () => (immersive ? undefined : gallery[imageIndex++]);
+  const chapters: Chapter[] = chapterSources
+    .filter(source => Boolean(source.text))
+    .map(source => ({ key: source.key, label: source.label, title: source.title, text: source.text as string, tags: source.tags, image: nextImage() }));
+  const momentImage = place.aroundMoment ? nextImage() : undefined;
+  const restGallery = immersive ? [] : gallery.slice(imageIndex);
+  const momentAfter = Math.min(2, chapters.length);
 
   const yourStayFacts = [
-    { label: "STAY", value: place.roomSummary },
-    { label: "SPA", value: place.spaSummary },
-    { label: "FOOD", value: place.foodSummary },
-    { label: "FRÜHSTÜCK", value: place.breakfastSummary },
     { label: "PARKEN", value: place.parkingSummary },
-    { label: "DOGS", value: place.dogPolicy },
+    { label: "HUNDE", value: place.dogPolicy },
     { label: "CHECK-IN", value: place.checkIn },
     { label: "CHECK-OUT", value: place.checkOut }
   ].filter((fact): fact is { label: string; value: string } => Boolean(fact.value));
+  const goodToKnow = visibleGoodToKnow(place).filter(fact => fact.value !== golfFact);
+  const allFacts = [...goodToKnow, ...yourStayFacts];
 
-  const hasGolfBase = Boolean(place.golfBaseWhy || (place.nearbyCourses && place.nearbyCourses.length));
   const hasOfficialInfo = Boolean(place.website || place.bookingUrl);
   const operatorConfirmed = place.operatorStatus?.source === "operator";
   const lastVerified = formatDate(place.operatorStatus?.lastVerifiedAt);
-
   const aroundItGroups = groupAroundIt(place.aroundIt);
-  const goodToKnow = visibleGoodToKnow(place);
+
+  const renderChapter = (chapter: Chapter, index: number) => (
+    // Fixed rhythm: 60/40 image left, 40/60 image right, 50/50 image left, then repeat.
+    <section key={chapter.key} className={`stayChapter stayChapter--${["a", "b", "c"][index % 3]} ${chapter.image ? "" : "stayChapter--textOnly"}`}>
+      <div className="container stayChapterGrid">
+      {chapter.image ? (
+        <div className="stayChapterMedia">
+          <img src={sizedImage(chapter.image.url, 1400)} alt={chapter.image.alt || ""} loading="lazy" decoding="async" />
+        </div>
+      ) : null}
+      <div className="stayChapterCopy">
+        <span className="stayChapterLabel">{String(index + 1).padStart(2, "0")} · {chapter.label}</span>
+        <h2>{chapter.title}</h2>
+        <p>{chapter.text}</p>
+        {chapter.tags?.length ? <div className="stayTagList">{chapter.tags.map(tag => <span key={tag}>{tag}</span>)}</div> : null}
+      </div>
+      </div>
+    </section>
+  );
 
   return (
-    <main>
-      <section
-        className={`hero stayHero ${place.image ? "heroWithImage" : ""} ${immersive ? "heroImmersive" : ""}`}
-        style={place.image ? {backgroundImage:`linear-gradient(${immersive ? "rgba(18,20,19,0) 35%,rgba(18,20,19,.82)" : "rgba(18,20,19,.25),rgba(18,20,19,.8)"}),url(${place.image})`} : undefined}
-      >
-        <div className="container">
-          <div className={`eyebrow ${place.accent}`}>{place.aroundSelected ? "AROUND SELECTED · STAY" : "STAY"}</div>
-          <h1>{place.title.toUpperCase()}</h1>
-          <p className="heroIntro">{place.description}</p>
-          <div className={`heroActions stayHeroActions ${place.bookingUrl ? "stayHeroActions--booking" : ""}`}>
+    <main className="stayV2">
+      <section className={`stayHeroV2 ${place.image ? "" : "stayHeroV2--noImage"}`}>
+        {place.image ? <img className="stayHeroV2Media" src={sizedImage(place.image, 2200) || place.image} alt="" fetchPriority="high" /> : null}
+        <div className="stayHeroV2Shade" aria-hidden="true" />
+        <div className="container stayHeroV2Inner">
+          <div>
+            <div className="eyebrow lime">{place.aroundSelected ? "AROUND SELECTED · " : ""}STAY{place.destination ? ` · ${place.destination.title.toUpperCase()}` : ""}</div>
+            <h1>{place.title}</h1>
+          </div>
+          {place.description ? <p className="stayHeroV2Intro">{place.description}</p> : null}
+        </div>
+      </section>
+
+      <section className="stayVerdict" aria-label="Das AROUND-Urteil">
+        <div className="container stayVerdictGrid">
+          <div className="stayVerdictTake">
+            <span className="stayVerdictLabel">UNSERE SICHT</span>
+            <p>{place.aroundTake ? `„${place.aroundTake}“` : place.description}</p>
+          </div>
+          {verdictFacts.length ? (
+            <dl className="stayVerdictFacts">
+              {verdictFacts.map(fact => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
+            </dl>
+          ) : null}
+          <div className="stayVerdictActions">
             {place.bookingUrl ? (
               <a className="stayCtaBooking" href={place.bookingUrl} target="_blank" rel="noreferrer">
                 {(place.bookingLabel || "Verfügbarkeit prüfen").toUpperCase()} ↗
@@ -138,116 +193,78 @@ export function StayDetailView({ place }: { place: Place }) {
         </div>
       </section>
 
-      {snapshotFacts.length ? (
-        <section className="stayUtilityStrip">
-          <div className="container stayUtilityRow">{snapshotFacts.join(" · ")}</div>
-        </section>
-      ) : null}
-
       {immersive ? <ImmersiveRun items={gallery} title={place.title} /> : null}
-      {immersive && place.aroundTake ? <section className="immersiveStatement"><div className="container"><span>UNSERE SICHT.</span><p>{place.aroundTake}</p></div></section> : null}
       {immersive ? <ResearchDraftNote /> : null}
 
-      {hasWhyStayHere ? (
-        <section className="section staySection">
-          <div className="container">
-            <div className="eyebrow lime">STAY / EDITORIAL</div>
-            <h2 className="sectionTitle">WARUM HIER SCHLAFEN.</h2>
-            {place.whyWeLikeIt ? <p className="stayWhyLead">{place.whyWeLikeIt}</p> : null}
-            {place.aroundTake && !immersive ? (
-              <div className="stayAroundTake">
-                <span className="stayAroundTakeLabel">UNSERE SICHT.</span>
-                <p>{place.aroundTake}</p>
-              </div>
-            ) : null}
+      {chapters.slice(0, momentAfter).map(renderChapter)}
 
-            {hasWhyStayHereGrid ? (
-              <div className="stayWhyGrid">
-                {place.theFeel?.length ? (
-                  <div className="stayWhyBlock">
-                    <span className="stayWhyLabel">DAS GEFÜHL.</span>
-                    <div className="stayTagList">{place.theFeel.map(tag => <span key={tag}>{tag}</span>)}</div>
-                  </div>
-                ) : null}
-                {place.bestFor?.length ? (
-                  <div className="stayWhyBlock">
-                    <span className="stayWhyLabel">IDEAL FÜR.</span>
-                    <div className="stayTagList">{place.bestFor.map(tag => <span key={tag}>{tag}</span>)}</div>
-                  </div>
-                ) : null}
-                {place.aroundMoment ? (
-                  <div className="stayWhyBlock">
-                    <span className="stayWhyLabel">DER MOMENT.</span>
-                    <p>{place.aroundMoment}</p>
-                  </div>
-                ) : null}
-                {place.knowBeforeYouGo ? (
-                  <div className="stayWhyBlock">
-                    <span className="stayWhyLabel">BEVOR DU FÄHRST.</span>
-                    <p>{place.knowBeforeYouGo}</p>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
+      {place.aroundMoment ? (
+        <section className={`stayMoment ${momentImage ? "" : "stayMoment--noImage"}`}>
+          {momentImage ? <img src={sizedImage(momentImage.url, 2000)} alt={momentImage.alt || ""} loading="lazy" decoding="async" /> : null}
+          <div className="stayMomentShade" aria-hidden="true" />
+          <div className="container stayMomentInner">
+            <span className="stayChapterLabel">DER MOMENT</span>
+            <p>{place.aroundMoment}</p>
           </div>
         </section>
       ) : null}
 
-      {yourStayFacts.length ? (
+      {chapters.slice(momentAfter).map((chapter, i) => renderChapter(chapter, i + momentAfter))}
+
+      {place.nearbyCourses && place.nearbyCourses.length ? (
         <section className="section staySection">
           <div className="container">
-            <div className="eyebrow blue">STAY / DETAILS</div>
-            <h2 className="sectionTitle">DEIN AUFENTHALT.</h2>
-            <div className="stayFactsGrid">
-              {yourStayFacts.map(fact => <div className="fact" key={fact.label}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
+            <div className="eyebrow lime">PLAY / IN DER NÄHE</div>
+            <h2 className="sectionTitle">Abschläge.</h2>
+            <div className="cardGrid" style={{marginTop:30}}>
+              {place.nearbyCourses.map(course => (
+                <div className="stayCourseCard" key={course.id}>
+                  <ContentCard item={course} />
+                  <span className="stayCourseDistance">~{Math.round(course.distanceKm)} KM LUFTLINIE</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
       ) : null}
 
-      {goodToKnow.length > 0 && (
-        <section className="section staySection stayGoodToKnow">
-          <div className="container">
-            <div className="eyebrow stayGoodToKnowEyebrow">GUT ZU WISSEN</div>
-            <div className="factsGrid">
-              {goodToKnow.map((fact,index)=><div className="fact" key={`${fact.label}-${index}`}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {hasGolfBase ? (
-        <section className="section staySection">
-          <div className="container">
-            <div className="eyebrow lime">STAY / GOLF</div>
-            <h2 className="sectionTitle">WARUM DAS FÜR GOLFER PASST.</h2>
-            {place.golfBaseWhy ? <p className="stayWhyLead">{place.golfBaseWhy}</p> : null}
-            {place.nearbyCourses && place.nearbyCourses.length ? (
-              <div className="cardGrid" style={{marginTop:30}}>
-                {place.nearbyCourses.map(course => (
-                  <div className="stayCourseCard" key={course.id}>
-                    <ContentCard item={course} />
-                    <span className="stayCourseDistance">~{Math.round(course.distanceKm)} KM LUFTLINIE</span>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
-
-      {gallery.length > 0 && !immersive && (
+      {restGallery.length > 0 && (
         <section className="section staySection placeGallerySection">
           <div className="container">
             <div className="placeGalleryIntro">
-              <div className={`eyebrow ${place.accent}`}>STAY / IMAGES</div>
+              <div className={`eyebrow ${place.accent}`}>MEHR BILDER</div>
               <h2 className="sectionTitle">LOOK<br/>AROUND.</h2>
-              <p>Ein Zuhause auf Zeit entscheidet sich nicht in einem Bild. Zimmer, Landschaft, Ruhe und Details gehören zusammen.</p>
             </div>
-            <PlaceGallery items={gallery} title={place.title} />
+            <PlaceGallery items={restGallery} title={place.title} />
           </div>
         </section>
       )}
+
+      {allFacts.length ? (
+        <section className="stayFactsBand" aria-label="Gut zu wissen">
+          <div className="container">
+            <div className="stayFactsBandLabel">GUT ZU WISSEN</div>
+            <dl className="stayFactsBandGrid">
+              {allFacts.map((fact, index) => <div key={`${fact.label}-${index}`}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
+            </dl>
+          </div>
+        </section>
+      ) : null}
+
+      {place.knowBeforeYouGo || hasOfficialInfo ? (
+        <section className="stayBeforeYouGo">
+          <div className="container stayBeforeYouGoInner">
+            {place.knowBeforeYouGo ? <p><strong>Vor dem Buchen:</strong> {place.knowBeforeYouGo}</p> : <span />}
+            {hasOfficialInfo ? (
+              <div className="stayOfficialActions">
+                {operatorConfirmed ? <small>Vom Betreiber bestätigt{lastVerified ? ` · ${lastVerified}` : ""}</small> : null}
+                {place.website ? <a className="textLink" href={place.website} target="_blank" rel="noreferrer">OFFIZIELLE WEBSITE ↗</a> : null}
+                {place.bookingUrl ? <a className="textLink" href={place.bookingUrl} target="_blank" rel="noreferrer">{(place.bookingLabel || "Verfügbarkeit prüfen").toUpperCase()} ↗</a> : null}
+              </div>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
       <StoryRail
         stories={place.stories || []}
@@ -255,35 +272,6 @@ export function StayDetailView({ place }: { place: Place }) {
         title="MEHR ALS EIN HOTEL."
         className="staySection"
       />
-
-      {hasOfficialInfo ? (
-        <section className="section staySection">
-          <div className="container">
-            <div className="eyebrow lime">STAY / OFFIZIELLE INFOS</div>
-            <h2 className="sectionTitle">OFFIZIELLE INFOS.</h2>
-            <div className="stayOfficialPanel">
-              <div className="stayOfficialStatus">
-                {operatorConfirmed ? (
-                  <>
-                    <strong>Vom Betreiber bestätigt</strong>
-                    {lastVerified ? <small>Zuletzt bestätigt: {lastVerified}</small> : null}
-                  </>
-                ) : (
-                  <strong>Quelle: offizielle Website</strong>
-                )}
-              </div>
-              <div className="stayOfficialActions">
-                {place.website ? <a className="secondary" href={place.website} target="_blank" rel="noreferrer">OFFIZIELLE WEBSITE ↗</a> : null}
-                {place.bookingUrl ? (
-                  <a className="primary" href={place.bookingUrl} target="_blank" rel="noreferrer">
-                    {(place.bookingLabel || "Verfügbarkeit prüfen").toUpperCase()} ↗
-                  </a>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </section>
-      ) : null}
 
       {aroundItGroups.length ? (
         <section className="section staySection">
@@ -298,17 +286,13 @@ export function StayDetailView({ place }: { place: Place }) {
             ))}
           </div>
         </section>
-      ) : null}
-
-      {place.destination && !aroundItGroups.length ? (
-        <section className="section staySection">
+      ) : place.destination ? (
+        <section className="stayDestinationLink">
           <div className="container">
-            <div className="eyebrow lime">STAY / TRIP</div>
-            <h2 className="sectionTitle" style={{margin:"14px 0 40px"}}>DARAUS WIRD EINE REISE.</h2>
-            <p>
-              Entdecke mehr rund um dieses Stay in{" "}
-              <Link className="textLink" href={`/destinations/${place.destination.slug}`}>{place.destination.title}</Link>.
-            </p>
+            <Link href={`/destinations/${place.destination.slug}`}>
+              <span className="eyebrow">DIE DESTINATION</span>
+              <strong>{place.destination.title} entdecken →</strong>
+            </Link>
           </div>
         </section>
       ) : null}

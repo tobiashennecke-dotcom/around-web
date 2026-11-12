@@ -151,6 +151,8 @@ export type OperatorStatus = {
 export type Place = ContentCard & SeoFields & {
   type: "place";
   topics?: TopicLink[];
+  /** Travel facts of the place's destination (time zone, best months) for the STAY verdict. */
+  destinationFacts?: TravelFacts;
   destinationId: string;
   destination?: ContentCard;
   placeType: PlaceType;
