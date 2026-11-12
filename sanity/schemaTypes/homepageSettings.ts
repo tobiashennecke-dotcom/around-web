@@ -1,20 +1,84 @@
 import { defineField, defineType } from "sanity";
 
 /**
- * Singleton editorial control panel for the AROUND homepage hero (deterministic
- * id around-homepage, enforced by sanity/structure.ts which opens this exact
+ * Singleton editorial control panel for the AROUND homepage (deterministic id
+ * around-homepage, enforced by sanity/structure.ts which opens this exact
  * document id directly rather than a list - the same convention as
- * storiesHub/around-stories-hub). Deliberately scoped to hero art direction
- * only (image, focal point, overlay) - it never touches homepage content
- * selection, which stays driven entirely by HOME_QUERY in lib/sanity/queries.ts.
+ * storiesHub/around-stories-hub).
+ *
+ * Two jobs:
+ * - Startseite (curation): editors pick which content sits on which homepage
+ *   position. Every slot is optional; any empty slot is filled automatically by
+ *   HOME_QUERY's featured/priority/recency logic in lib/sanity/queries.ts.
+ * - Hero: art direction only (image, focal point, overlay).
  */
+const CONTENT_REF_TYPES = [
+  { type: "destination" },
+  { type: "place" },
+  { type: "story" },
+  { type: "person" },
+  { type: "product" },
+  { type: "collection" }
+];
+
+const FALLBACK_NOTE = "Leer lassen = Automatik (Featured, dann höchste Priority, dann zuletzt bearbeitet).";
+
 export const homepageSettings = defineType({
   name: "homepageSettings",
   title: "Homepage",
   type: "document",
+  groups: [
+    { name: "curation", title: "Startseite", default: true },
+    { name: "hero", title: "Hero" }
+  ],
   fields: [
     defineField({
+      name: "editLead",
+      title: "THE EDIT – Position 1 (große Kachel)",
+      type: "reference",
+      group: "curation",
+      to: CONTENT_REF_TYPES,
+      description: `Der Aufmacher direkt unter dem Hero. ${FALLBACK_NOTE}`
+    }),
+    defineField({
+      name: "editSupporting",
+      title: "THE EDIT – Position 2 und 3",
+      type: "array",
+      group: "curation",
+      of: [{ type: "reference", to: CONTENT_REF_TYPES }],
+      validation: Rule => Rule.max(2).unique(),
+      description: `Die zwei kleinen Kacheln neben dem Aufmacher, in dieser Reihenfolge. Fehlende Plätze füllt die Automatik.`
+    }),
+    defineField({
+      name: "travelItems",
+      title: "WORTH THE TRIP – Go somewhere.",
+      type: "array",
+      group: "curation",
+      of: [{ type: "reference", to: [{ type: "destination" }, { type: "place" }] }],
+      validation: Rule => Rule.max(3).unique(),
+      description: `Bis zu 3 Destinationen oder Places, in dieser Reihenfolge. Fehlende Plätze füllt die Automatik.`
+    }),
+    defineField({
+      name: "storyItems",
+      title: "STORIES – Read beyond the round.",
+      type: "array",
+      group: "curation",
+      of: [{ type: "reference", to: [{ type: "story" }] }],
+      validation: Rule => Rule.max(3).unique(),
+      description: `Bis zu 3 Stories. Die erste wird groß gezeigt. Fehlende Plätze füllt die Automatik.`
+    }),
+    defineField({
+      name: "selectedItems",
+      title: "AROUND SELECTED – Handverlesen.",
+      type: "array",
+      group: "curation",
+      of: [{ type: "reference", to: CONTENT_REF_TYPES, options: { filter: "aroundSelected == true" } }],
+      validation: Rule => Rule.max(3).unique(),
+      description: `Bis zu 3 Inhalte mit AROUND-Selected-Siegel. Fehlende Plätze füllt die Automatik.`
+    }),
+    defineField({
       name: "enableHeroImage",
+      group: "hero",
       title: "Show hero image",
       type: "boolean",
       initialValue: false,
@@ -23,6 +87,7 @@ export const homepageSettings = defineType({
     }),
     defineField({
       name: "heroImage",
+      group: "hero",
       title: "Desktop hero image",
       type: "image",
       options: { hotspot: true },
@@ -39,6 +104,7 @@ export const homepageSettings = defineType({
     }),
     defineField({
       name: "mobileHeroImage",
+      group: "hero",
       title: "Mobile hero image",
       type: "image",
       options: { hotspot: true },
@@ -56,6 +122,7 @@ export const homepageSettings = defineType({
     }),
     defineField({
       name: "heroOverlay",
+      group: "hero",
       title: "Overlay darkness (%)",
       type: "number",
       initialValue: 45,
@@ -78,11 +145,11 @@ export const homepageSettings = defineType({
     })
   ],
   preview: {
-    select: { enabled: "enableHeroImage", media: "heroImage" },
-    prepare({ enabled, media }) {
+    select: { enabled: "enableHeroImage", media: "heroImage", lead: "editLead.title" },
+    prepare({ enabled, media, lead }) {
       return {
         title: "Homepage",
-        subtitle: enabled ? "Hero image enabled" : "Hero image disabled",
+        subtitle: `${lead ? `Aufmacher: ${lead}` : "Aufmacher: automatisch"} · ${enabled ? "Hero image enabled" : "Hero image disabled"}`,
         media
       };
     }
