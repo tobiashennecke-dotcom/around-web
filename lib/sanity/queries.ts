@@ -251,7 +251,8 @@ export const PLACE_QUERY = defineQuery(`
       "height": asset->metadata.dimensions.height,
       "aspectRatio": asset->metadata.dimensions.aspectRatio
     },
-    "destination": destination->{${CARD_FIELDS}}
+    "destination": destination->{${CARD_FIELDS}},
+    "destinationFacts": destination->{timeZone,bestMonths,seasonNote}
   }
 `);
 
