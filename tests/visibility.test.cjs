@@ -32,7 +32,9 @@ const PUBLIC_QUERIES = {
   TRIP_STORIES_RELATED_TO_IDS_QUERY: "${STORY_ONLINE}",
   STORIES_HUB_QUERY: "${STORY_ONLINE}",
   OFFLINE_CONTENT_IDS_QUERY: "${CONTENT_ONLINE}",
-  SITEMAP_QUERY: "${CONTENT_ONLINE}"
+  SITEMAP_QUERY: "${CONTENT_ONLINE}",
+  TOPIC_QUERY: "${TOPIC_ITEM_FILTER}",
+  TOPICS_INDEX_QUERY: "${TOPIC_ITEM_FILTER}"
 };
 
 for (const [name, fragment] of Object.entries(PUBLIC_QUERIES)) {
@@ -50,6 +52,13 @@ test("homepage curation: explicit picks override unlisted, never offline", () =>
   const body = queryBody("HOMEPAGE_CURATION_QUERY");
   assert.ok(body.includes("${CONTENT_ONLINE}"));
   assert.ok(!body.includes("${CONTENT_LISTED}"));
+});
+
+test("topic lists use the full visibility rule and hide invisible topics", () => {
+  assert.match(source, /const TOPIC_ITEM_FILTER = `[^`]*\$\{CONTENT_ONLINE\} && \$\{CONTENT_LISTED\}`/);
+  assert.ok(queryBody("TOPIC_QUERY").includes("isVisible == true"));
+  assert.ok(queryBody("TOPICS_INDEX_QUERY").includes("isVisible == true"));
+  assert.match(source, /const TOPIC_LINKS = `"topics": topics\[@->isVisible == true/);
 });
 
 test("stories hub only lists online destinations", () => {

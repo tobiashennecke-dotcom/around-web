@@ -57,6 +57,28 @@ export type ContentCard = {
   accessTier?: StoryAccessTier;
 };
 
+/** Visible Thema/Schlagwort as linked from content pages. */
+export type TopicLink = {
+  id: string;
+  title: string;
+  slug: string;
+  kind: "theme" | "tag";
+};
+
+export type TravelFacts = {
+  timeZone?: string;
+  bestMonths?: number[];
+  seasonNote?: string;
+  airport?: { code?: string; name?: string; transferMinutes?: number };
+};
+
+export type DestinationRegion = {
+  key: string;
+  title: string;
+  summary?: string;
+  places: ContentCard[];
+};
+
 export type SeoFields = {
   seoTitle?: string;
   seoDescription?: string;
@@ -75,6 +97,9 @@ export type EditorialJourney = {
 
 export type Destination = ContentCard & SeoFields & {
   type: "destination";
+  facts?: TravelFacts;
+  regions?: DestinationRegion[];
+  topics?: TopicLink[];
   country: string;
   itinerary?: EditorialJourney;
   latitude?: number;
@@ -125,6 +150,7 @@ export type OperatorStatus = {
 
 export type Place = ContentCard & SeoFields & {
   type: "place";
+  topics?: TopicLink[];
   destinationId: string;
   destination?: ContentCard;
   placeType: PlaceType;
@@ -241,6 +267,7 @@ export type StoryAuthor = {
 
 export type Story = ContentCard & SeoFields & {
   type: "story";
+  topics?: TopicLink[];
   format?: string;
   deck: string;
   body: unknown[];

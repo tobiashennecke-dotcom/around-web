@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { AroundMark } from "./AroundLogo";
+import { ContactModule } from "./ContactModule";
+import { getContactChannel, getTopicsIndex } from "@/lib/content";
 
-export function Footer() {
+export async function Footer() {
+  const [contact, topics] = await Promise.all([getContactChannel(), getTopicsIndex().catch(() => [])]);
+  const hasThemes = topics.some(topic => topic.count > 0);
   return (
     <footer className="footer footerV13">
+      <ContactModule contact={contact} variant="footer" />
       <div className="container footerBrandRow">
         <div>
           <div className="eyebrow lime">THIS IS AROUND</div>
@@ -17,6 +22,7 @@ export function Footer() {
           <Link href="/discover">Entdecken</Link>
           <Link href="/search?type=destination">Reisen</Link>
           <Link href="/search?type=story">Stories</Link>
+          {hasThemes && <Link href="/themen">Themen</Link>}
           <Link href="/saved">My Around</Link>
         </div>
         <div className="footerMeta">

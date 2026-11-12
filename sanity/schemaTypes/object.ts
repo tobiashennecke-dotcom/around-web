@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { topicsField } from "./topic";
 
 export const objectType = defineType({
   name:"product",title:"Object / Product",type:"document",
@@ -27,6 +28,7 @@ export const objectType = defineType({
     defineField({name:"whyItMatters",title:"Why it matters",type:"text",rows:6,group:"editorial"}),
     defineField({name:"url",title:"External URL",type:"url",group:"basics"}),
     defineField({name:"aroundSelected",title:"AROUND Selected",type:"boolean",group:"publishing",initialValue:false}),
+    topicsField("publishing"),
     defineField({name:"featured",title:"Featured",type:"boolean",group:"publishing",initialValue:false}),
     defineField({name:"priority",title:"Editorial priority",type:"number",group:"publishing",initialValue:50,validation:r=>r.min(0).max(100)})
   ],

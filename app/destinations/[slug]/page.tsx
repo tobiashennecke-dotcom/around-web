@@ -10,6 +10,9 @@ import { LisbonTripImport } from "@/components/LisbonTripImport";
 import { PlaceGallery } from "@/components/PlaceGallery";
 import { ResearchDraftNote } from "@/components/ResearchDraftNote";
 import { ImmersiveRun } from "@/components/ImmersiveRun";
+import { TravelFacts } from "@/components/TravelFacts";
+import { DestinationRegions } from "@/components/DestinationRegions";
+import { TopicLinks } from "@/components/TopicLinks";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
@@ -60,6 +63,8 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
         </div>
       </section>
 
+      <TravelFacts facts={destination.facts} />
+
       {destination.unlisted && destination.aroundTake && <section className="immersiveStatement"><div className="container"><span>UNSERE SICHT.</span><p>{destination.aroundTake}</p></div></section>}
       {destination.unlisted && <ResearchDraftNote />}
       {destination.unlisted && (destination.gallery?.length || 0) >= 4 && <ImmersiveRun items={destination.gallery || []} title={destination.title} />}
@@ -91,6 +96,8 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
           </div>
         </section>
       )}
+
+      <DestinationRegions regions={destination.regions} destinationTitle={destination.title} />
 
       <section className="section destinationAroundSection" id="play">
         <div className="container">
@@ -180,6 +187,8 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
         eyebrow="GESCHICHTEN VON HIER"
         title="READ THE PLACE."
       />
+
+      <TopicLinks topics={destination.topics} />
     </main>
   );
 }

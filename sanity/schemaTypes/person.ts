@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { topicsField } from "./topic";
 
 export const person = defineType({
   name:"person",title:"Person",type:"document",
@@ -30,6 +31,7 @@ export const person = defineType({
     }),
     defineField({name:"website",title:"Website",type:"url",group:"links"}),
     defineField({name:"instagram",title:"Instagram URL",type:"url",group:"links"}),
+    topicsField("publishing"),
     defineField({name:"featured",title:"Featured",type:"boolean",group:"publishing",initialValue:false}),
     defineField({name:"priority",title:"Editorial priority",type:"number",group:"publishing",initialValue:50,validation:r=>r.min(0).max(100)})
   ],

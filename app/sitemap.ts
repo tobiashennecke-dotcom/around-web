@@ -9,7 +9,8 @@ const ROUTE_BY_TYPE: Record<string, string> = {
   story: "stories",
   person: "people",
   product: "objects",
-  collection: "collections"
+  collection: "collections",
+  topic: "themen"
 };
 
 const STATIC_PATHS = ["/", "/discover", "/stories", "/premium", "/impressum", "/datenschutz"];

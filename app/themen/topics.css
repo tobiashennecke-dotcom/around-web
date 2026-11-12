@@ -1,0 +1,19 @@
+.topicHero{background:var(--around-ink);color:var(--around-warm);padding:clamp(96px,14vh,150px) 0 clamp(56px,8vh,90px);position:relative;background-size:cover;background-position:center}
+.topicHero h1{font-family:Arial,Helvetica,sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(54px,8vw,128px);line-height:.82;letter-spacing:-.065em;margin:18px 0 26px;max-width:14ch;overflow-wrap:break-word}
+.topicHero--tag h1{text-transform:none;letter-spacing:-.05em}
+.topicHeroIntro{font-size:clamp(20px,2vw,30px);line-height:1.15;max-width:760px;margin:0 0 22px}
+.topicHeroCount{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.75;margin:0}
+.topicHeroCredit{position:absolute;right:var(--around-pad);bottom:14px;font-size:10px;opacity:.7}
+.topicSection--reads{background:#ebe8e1}
+.topicIndexGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.topicIndexCard{min-height:360px;display:flex;flex-direction:column;justify-content:space-between;padding:26px;background:var(--around-lime);color:var(--around-ink);background-size:cover;background-position:center;border:1px solid var(--around-line)}
+.topicIndexCard--image{color:var(--around-warm)}
+.topicIndexCard:nth-child(3n+2):not(.topicIndexCard--image){background:var(--around-blue);color:var(--around-warm)}
+.topicIndexCard:nth-child(3n+3):not(.topicIndexCard--image){background:var(--around-pink)}
+.topicIndexNumber{font-size:12px;font-weight:800;letter-spacing:.14em}
+.topicIndexCard h2{font-size:clamp(30px,3vw,46px);line-height:.9;letter-spacing:-.045em;text-transform:uppercase;margin:10px 0 12px}
+.topicIndexCard p{font-size:16px;line-height:1.35;margin:0 0 16px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.topicTagCloud ul{list-style:none;display:flex;flex-wrap:wrap;gap:10px;padding:0;margin:20px 0 0}
+.topicChip small{opacity:.55;margin-left:6px}
+@media(max-width:1050px){.topicIndexGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.topicIndexGrid{grid-template-columns:1fr}.topicIndexCard{min-height:280px}}
