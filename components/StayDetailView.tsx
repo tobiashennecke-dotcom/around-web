@@ -138,7 +138,9 @@ export function StayDetailView({ place }: { place: Place }) {
   const aroundItGroups = groupAroundIt(place.aroundIt);
 
   const renderChapter = (chapter: Chapter, index: number) => (
-    <section key={chapter.key} className={`stayChapter ${index % 2 === 1 ? "stayChapter--dark stayChapter--flip" : ""} ${chapter.image ? "" : "stayChapter--textOnly"}`}>
+    // Fixed rhythm: 60/40 image left, 40/60 image right, 50/50 image left, then repeat.
+    <section key={chapter.key} className={`stayChapter stayChapter--${["a", "b", "c"][index % 3]} ${chapter.image ? "" : "stayChapter--textOnly"}`}>
+      <div className="container stayChapterGrid">
       {chapter.image ? (
         <div className="stayChapterMedia">
           <img src={sizedImage(chapter.image.url, 1400)} alt={chapter.image.alt || ""} loading="lazy" decoding="async" />
@@ -149,6 +151,7 @@ export function StayDetailView({ place }: { place: Place }) {
         <h2>{chapter.title}</h2>
         <p>{chapter.text}</p>
         {chapter.tags?.length ? <div className="stayTagList">{chapter.tags.map(tag => <span key={tag}>{tag}</span>)}</div> : null}
+      </div>
       </div>
     </section>
   );
