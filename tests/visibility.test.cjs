@@ -46,8 +46,10 @@ test("HOME_QUERY filters both featured and latest lists", () => {
   assert.equal(body.split("${CONTENT_ONLINE}").length - 1, 2);
 });
 
-test("homepage curation only shows listed content", () => {
-  assert.ok(queryBody("HOMEPAGE_CURATION_QUERY").includes("${CONTENT_LISTED}"));
+test("homepage curation: explicit picks override unlisted, never offline", () => {
+  const body = queryBody("HOMEPAGE_CURATION_QUERY");
+  assert.ok(body.includes("${CONTENT_ONLINE}"));
+  assert.ok(!body.includes("${CONTENT_LISTED}"));
 });
 
 test("stories hub only lists online destinations", () => {

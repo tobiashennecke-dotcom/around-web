@@ -21,7 +21,7 @@ const CONTENT_REF_TYPES = [
   { type: "collection" }
 ];
 
-const FALLBACK_NOTE = "Leer lassen = Automatik (Featured, dann höchste Priority, dann zuletzt bearbeitet).";
+const FALLBACK_NOTE = "Leer lassen = Automatik (Featured, dann höchste Priority, dann zuletzt bearbeitet). Auch „unlisted“-Inhalte lassen sich hier bewusst platzieren, offline bleibt offline.";
 
 export const homepageSettings = defineType({
   name: "homepageSettings",
