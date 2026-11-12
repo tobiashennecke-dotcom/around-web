@@ -3025,7 +3025,7 @@ img{display:block;max-width:100%}
   .storiesSection .sectionTitle,.travelSectionV13 .sectionTitle,.indexSection .sectionTitle{font-size:clamp(44px,min(5.4vw,9.5vh),100px)}
 
   /* STORIES: Aufmacher + zwei Nebenstories in fester Höhe */
-  .homeStoriesEditorial .homeStoriesGrid{height:clamp(440px,calc(100svh - 76px - 2 * clamp(40px,6vh,80px) - min(10.5vw,19vh) - 40px),720px)}
+  .homeStoriesEditorial .homeStoriesGrid{height:clamp(380px,calc(100svh - 76px - 2 * clamp(40px,6vh,80px) - min(10.5vw,19vh) - 40px),720px)}
   .homeStoriesEditorial .homeStoriesLead,.homeStoriesEditorial .homeStoriesLead .storyFeature{height:100%;min-height:0}
   /* Aufmacher: Bild füllt die ganze Kachel, Text liegt unten auf einem Verlauf */
   .homeStoriesEditorial .homeStoriesLead .storyFeature--lead{position:relative;overflow:hidden}
@@ -3056,9 +3056,13 @@ img{display:block;max-width:100%}
   .travelSectionV13 .travelGrid .cardMeta{margin-top:12px}
 
   /* AROUND SELECTED: drei Karten in einer Reihe statt 2 + 1 */
+  .homeSelectedGrid{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
+  .homeSelectedGallery{padding:clamp(28px,4vh,40px) 0 clamp(28px,4vh,40px) clamp(28px,3.4vw,48px)}
+  .selectedManifesto{padding-left:clamp(28px,3.4vw,56px);padding-right:clamp(28px,3.4vw,56px)}
   .homeSelectedGallery--3{grid-template-columns:repeat(3,minmax(0,1fr))}
   .homeSelectedGallery--3 .card:nth-child(3){grid-column:auto}
   .homeSelectedGallery--3 .card .cardMedia,.homeSelectedGallery--3 .card:nth-child(3) .cardMedia{aspect-ratio:4/5}
+  .homeSelectedGallery .card h3{font-size:clamp(19px,1.7vw,24px)}
   .homeSelectedGallery .card p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .homeSelectedGallery{align-content:center}
   .selectedManifesto{padding-top:clamp(40px,6vh,72px);padding-bottom:clamp(40px,6vh,72px)}
