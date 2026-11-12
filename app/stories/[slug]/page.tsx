@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getContactChannel, getStory } from "@/lib/content";
+import { getStory } from "@/lib/content";
 import { SaveButton } from "@/components/SaveButton";
 import { StoryBody } from "@/components/StoryBody";
 import { StoryRelationIndex } from "@/components/StoryRelationIndex";
@@ -17,7 +17,6 @@ import { StoryReadAloud } from "@/components/StoryReadAloud";
 import { getReadAloud, getStoryChapters, MIN_CHAPTERS, type StoryChapter } from "@/lib/story-modules";
 import { isDraftPreview } from "@/lib/sanity/read-client";
 import { TopicLinks } from "@/components/TopicLinks";
-import { ContactModule } from "@/components/ContactModule";
 
 function ChapterNav({ chapters, className }: { chapters: StoryChapter[]; className: string }) {
   return (
@@ -49,7 +48,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
 
 export default async function StoryPage({ params }: { params: Promise<{slug:string}>}) {
   const { slug } = await params;
-  const [story, contact] = await Promise.all([getStory(slug), getContactChannel()]);
+  const story = await getStory(slug);
   if (!story) notFound();
   const related = story.related || [];
   const { places, destinations, people } = splitStoryRelations(related);
@@ -191,8 +190,6 @@ export default async function StoryPage({ params }: { params: Promise<{slug:stri
           </div>
         </section>
       )}
-
-      <ContactModule contact={contact} variant="story" />
     </main>
   );
 }

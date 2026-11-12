@@ -2,8 +2,8 @@ import { defineField, defineType } from "sanity";
 
 /**
  * Singleton (id around-contact): the editorial contact channel ("Tipp für
- * uns?"). Every channel is optional; the frontend module only renders when at
- * least one channel is filled AND the module is switched on.
+ * uns?"). Every channel is optional; the band above the footer only renders
+ * when at least one channel is filled AND the module is switched on.
  */
 export const contactSettings = defineType({
   name: "contactSettings",
@@ -26,8 +26,10 @@ export const contactSettings = defineType({
       initialValue: "Hi AROUND, ich hab einen Tipp für euch: "
     }),
     defineField({ name: "email", title: "E-Mail", type: "string", validation: r => r.email() }),
-    defineField({ name: "showInFooter", title: "Im Footer zeigen", type: "boolean", initialValue: true }),
-    defineField({ name: "showOnStories", title: "Am Ende jeder Story zeigen", type: "boolean", initialValue: true })
+    defineField({
+      name: "showInFooter", title: "Auf jeder Seite über dem Footer zeigen", type: "boolean", initialValue: true,
+      description: "Eigener Lime-Block direkt über dem Footer – damit auch am Ende jeder Story."
+    })
   ],
   preview: {
     select: { enabled: "isEnabled", wa: "whatsappNumber", mail: "email" },

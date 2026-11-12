@@ -899,7 +899,6 @@ export type ContactChannel = {
   whatsappUrl?: string;
   email?: string;
   showInFooter: boolean;
-  showOnStories: boolean;
 };
 
 /** Editorial contact channel. Null when switched off or no channel is filled. */
@@ -919,8 +918,7 @@ export async function getContactChannel(): Promise<ContactChannel | null> {
       text: doc.text || undefined,
       whatsappUrl,
       email,
-      showInFooter: doc.showInFooter !== false,
-      showOnStories: doc.showOnStories !== false
+      showInFooter: doc.showInFooter !== false
     };
   } catch {
     return null;

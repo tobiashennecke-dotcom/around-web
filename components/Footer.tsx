@@ -1,27 +1,23 @@
 import Link from "next/link";
 import { AroundMark } from "./AroundLogo";
+import { ContactBand } from "./ContactBand";
 import { getContactChannel, getTopicsIndex } from "@/lib/content";
 
 export async function Footer() {
   const [contact, topics] = await Promise.all([getContactChannel(), getTopicsIndex().catch(() => [])]);
   const hasThemes = topics.some(topic => topic.count > 0);
   return (
+    <>
+    <ContactBand contact={contact} />
     <footer className="footer footerV13">
       <div className="container footerBrandRow">
         <div>
           <div className="eyebrow lime">THIS IS AROUND</div>
           <div className="footerStatement">Golf. Weiter gedacht.</div>
-          {contact?.showInFooter && (
-            <p className="footerContact">
-              <span>{contact.headline.replace(/[?]$/, "")}?</span>
-              {contact.whatsappUrl && <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer">WhatsApp →</a>}
-              {contact.email && <a href={`mailto:${contact.email}`}>{contact.email}</a>}
-            </p>
-          )}
         </div>
         <div className="footerDrop" aria-hidden="true"><AroundMark className="footerMark" /></div>
       </div>
-      <div className="container footerGiant" aria-label="AROUND">THIS IS AROUND.</div>
+      <div className="container footerGiantWrap"><div className="footerGiant" aria-label="AROUND">THIS IS AROUND.</div></div>
       <div className="container footerLinks">
         <div className="footerLinkGroup">
           <Link href="/discover">Entdecken</Link>
@@ -39,5 +35,6 @@ export async function Footer() {
         </div>
       </div>
     </footer>
+    </>
   );
 }

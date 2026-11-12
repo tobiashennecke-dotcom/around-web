@@ -492,6 +492,6 @@ export const TOPICS_INDEX_QUERY = defineQuery(`
 /** Editorial contact channel singleton (Studio: Kontakt zur Redaktion). */
 export const CONTACT_QUERY = defineQuery(`
   *[_type == "contactSettings" && _id == "around-contact"][0]{
-    isEnabled,headline,text,whatsappNumber,whatsappPrefill,email,showInFooter,showOnStories
+    isEnabled,headline,text,whatsappNumber,whatsappPrefill,email,showInFooter
   }
 `);
