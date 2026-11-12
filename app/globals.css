@@ -3002,7 +3002,6 @@ img{display:block;max-width:100%}
 .contactModule{padding:44px 0}
 .contactModule--story{background:var(--around-lime);color:var(--around-ink)}
 .contactModule--story .eyebrow.lime{color:var(--around-ink)}
-.contactModule--footer{background:var(--around-ink);color:var(--around-warm);border-bottom:1px solid rgba(255,255,255,.12)}
 .contactModuleInner{display:flex;justify-content:space-between;align-items:center;gap:32px;flex-wrap:wrap}
 .contactModuleInner p{font-size:clamp(20px,2vw,28px);line-height:1.15;max-width:640px;margin:10px 0 0}
 .contactModuleActions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -3010,6 +3009,8 @@ img{display:block;max-width:100%}
 .contactModuleMail{text-transform:none;letter-spacing:.02em}
 .contactModule--story .contactModuleMail{border-color:var(--around-ink);color:var(--around-ink)}
 
-/* Footer contact sits flush on top of the footer instead of below its top padding */
-.footerV13:has(> .contactModule--footer){padding-top:0}
-.footerV13 > .contactModule--footer{margin-bottom:72px}
+/* Footer contact: one quiet line under the claim, no box */
+.footerContact{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin:18px 0 0;font-size:13px;letter-spacing:.02em;color:rgba(244,242,236,.62)}
+.footerContact span{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.footerContact a{color:var(--around-warm);border-bottom:1px solid rgba(244,242,236,.3);padding-bottom:2px;transition:color .2s ease,border-color .2s ease}
+.footerContact a:hover{color:var(--around-lime);border-color:var(--around-lime)}

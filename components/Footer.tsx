@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { AroundMark } from "./AroundLogo";
-import { ContactModule } from "./ContactModule";
 import { getContactChannel, getTopicsIndex } from "@/lib/content";
 
 export async function Footer() {
@@ -8,11 +7,17 @@ export async function Footer() {
   const hasThemes = topics.some(topic => topic.count > 0);
   return (
     <footer className="footer footerV13">
-      <ContactModule contact={contact} variant="footer" />
       <div className="container footerBrandRow">
         <div>
           <div className="eyebrow lime">THIS IS AROUND</div>
           <div className="footerStatement">Golf. Weiter gedacht.</div>
+          {contact?.showInFooter && (
+            <p className="footerContact">
+              <span>{contact.headline.replace(/[?]$/, "")}?</span>
+              {contact.whatsappUrl && <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer">WhatsApp →</a>}
+              {contact.email && <a href={`mailto:${contact.email}`}>{contact.email}</a>}
+            </p>
+          )}
         </div>
         <div className="footerDrop" aria-hidden="true"><AroundMark className="footerMark" /></div>
       </div>

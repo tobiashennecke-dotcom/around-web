@@ -1,10 +1,8 @@
 import type { ContactChannel } from "@/lib/content";
 
-/** Editorial contact channel ("TIPP FÜR UNS?"). Footer = compact, story = after the read. */
-export function ContactModule({ contact, variant }: { contact: ContactChannel | null; variant: "footer" | "story" }) {
-  if (!contact) return null;
-  if (variant === "footer" && !contact.showInFooter) return null;
-  if (variant === "story" && !contact.showOnStories) return null;
+/** Editorial contact channel ("TIPP FÜR UNS?") after a story. The footer uses a plain text line instead. */
+export function ContactModule({ contact, variant }: { contact: ContactChannel | null; variant: "story" }) {
+  if (!contact || !contact.showOnStories) return null;
   return (
     <section className={`contactModule contactModule--${variant}`} aria-label="Kontakt zur Redaktion">
       <div className="container contactModuleInner">
