@@ -9,6 +9,7 @@ import {
   DESTINATION_QUERY,
   DISCOVER_QUERY,
   HOME_QUERY,
+  HOMEPAGE_CURATION_QUERY,
   OFFLINE_CONTENT_IDS_QUERY,
   PERSON_QUERY,
   PLACE_IDS_FOR_DESTINATION_QUERY,
@@ -271,6 +272,40 @@ export async function getHomepageContent(): Promise<{featured:ContentCard[];late
   // Sample content is a local-development fallback only, never shown when Sanity is configured.
   if (sanity) return { featured: [], latest: [] };
   return { featured:[lisbon,cityGolf,stories[0]], latest:content.slice(0,12) };
+}
+
+export type HomepageCuration = {
+  lead?: ContentCard;
+  supporting: ContentCard[];
+  travel: ContentCard[];
+  stories: ContentCard[];
+  selected: ContentCard[];
+};
+
+const EMPTY_CURATION: HomepageCuration = { supporting: [], travel: [], stories: [], selected: [] };
+
+/**
+ * Editor-picked homepage positions (Studio: Homepage > Startseite). Returns
+ * only picks that are still published, online and listed, in editor order.
+ * Empty slots are filled on the page itself from getHomepageContent().
+ */
+export async function getHomepageCuration(): Promise<HomepageCuration> {
+  if (!sanity) return EMPTY_CURATION;
+  const doc = (await sanity.fetch(HOMEPAGE_CURATION_QUERY)) as any;
+  if (!doc) return EMPTY_CURATION;
+  const byId = new Map(compactCards(doc.cards as any[] | undefined).map(card => [card.id, card]));
+  const pick = (ids: unknown) =>
+    (Array.isArray(ids) ? ids : [])
+      .map(id => (typeof id === "string" ? byId.get(id) : undefined))
+      .filter((card): card is ContentCard => Boolean(card));
+  const slots = doc.slots || {};
+  return {
+    lead: pick([slots.lead])[0],
+    supporting: pick(slots.supporting),
+    travel: pick(slots.travel),
+    stories: pick(slots.stories),
+    selected: pick(slots.selected)
+  };
 }
 
 export async function getDiscoverContent(): Promise<ContentCard[]> {

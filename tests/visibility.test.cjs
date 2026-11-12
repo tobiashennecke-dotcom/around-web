@@ -20,6 +20,7 @@ function queryBody(name) {
 
 const PUBLIC_QUERIES = {
   HOME_QUERY: "${CONTENT_ONLINE}",
+  HOMEPAGE_CURATION_QUERY: "${CONTENT_ONLINE}",
   DISCOVER_QUERY: "${CONTENT_ONLINE}",
   SEARCH_QUERY: "${CONTENT_ONLINE}",
   DESTINATION_QUERY: "${DESTINATION_ONLINE}",
@@ -43,6 +44,10 @@ for (const [name, fragment] of Object.entries(PUBLIC_QUERIES)) {
 test("HOME_QUERY filters both featured and latest lists", () => {
   const body = queryBody("HOME_QUERY");
   assert.equal(body.split("${CONTENT_ONLINE}").length - 1, 2);
+});
+
+test("homepage curation only shows listed content", () => {
+  assert.ok(queryBody("HOMEPAGE_CURATION_QUERY").includes("${CONTENT_LISTED}"));
 });
 
 test("stories hub only lists online destinations", () => {

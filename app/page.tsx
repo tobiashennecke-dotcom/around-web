@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ContentCard, contentHref } from "@/components/ContentCard";
 import { StoryFeature } from "@/components/StoryFeature";
-import { getHomepageContent } from "@/lib/content";
+import { getHomepageContent, getHomepageCuration } from "@/lib/content";
 import { getHomepageHero, heroImageUrl } from "@/lib/homepage-hero";
 import type { ContentCard as CardType, ContentType } from "@/lib/types";
 import { AroundMark } from "@/components/AroundLogo";
@@ -13,6 +13,12 @@ const HERO_MOBILE_WIDTHS = [640, 960, 1280];
 
 function unique(items: CardType[]) {
   return Array.from(new Map(items.map(item => [item.id, item])).values());
+}
+
+/** Editor picks first (in their order), then automatic candidates, no duplicates. */
+function fill(picked: CardType[], automatic: CardType[], size: number, exclude: CardType[] = []) {
+  const taken = new Set(exclude.map(item => item.id));
+  return unique([...picked, ...automatic].filter(item => !taken.has(item.id))).slice(0, size);
 }
 
 function AdaptiveCards({ items, className = "" }: { items: CardType[]; className?: string }) {
@@ -34,13 +40,20 @@ function heroSrcSet(image: Parameters<typeof heroImageUrl>[0], widths: number[],
 }
 
 export default async function HomePage() {
-  const [{ featured, latest }, hero] = await Promise.all([getHomepageContent(), getHomepageHero()]);
+  const [{ featured, latest }, curation, hero] = await Promise.all([
+    getHomepageContent(),
+    getHomepageCuration(),
+    getHomepageHero()
+  ]);
   const all = unique([...featured, ...latest]);
-  const lead = featured[0] || latest[0];
-  const supporting = unique(featured.slice(1).concat(latest.filter(item => item.id !== lead?.id))).slice(0, 2);
-  const travel = all.filter(item => item.type === "destination" || item.type === "place").slice(0, 3);
-  const stories = all.filter(item => item.type === "story").slice(0, 3);
-  const selected = all.filter(item => item.aroundSelected).slice(0, 3);
+  // Every section: picks from Studio (Homepage > Startseite) first; empty
+  // slots fall back to the automatic featured/priority/recency order.
+  const lead: CardType | undefined = curation.lead
+    || [...featured, ...latest].find(item => !curation.supporting.some(pick => pick.id === item.id));
+  const supporting = fill(curation.supporting, unique([...featured, ...latest]), 2, lead ? [lead] : []);
+  const travel = fill(curation.travel, all.filter(item => item.type === "destination" || item.type === "place"), 3);
+  const stories = fill(curation.stories, all.filter(item => item.type === "story"), 3);
+  const selected = fill(curation.selected, all.filter(item => item.aroundSelected), 3);
 
   const index: Array<{ type: ContentType; label: string; hint: string }> = [
     { type: "destination", label: "Reisen", hint: "Orte, die eine Runde wert sind." },

@@ -159,6 +159,30 @@ export const HOMEPAGE_SETTINGS_QUERY = defineQuery(`
   }
 `);
 
+/**
+ * Homepage curation (editor-picked positions on the homepage). Reads only the
+ * around-homepage singleton: the slot ids in editor order plus the matching
+ * cards. A picked item that is offline, unlisted or unpublished simply drops
+ * out, and the frontend fills that slot from HOME_QUERY's automatic logic.
+ */
+export const HOMEPAGE_CURATION_QUERY = defineQuery(`
+  *[_type == "homepageSettings" && _id == "around-homepage"][0]{
+    "slots": {
+      "lead": editLead._ref,
+      "supporting": editSupporting[]._ref,
+      "travel": travelItems[]._ref,
+      "stories": storyItems[]._ref,
+      "selected": selectedItems[]._ref
+    },
+    "cards": *[
+      _type in ["destination","place","story","person","product","collection"] &&
+      (_id == ^.editLead._ref || _id in ^.editSupporting[]._ref || _id in ^.travelItems[]._ref ||
+        _id in ^.storyItems[]._ref || _id in ^.selectedItems[]._ref) &&
+      defined(slug.current) && ${CONTENT_ONLINE} && ${CONTENT_LISTED}
+    ]{${CARD_FIELDS}}
+  }
+`);
+
 export const DISCOVER_QUERY = defineQuery(`
   *[
     _type in ["destination","place","story","person","product","collection"] &&
