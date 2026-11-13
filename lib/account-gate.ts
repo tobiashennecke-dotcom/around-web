@@ -12,7 +12,7 @@ export const GUEST_SAVE_LIMIT = 5;
 export const LOGIN_REQUIRED_EVENT = "around:login-required";
 export const SAVE_HINT_EVENT = "around:save-hint";
 
-export type LoginReason = "save_limit" | "trip";
+export type LoginReason = "save_limit" | "trip" | "pass";
 
 export type GuestSaveDecision = "remove" | "add" | "add_with_hint" | "limit";
 

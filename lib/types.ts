@@ -155,6 +155,8 @@ export type Place = ContentCard & SeoFields & {
   destinationFacts?: TravelFacts;
   destinationId: string;
   destination?: ContentCard;
+  /** Country of the place's destination (AROUND Pass counters). */
+  destinationCountry?: string;
   placeType: PlaceType;
   whyWeLikeIt: string;
   aroundTake?: string;

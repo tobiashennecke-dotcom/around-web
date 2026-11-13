@@ -3145,3 +3145,62 @@ img{display:block;max-width:100%}
 .profileSaveBar{position:sticky;bottom:12px;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 16px;background:var(--around-ink);color:var(--around-warm);font-size:14px;font-weight:700}
 .profileDeleteRow{display:flex;gap:12px;flex-wrap:wrap}
 .profileDeleteRow .profileInput{max-width:220px}
+
+/* v1.28 Profile fun: Pass, Bucket List, badges, Steckbrief */
+.visuallyHidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.profileQuickNav{display:flex;flex-wrap:wrap;gap:10px 24px}
+.profileQuickNav a{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--around-ink);background:var(--around-lime);padding:12px 16px;text-decoration:none}
+.profileRow{display:flex;flex-wrap:wrap;gap:10px}
+.profileRow .profileInput{flex:1 1 220px}
+.profileRow .profileInput--short{flex:0 1 130px}
+.profileRow .profileInput--date{flex:0 1 180px}
+.profileBagGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 24px}
+@media (max-width:700px){.profileBagGrid{grid-template-columns:1fr}}
+.placeMarks{position:relative;display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.placeMarkButton{min-height:44px;padding:0 16px;border:1px solid rgba(245,243,238,.7);background:transparent;color:var(--around-warm);font:inherit;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.placeMarkButton[aria-pressed="true"]{background:var(--around-lime);border-color:var(--around-lime);color:var(--around-ink)}
+.placeMarkStamp{position:absolute;left:0;top:56px;z-index:5;display:grid;gap:4px;justify-items:center;padding:18px 22px;border:4px solid var(--around-lime);color:var(--around-lime);background:rgba(33,35,34,.92);transform:rotate(-6deg);text-align:center;animation:stampIn .35s ease-out}
+.placeMarkStamp span{font-size:11px;font-weight:800;letter-spacing:.18em}
+.placeMarkStamp strong{font-size:22px;font-weight:900;line-height:1;max-width:260px}
+@keyframes stampIn{from{transform:rotate(-6deg) scale(1.6);opacity:0}to{transform:rotate(-6deg) scale(1);opacity:1}}
+.passLayout{display:grid;gap:56px}
+.passCounters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:2px solid var(--around-ink);border-bottom:1px solid var(--around-line)}
+.passCounters>div{padding:22px 16px 22px 0;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.passCounters>div+div{padding-left:16px;border-left:1px solid var(--around-line)}
+.passCounters span{display:block;font-size:clamp(36px,5vw,64px);font-weight:900;line-height:1;margin-bottom:10px;letter-spacing:-.03em}
+.passCounters>div:first-child span{background:var(--around-lime);display:inline-block;padding:2px 8px 0}
+@media (max-width:700px){.passCounters{grid-template-columns:repeat(2,minmax(0,1fr))}.passCounters>div{padding-left:0!important;border-left:0!important;border-bottom:1px solid var(--around-line)}}
+.passBlock h2{font-size:clamp(28px,3.4vw,44px);font-weight:900;letter-spacing:-.02em;margin:0 0 20px;padding-top:14px;border-top:2px solid var(--around-ink)}
+.passStamps{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:26px}
+.passStamp{position:relative;aspect-ratio:1;display:grid;place-items:center}
+.passStampInner{width:100%;height:100%;display:grid;align-content:center;justify-items:center;gap:8px;padding:16px;text-align:center;border:4px solid currentColor;border-radius:50%;transform:rotate(-7deg)}
+.passStamp--0{color:var(--around-ink)}
+.passStamp--1{color:var(--around-blue)}.passStamp--1 .passStampInner{border-radius:0;transform:rotate(4deg)}
+.passStamp--2{color:var(--around-pink)}.passStamp--2 .passStampInner{transform:rotate(9deg)}
+.passStamp--3{color:var(--around-ink)}.passStamp--3 .passStampInner{border-radius:0;border-style:double;border-width:8px;transform:rotate(-3deg)}
+.passStampTop,.passStampDate{font-size:10px;font-weight:800;letter-spacing:.16em}
+.passStampTitle{font-size:18px;font-weight:900;line-height:1.05;color:inherit;text-decoration:none;text-transform:uppercase}
+.passStampEdit{position:absolute;right:0;bottom:-6px;opacity:0;transition:opacity .2s}
+.passStamp:hover .passStampEdit,.passStampEdit:focus-within{opacity:1}
+.passStampEdit input{font:inherit;font-size:12px;padding:4px 6px;border:1px solid var(--around-ink);background:#fff}
+@media (hover:none){.passStampEdit{opacity:1;position:static;margin-top:8px}}
+.passProgress{height:10px;background:var(--around-line);margin-bottom:18px}
+.passProgress div{height:100%;background:var(--around-lime)}
+.passBucket{list-style:none;margin:0;padding:0;border-top:1px solid var(--around-ink)}
+.passBucket li{display:grid;grid-template-columns:28px 1fr auto auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--around-line)}
+.passBucket li a{color:inherit;font-weight:800;text-decoration:none}
+.passBucket li[data-done="true"] a{text-decoration:line-through;color:#6b6e69}
+.passBucketCheck{width:24px;height:24px;border:2px solid var(--around-ink);display:grid;place-items:center;font-weight:900;font-size:14px}
+li[data-done="true"] .passBucketCheck{background:var(--around-lime);border-color:var(--around-lime)}
+.passBucketMeta{font-size:13px;color:#6b6e69}
+.passBadges{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.passBadge{display:grid;gap:6px;padding:16px;border:1px dashed #a9aca7;color:#8b8e89}
+.passBadge strong{font-size:16px;font-weight:900}
+.passBadge span{font-size:13px;line-height:1.4}
+.passBadge[data-earned="true"]{border:0;background:var(--around-ink);color:var(--around-warm)}
+.passBadge[data-earned="true"] strong{color:var(--around-lime)}
+.steckbriefLayout{display:grid;grid-template-columns:minmax(0,360px) 1fr;gap:48px;align-items:start}
+.steckbriefPreview{width:100%;height:auto;aspect-ratio:9/16;background:var(--around-ink);display:block}
+.steckbriefActions{display:grid;gap:14px;justify-items:start;max-width:420px}
+@media (max-width:800px){.steckbriefLayout{grid-template-columns:1fr}.steckbriefPreview{max-width:360px}}
+@media (max-width:700px){.placeMarkButton{flex:1 1 0}}

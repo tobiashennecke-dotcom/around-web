@@ -456,6 +456,7 @@ export async function getPlace(slug: string): Promise<Place | null> {
         unlisted: doc.unlisted === true,
         destinationId: destination?.id || "",
         destination: destination || undefined,
+        destinationCountry: typeof doc.destinationCountry === "string" ? doc.destinationCountry : undefined,
         placeType: doc.placeType || "do",
         defaultPlanningMode: doc.defaultPlanningMode || undefined,
         suggestedDurationMinutes: typeof doc.suggestedDurationMinutes === "number" ? doc.suggestedDurationMinutes : undefined,

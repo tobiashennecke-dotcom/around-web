@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ImmersiveRun } from "./ImmersiveRun";
 import { ResearchDraftNote } from "./ResearchDraftNote";
 import { SaveButton } from "@/components/SaveButton";
+import { PlaceMarkButtons } from "@/components/PlaceMarkButtons";
 import { TripPicker } from "@/components/TripPicker";
 import { ContentCard } from "@/components/ContentCard";
 import { PlaceGallery } from "@/components/PlaceGallery";
@@ -135,6 +136,15 @@ export function PlayDetailView({ place }: { place: Place }) {
               </a>
             ) : null}
           </div>
+          <PlaceMarkButtons payload={{
+            sourceId: place.id,
+            title: place.title,
+            slug: place.slug,
+            destinationId: place.destination?.id,
+            destinationTitle: place.destination?.title,
+            destinationSlug: place.destination?.slug,
+            country: place.destinationCountry
+          }} />
         </div>
       </section>
 
