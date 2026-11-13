@@ -80,7 +80,8 @@ test("event vocabulary matches the DB constraint", () => {
 
 test("profile values are validated against the vocabulary and the DB constraints", () => {
   const sql = readFileSync("supabase/migrations/20261113_profile_preferences.sql", "utf8")
-    + readFileSync("supabase/migrations/20261113_profile_preferences_v2.sql", "utf8");
+    + readFileSync("supabase/migrations/20261113_profile_preferences_v2.sql", "utf8")
+    + readFileSync("supabase/migrations/20261113_profile_preferences_v3.sql", "utf8");
   const options = load("lib/profile/options.ts");
   const single = [options.HANDICAP_BAND, options.PLAY_FREQUENCY, options.TRIP_LENGTH, options.ORGANIZER_ROLE, options.GROUP_SIZE,
     options.ROUNDS_PER_TRIP, options.TRIPS_PER_YEAR, options.BUDGET_PER_NIGHT, options.BOOKING_CHANNEL, options.AGE_BAND];

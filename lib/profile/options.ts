@@ -7,6 +7,7 @@ export type Option<T extends string = string> = { value: T; label: string };
 export const PLAY_FREQUENCY = [
   { value: "rarely", label: "Selten" },
   { value: "few_per_year", label: "Ein paar Mal im Jahr" },
+  { value: "monthly", label: "1–2 Mal im Monat" },
   { value: "weekly", label: "Jede Woche" },
   { value: "almost_daily", label: "Fast täglich" }
 ] as const satisfies readonly Option[];

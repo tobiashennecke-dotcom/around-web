@@ -192,11 +192,19 @@ export function ProfileClient() {
         <Field label="Golfreisen pro Jahr">{oneOf("tripsPerYear", TRIPS_PER_YEAR)}</Field>
         <Field label="Wann am liebsten?">
           <div className="chipGroup chipGroup--months">
+            <button type="button" className="chip" aria-pressed={draft.monthsFlexible}
+              onClick={() => setDraft(current => ({ ...current, monthsFlexible: !current.monthsFlexible, preferredMonths: [] }))}>
+              Flexibel
+            </button>
             {MONTHS.map(month => (
               <button key={month.value} type="button" className="chip" aria-pressed={draft.preferredMonths.includes(month.value)}
-                onClick={() => set("preferredMonths", draft.preferredMonths.includes(month.value)
-                  ? draft.preferredMonths.filter(value => value !== month.value)
-                  : [...draft.preferredMonths, month.value])}>
+                onClick={() => setDraft(current => ({
+                  ...current,
+                  monthsFlexible: false,
+                  preferredMonths: current.preferredMonths.includes(month.value)
+                    ? current.preferredMonths.filter(value => value !== month.value)
+                    : [...current.preferredMonths, month.value]
+                }))}>
                 {month.label}
               </button>
             ))}
@@ -207,7 +215,7 @@ export function ProfileClient() {
 
       <Block title="Unterkunft und Budget">
         <Field label="Wie wohnst du am liebsten?">{manyOf("accommodationStyles", ACCOMMODATION_STYLES)}</Field>
-        <Field label="Budget pro Nacht im Doppelzimmer">{oneOf("budgetPerNight", BUDGET_PER_NIGHT)}</Field>
+        <Field label="Budget pro Nacht fürs Doppelzimmer" hint="Preis fürs ganze Zimmer, nicht pro Person.">{oneOf("budgetPerNight", BUDGET_PER_NIGHT)}</Field>
       </Block>
 
       <Block title="Anreise und Buchung">

@@ -20,6 +20,7 @@ export type Profile = {
   coursePreferences: string[];
   tripsPerYear: string | null;
   preferredMonths: number[];
+  monthsFlexible: boolean;
   tripLength: string | null;
   accommodationStyles: string[];
   budgetPerNight: string | null;
@@ -50,6 +51,7 @@ export const EMPTY_PROFILE: Profile = {
   coursePreferences: [],
   tripsPerYear: null,
   preferredMonths: [],
+  monthsFlexible: false,
   tripLength: null,
   accommodationStyles: [],
   budgetPerNight: null,
@@ -80,6 +82,7 @@ const COLUMNS = [
   "course_preferences",
   "trips_per_year",
   "preferred_months",
+  "months_flexible",
   "trip_length",
   "accommodation_styles",
   "budget_per_night",
@@ -122,6 +125,7 @@ export function profileFromRow(row: any): Profile {
     coursePreferences: pickKnown(row.course_preferences, COURSE_PREFERENCES),
     tripsPerYear: pickOne(row.trips_per_year, TRIPS_PER_YEAR),
     preferredMonths: months(row.preferred_months),
+    monthsFlexible: Boolean(row.months_flexible),
     tripLength: pickOne(row.trip_length, TRIP_LENGTH),
     accommodationStyles: pickKnown(row.accommodation_styles, ACCOMMODATION_STYLES),
     budgetPerNight: pickOne(row.budget_per_night, BUDGET_PER_NIGHT),
@@ -156,6 +160,7 @@ export function profileToRow(patch: Partial<Profile>, previous?: Profile): Recor
   if ("coursePreferences" in patch) row.course_preferences = pickKnown(patch.coursePreferences, COURSE_PREFERENCES);
   if ("tripsPerYear" in patch) row.trips_per_year = pickOne(patch.tripsPerYear, TRIPS_PER_YEAR);
   if ("preferredMonths" in patch) row.preferred_months = months(patch.preferredMonths);
+  if ("monthsFlexible" in patch) row.months_flexible = Boolean(patch.monthsFlexible);
   if ("tripLength" in patch) row.trip_length = pickOne(patch.tripLength, TRIP_LENGTH);
   if ("accommodationStyles" in patch) row.accommodation_styles = pickKnown(patch.accommodationStyles, ACCOMMODATION_STYLES);
   if ("budgetPerNight" in patch) row.budget_per_night = pickOne(patch.budgetPerNight, BUDGET_PER_NIGHT);
