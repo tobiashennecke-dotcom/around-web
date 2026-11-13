@@ -11,7 +11,13 @@ export function renderSteckbrief(card: SteckbriefData) {
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: INK, color: WARM, padding: "150px 80px 90px" }}>
-        <div style={{ display: "flex", fontSize: 30, fontWeight: 700, letterSpacing: 6, color: LIME }}>GOLFER-STECKBRIEF</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", fontSize: 30, fontWeight: 700, letterSpacing: 6, color: LIME }}>GOLFER-STECKBRIEF</div>
+          {card.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={card.avatarUrl} width={220} height={220} style={{ borderRadius: 110, border: `6px solid ${LIME}`, objectFit: "cover" }} alt="" />
+          ) : null}
+        </div>
         <div style={{ display: "flex", fontSize: card.name.length > 14 ? 110 : 150, fontWeight: 900, lineHeight: 0.95, marginTop: 28, letterSpacing: -4 }}>
           {card.name.toUpperCase()}
         </div>

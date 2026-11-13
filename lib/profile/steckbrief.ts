@@ -11,6 +11,7 @@ function label(options: readonly Option[], value: string | null) {
 
 export type SteckbriefData = {
   name: string;
+  avatarUrl?: string | null;
   motto: string;
   facts: { label: string; value: string }[];
   stats: { courses: number; countries: number; bucketDone: number; bucketTotal: number };

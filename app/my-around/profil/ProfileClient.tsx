@@ -13,6 +13,7 @@ import {
 } from "@/lib/profile/options";
 import { getConsent, openConsentSettings, CONSENT_CHANGED_EVENT } from "@/lib/analytics/consent";
 import { track } from "@/lib/analytics/track";
+import { AvatarEditor } from "@/components/AvatarEditor";
 
 type ListKey = { [K in keyof Profile]: Profile[K] extends string[] ? K : never }[keyof Profile];
 type OneKey = { [K in keyof Profile]: Profile[K] extends string | null ? (null extends Profile[K] ? K : never) : never }[keyof Profile];
@@ -173,6 +174,9 @@ export function ProfileClient() {
       </nav>
 
       <Block title="Ich">
+        <Field label="Profilbild">
+          <AvatarEditor name={draft.displayName || email || "A"} />
+        </Field>
         <Field label="Name">
           <input className="profileInput" value={draft.displayName} maxLength={80} onChange={e => set("displayName", e.target.value)} placeholder="Wie sollen wir dich nennen?" />
         </Field>

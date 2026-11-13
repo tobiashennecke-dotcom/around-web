@@ -4,6 +4,7 @@ import { profileFromRow } from "@/lib/profile/profile";
 import { computeBadges, passStats } from "@/lib/profile/badges";
 import { buildSteckbrief } from "@/lib/profile/steckbrief";
 import { renderSteckbrief } from "@/lib/profile/steckbrief-image";
+import { AVATAR_BUCKET, providerAvatarUrl } from "@/lib/profile/avatar";
 
 /** The signed-in user's Golfer-Steckbrief as a 1080×1920 PNG for Instagram Stories. */
 export async function GET() {
@@ -29,5 +30,12 @@ export async function GET() {
   const stamps = (markRows || []).filter(mark => mark.kind === "played").map(mark => mark.title_snapshot || "Platz");
   const card = buildSteckbrief(profile, stats, stamps, computeBadges({ profile, marks, tripCount: tripCount || 0 }));
 
-  return renderSteckbrief(card);
+  let avatarUrl: string | null = null;
+  if (row?.avatar_path) {
+    const { data } = await supabase.storage.from(AVATAR_BUCKET).createSignedUrl(row.avatar_path, 120);
+    avatarUrl = data?.signedUrl ?? null;
+  }
+  avatarUrl = avatarUrl || providerAvatarUrl(user.user_metadata);
+
+  return renderSteckbrief({ ...card, avatarUrl });
 }

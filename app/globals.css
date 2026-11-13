@@ -3204,3 +3204,12 @@ li[data-done="true"] .passBucketCheck{background:var(--around-lime);border-color
 .steckbriefActions{display:grid;gap:14px;justify-items:start;max-width:420px}
 @media (max-width:800px){.steckbriefLayout{grid-template-columns:1fr}.steckbriefPreview{max-width:360px}}
 @media (max-width:700px){.placeMarkButton{flex:1 1 0}}
+
+/* v1.28 avatar */
+.avatar{display:inline-grid;place-items:center;flex-shrink:0;border-radius:50%;overflow:hidden;background:var(--around-lime);color:var(--around-ink);font-weight:900;line-height:1}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.headerAccountButton{display:inline-flex;align-items:center;gap:8px}
+.avatarEditor{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.avatarEditorActions{display:grid;gap:10px;justify-items:start;max-width:360px}
+.avatarUploadButton{cursor:pointer;display:inline-flex;align-items:center}
+.avatarUploadButton[aria-disabled="true"]{opacity:.6;pointer-events:none}

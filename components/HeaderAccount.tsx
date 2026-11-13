@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { notifySaveChange } from "@/lib/supabase/saves";
+import { Avatar, useAvatarUrl } from "./AvatarEditor";
 
 export function HeaderAccount() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const avatarUrl = useAvatarUrl();
 
   useEffect(() => {
     const supabase = createClient();
@@ -69,6 +71,7 @@ export function HeaderAccount() {
         aria-expanded={open}
         aria-haspopup="menu"
       >
+        <Avatar url={avatarUrl} name={userEmail} size={24} />
         Account <span className="accountChevron" aria-hidden="true">{open ? "↑" : "↓"}</span>
       </button>
       {open && (
