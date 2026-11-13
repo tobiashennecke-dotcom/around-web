@@ -3078,3 +3078,16 @@ img{display:block;max-width:100%}
    (mobil auch abzüglich der unteren Navigation) - nie höher als das sichtbare Fenster. */
 .immersiveShot{min-height:calc(100svh - 76px)}
 @media(max-width:900px){.immersiveShot{min-height:calc(100svh - 68px - 72px)}}
+
+/* Login: Google + Link/Code */
+.accountGoogle{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;background:#F5F3EE;color:#212322;border:0;font:inherit;font-size:15px;font-weight:800;letter-spacing:.02em;cursor:pointer}
+.accountGoogle:hover{background:#fff}
+.accountGoogle:disabled{opacity:.6;cursor:default}
+.accountDivider{display:flex;align-items:center;gap:14px;margin:26px 0 18px;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a9aca7}
+.accountDivider::before,.accountDivider::after{content:"";flex:1;height:1px;background:#484b48}
+.accountLabel{display:block;margin-bottom:8px;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a9aca7}
+.accountCodeInput{letter-spacing:.3em}
+.accountSecondaryRow{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px}
+.accountTextButton{background:none;border:0;padding:6px 0;color:#F5F3EE;font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.accountTextButton:disabled{opacity:.5;cursor:default;text-decoration:none}
+.accountFinePrint{margin:14px 0 0;font-size:12px;color:#a9aca7}
