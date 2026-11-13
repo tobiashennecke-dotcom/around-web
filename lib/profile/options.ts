@@ -180,3 +180,10 @@ export function pickKnown<T extends string>(values: unknown, options: readonly O
 export function pickOne<T extends string>(value: unknown, options: readonly Option<T>[]): T | null {
   return typeof value === "string" && options.some(option => option.value === value) ? (value as T) : null;
 }
+
+/** "Nein" (none) excludes every other organizer answer. */
+export function organizerRoles(value: unknown): string[] {
+  const roles = pickKnown<string>(value, ORGANIZER_ROLE);
+  return roles.includes("none") && roles.length > 1 ? roles.filter(role => role !== "none") : roles;
+}
+

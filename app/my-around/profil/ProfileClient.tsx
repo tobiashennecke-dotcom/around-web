@@ -170,8 +170,25 @@ export function ProfileClient() {
 
       <Block title="Reisen">
         <Field label="Wofür planst du Golfreisen?" hint="Mehrere Antworten möglich.">{manyOf("tripPurposes", TRIP_PURPOSES)}</Field>
-        <Field label="Organisierst du Reisen für andere?">{oneOf("organizerRole", ORGANIZER_ROLE)}</Field>
-        {draft.organizerRole && draft.organizerRole !== "none" ? (
+        <Field label="Organisierst du Reisen für andere?" hint="Mehrere Antworten möglich.">
+          <div className="chipGroup">
+            {ORGANIZER_ROLE.map(option => (
+              <button key={option.value} type="button" className="chip" aria-pressed={draft.organizerRoles.includes(option.value)}
+                onClick={() => setDraft(current => {
+                  const selected = current.organizerRoles.includes(option.value);
+                  const organizerRoles = selected
+                    ? current.organizerRoles.filter(value => value !== option.value)
+                    : option.value === "none"
+                      ? ["none"]
+                      : [...current.organizerRoles.filter(value => value !== "none"), option.value];
+                  return { ...current, organizerRoles };
+                })}>
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </Field>
+        {draft.organizerRoles.some(role => role !== "none") ? (
           <Field label="Wie groß ist die Gruppe meistens?">{oneOf("groupSize", GROUP_SIZE)}</Field>
         ) : null}
         <Field label="Wer kommt mit?">{manyOf("travelCompanions", TRAVEL_COMPANIONS)}</Field>
@@ -210,7 +227,7 @@ export function ProfileClient() {
             ))}
           </div>
         </Field>
-        <Field label="Typische Dauer">{oneOf("tripLength", TRIP_LENGTH)}</Field>
+        <Field label="Wie lange?" hint="Mehrere Antworten möglich.">{manyOf("tripLengths", TRIP_LENGTH)}</Field>
       </Block>
 
       <Block title="Unterkunft und Budget">

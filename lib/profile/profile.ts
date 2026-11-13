@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/client";
 import {
-  ACCOMMODATION_STYLES, AGE_BAND, BOOKING_CHANNEL, BUDGET_PER_NIGHT, COURSE_PREFERENCES, GROUP_SIZE, HANDICAP_BAND, INTERESTS, ORGANIZER_ROLE, PLAY_FREQUENCY, ROUNDS_PER_TRIP, TRAVEL_COMPANIONS, TRAVEL_MODES, TRIPS_PER_YEAR, TRIP_EXTRAS, TRIP_LENGTH, TRIP_PURPOSES, WISHLIST_REGIONS,
-  pickKnown, pickOne
+  ACCOMMODATION_STYLES, AGE_BAND, BOOKING_CHANNEL, BUDGET_PER_NIGHT, COURSE_PREFERENCES, GROUP_SIZE, HANDICAP_BAND, INTERESTS, PLAY_FREQUENCY, ROUNDS_PER_TRIP, TRAVEL_COMPANIONS, TRAVEL_MODES, TRIPS_PER_YEAR, TRIP_EXTRAS, TRIP_LENGTH, TRIP_PURPOSES, WISHLIST_REGIONS,
+  organizerRoles, pickKnown, pickOne
 } from "./options";
 
 export type Profile = {
@@ -10,7 +10,7 @@ export type Profile = {
   homeAirport: string;
   homeClub: string;
   tripPurposes: string[];
-  organizerRole: string | null;
+  organizerRoles: string[];
   groupSize: string | null;
   travelCompanions: string[];
   tripExtras: string[];
@@ -21,7 +21,7 @@ export type Profile = {
   tripsPerYear: string | null;
   preferredMonths: number[];
   monthsFlexible: boolean;
-  tripLength: string | null;
+  tripLengths: string[];
   accommodationStyles: string[];
   budgetPerNight: string | null;
   travelModes: string[];
@@ -41,7 +41,7 @@ export const EMPTY_PROFILE: Profile = {
   homeAirport: "",
   homeClub: "",
   tripPurposes: [],
-  organizerRole: null,
+  organizerRoles: [],
   groupSize: null,
   travelCompanions: [],
   tripExtras: [],
@@ -52,7 +52,7 @@ export const EMPTY_PROFILE: Profile = {
   tripsPerYear: null,
   preferredMonths: [],
   monthsFlexible: false,
-  tripLength: null,
+  tripLengths: [],
   accommodationStyles: [],
   budgetPerNight: null,
   travelModes: [],
@@ -72,7 +72,7 @@ const COLUMNS = [
   "home_airport",
   "home_club",
   "trip_purposes",
-  "organizer_role",
+  "organizer_roles",
   "group_size",
   "travel_companions",
   "trip_extras",
@@ -83,7 +83,7 @@ const COLUMNS = [
   "trips_per_year",
   "preferred_months",
   "months_flexible",
-  "trip_length",
+  "trip_lengths",
   "accommodation_styles",
   "budget_per_night",
   "travel_modes",
@@ -115,7 +115,7 @@ export function profileFromRow(row: any): Profile {
     homeAirport: row.home_airport || "",
     homeClub: row.home_club || "",
     tripPurposes: pickKnown(row.trip_purposes, TRIP_PURPOSES),
-    organizerRole: pickOne(row.organizer_role, ORGANIZER_ROLE),
+    organizerRoles: organizerRoles(row.organizer_roles),
     groupSize: pickOne(row.group_size, GROUP_SIZE),
     travelCompanions: pickKnown(row.travel_companions, TRAVEL_COMPANIONS),
     tripExtras: pickKnown(row.trip_extras, TRIP_EXTRAS),
@@ -126,7 +126,7 @@ export function profileFromRow(row: any): Profile {
     tripsPerYear: pickOne(row.trips_per_year, TRIPS_PER_YEAR),
     preferredMonths: months(row.preferred_months),
     monthsFlexible: Boolean(row.months_flexible),
-    tripLength: pickOne(row.trip_length, TRIP_LENGTH),
+    tripLengths: pickKnown(row.trip_lengths, TRIP_LENGTH),
     accommodationStyles: pickKnown(row.accommodation_styles, ACCOMMODATION_STYLES),
     budgetPerNight: pickOne(row.budget_per_night, BUDGET_PER_NIGHT),
     travelModes: pickKnown(row.travel_modes, TRAVEL_MODES),
@@ -150,7 +150,7 @@ export function profileToRow(patch: Partial<Profile>, previous?: Profile): Recor
   if ("homeAirport" in patch) row.home_airport = clean(patch.homeAirport, 80) || null;
   if ("homeClub" in patch) row.home_club = clean(patch.homeClub, 120) || null;
   if ("tripPurposes" in patch) row.trip_purposes = pickKnown(patch.tripPurposes, TRIP_PURPOSES);
-  if ("organizerRole" in patch) row.organizer_role = pickOne(patch.organizerRole, ORGANIZER_ROLE);
+  if ("organizerRoles" in patch) row.organizer_roles = organizerRoles(patch.organizerRoles);
   if ("groupSize" in patch) row.group_size = pickOne(patch.groupSize, GROUP_SIZE);
   if ("travelCompanions" in patch) row.travel_companions = pickKnown(patch.travelCompanions, TRAVEL_COMPANIONS);
   if ("tripExtras" in patch) row.trip_extras = pickKnown(patch.tripExtras, TRIP_EXTRAS);
@@ -161,7 +161,7 @@ export function profileToRow(patch: Partial<Profile>, previous?: Profile): Recor
   if ("tripsPerYear" in patch) row.trips_per_year = pickOne(patch.tripsPerYear, TRIPS_PER_YEAR);
   if ("preferredMonths" in patch) row.preferred_months = months(patch.preferredMonths);
   if ("monthsFlexible" in patch) row.months_flexible = Boolean(patch.monthsFlexible);
-  if ("tripLength" in patch) row.trip_length = pickOne(patch.tripLength, TRIP_LENGTH);
+  if ("tripLengths" in patch) row.trip_lengths = pickKnown(patch.tripLengths, TRIP_LENGTH);
   if ("accommodationStyles" in patch) row.accommodation_styles = pickKnown(patch.accommodationStyles, ACCOMMODATION_STYLES);
   if ("budgetPerNight" in patch) row.budget_per_night = pickOne(patch.budgetPerNight, BUDGET_PER_NIGHT);
   if ("travelModes" in patch) row.travel_modes = pickKnown(patch.travelModes, TRAVEL_MODES);
