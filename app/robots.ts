@@ -12,7 +12,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      disallow: ["/preview", "/studio", "/account", "/saved", "/my-around", "/api/"]
+      disallow: ["/preview", "/studio", "/account", "/saved", "/my-around", "/admin", "/api/"]
     },
     sitemap: new URL("/sitemap.xml", siteUrl()).toString()
   };
