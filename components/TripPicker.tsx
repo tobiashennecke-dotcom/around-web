@@ -1,5 +1,6 @@
 "use client";
 
+import { isLoginRequiredError } from "@/lib/account-gate";
 import { useEffect, useState } from "react";
 import type { SavePayload } from "@/lib/supabase/saves";
 import {
@@ -48,6 +49,8 @@ export function TripPicker({ item, compact = false, label = "+ Trip" }: { item: 
       setTitle("");
       setMessage(isStay ? `„${trip.title}“ erstellt · ${item.title} für die ganze Reise gesetzt.` : `„${trip.title}“ erstellt und hinzugefügt.`);
       await load();
+    } catch (error) {
+      if (!isLoginRequiredError(error)) throw error;
     } finally {
       setBusy(false);
     }

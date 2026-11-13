@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@/lib/analytics/track";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ContentCard } from "@/components/ContentCard";
@@ -103,6 +104,13 @@ export function SearchClient({
         setLoading(false);
       }
     },180);
+    return ()=>window.clearTimeout(timer);
+  },[query,type,role]);
+
+  useEffect(()=>{
+    const term=query.trim();
+    if (term.length<2) return;
+    const timer=window.setTimeout(()=>track("search_performed",{query:term,slug:role || type}),1200);
     return ()=>window.clearTimeout(timer);
   },[query,type,role]);
 

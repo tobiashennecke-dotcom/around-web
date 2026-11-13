@@ -409,3 +409,129 @@ create trigger on_auth_user_created
 revoke execute on function public.handle_new_auth_user() from public;
 revoke execute on function public.handle_new_auth_user() from anon;
 revoke execute on function public.handle_new_auth_user() from authenticated;
+
+-- ==========================================================
+-- v1.27 (2026-11-13): mirrored from supabase/migrations/20261113_*.sql
+-- ==========================================================
+-- ==========================================================
+-- Profile preferences + consents (Phase 2, approved 2026-11-13)
+-- Additive only: new nullable columns on public.profiles.
+-- Existing RLS policy "profiles_own" (own row only) covers them.
+-- ==========================================================
+alter table public.profiles
+  add column if not exists home_region text null,
+  add column if not exists home_airport text null,
+  add column if not exists handicap_band text null,
+  add column if not exists home_club text null,
+  add column if not exists play_frequency text null,
+  add column if not exists course_preferences text[] not null default '{}',
+  add column if not exists travel_party text null,
+  add column if not exists trip_length text null,
+  add column if not exists preferred_months smallint[] not null default '{}',
+  add column if not exists budget_level text null,
+  add column if not exists travel_modes text[] not null default '{}',
+  add column if not exists wishlist_regions text[] not null default '{}',
+  add column if not exists trip_extras text[] not null default '{}',
+  add column if not exists interests text[] not null default '{}',
+  add column if not exists consent_partner_offers boolean not null default false,
+  add column if not exists consent_partner_offers_at timestamptz null,
+  add column if not exists consent_market_research boolean not null default false,
+  add column if not exists consent_market_research_at timestamptz null,
+  add column if not exists onboarding_completed_at timestamptz null,
+  add column if not exists onboarding_dismissed_at timestamptz null;
+
+alter table public.profiles drop constraint if exists profiles_handicap_band_check;
+alter table public.profiles add constraint profiles_handicap_band_check
+  check (handicap_band is null or handicap_band in ('under_10','10_20','20_36','36_plus','none'));
+
+alter table public.profiles drop constraint if exists profiles_play_frequency_check;
+alter table public.profiles add constraint profiles_play_frequency_check
+  check (play_frequency is null or play_frequency in ('rarely','few_per_year','weekly','almost_daily'));
+
+alter table public.profiles drop constraint if exists profiles_travel_party_check;
+alter table public.profiles add constraint profiles_travel_party_check
+  check (travel_party is null or travel_party in ('solo','couple_both_golf','couple_one_golfs','friends','family'));
+
+alter table public.profiles drop constraint if exists profiles_trip_length_check;
+alter table public.profiles add constraint profiles_trip_length_check
+  check (trip_length is null or trip_length in ('weekend','4_5_days','week','longer'));
+
+alter table public.profiles drop constraint if exists profiles_budget_level_check;
+alter table public.profiles add constraint profiles_budget_level_check
+  check (budget_level is null or budget_level in ('relaxed','upscale','luxury'));
+
+alter table public.profiles drop constraint if exists profiles_preferred_months_check;
+alter table public.profiles add constraint profiles_preferred_months_check
+  check (preferred_months <@ array[1,2,3,4,5,6,7,8,9,10,11,12]::smallint[]);
+
+alter table public.profiles drop constraint if exists profiles_text_lengths_check;
+alter table public.profiles add constraint profiles_text_lengths_check
+  check (
+    coalesce(length(home_region), 0) <= 80
+    and coalesce(length(home_airport), 0) <= 80
+    and coalesce(length(home_club), 0) <= 120
+    and coalesce(length(display_name), 0) <= 80
+  );
+
+-- ==========================================================
+-- analytics_events (Phase 3, approved 2026-11-13)
+-- Consent-aware product analytics, incl. guests. Separate from
+-- public.user_events, which stays the account history that feeds the
+-- consent-gated Brevo lifecycle layer.
+--
+-- consent = 'anonymous': no anon_id, no user_id (no consent given).
+-- consent = 'full': anon_id from the browser, user_id once linked.
+--
+-- Written only server-side (/api/events with the secret key). RLS is on
+-- and there are deliberately NO policies: the browser can neither read
+-- nor write this table.
+-- ==========================================================
+create table if not exists public.analytics_events (
+  id uuid primary key default gen_random_uuid(),
+  occurred_at timestamptz not null default now(),
+  event_name text not null,
+  consent text not null,
+  anon_id uuid null,
+  user_id uuid null references auth.users(id) on delete cascade,
+  path text null,
+  source_id text null,
+  source_type text null,
+  source_role text null,
+  slug text null,
+  query text null,
+  value numeric null,
+  trip_id uuid null,
+  utm_source text null,
+  utm_medium text null,
+  utm_campaign text null,
+  referrer_host text null
+);
+
+alter table public.analytics_events drop constraint if exists analytics_events_event_name_check;
+alter table public.analytics_events add constraint analytics_events_event_name_check
+  check (event_name in (
+    'page_viewed','content_viewed','story_read','search_performed',
+    'content_saved','content_unsaved','save_limit_hint','save_limit_reached',
+    'login_prompt_shown','login_prompt_dismissed','account_created',
+    'trip_created','content_added_to_trip','trip_dates_set','booking_clicked',
+    'onboarding_completed','onboarding_skipped','profile_updated'
+  ));
+
+alter table public.analytics_events drop constraint if exists analytics_events_consent_check;
+alter table public.analytics_events add constraint analytics_events_consent_check
+  check (
+    (consent = 'anonymous' and anon_id is null and user_id is null)
+    or consent = 'full'
+  );
+
+alter table public.analytics_events drop constraint if exists analytics_events_source_type_check;
+alter table public.analytics_events add constraint analytics_events_source_type_check
+  check (source_type is null or source_type in ('destination','place','story','person','object','collection'));
+
+create index if not exists idx_analytics_events_occurred_at on public.analytics_events(occurred_at desc);
+create index if not exists idx_analytics_events_name_time on public.analytics_events(event_name, occurred_at desc);
+create index if not exists idx_analytics_events_anon_id on public.analytics_events(anon_id) where anon_id is not null;
+create index if not exists idx_analytics_events_user_id on public.analytics_events(user_id) where user_id is not null;
+
+alter table public.analytics_events enable row level security;
+revoke all on public.analytics_events from anon, authenticated;

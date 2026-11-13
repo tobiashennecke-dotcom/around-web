@@ -218,12 +218,12 @@ export function ExperienceDetailView({ place }: { place: Place }) {
           <p className="heroIntro">{place.description}</p>
           <div className={`heroActions experienceHeroActions ${place.bookingUrl && config.bookingIsPrimaryCta ? "experienceHeroActions--booking" : ""}`}>
             {place.bookingUrl && config.bookingIsPrimaryCta ? (
-              <a className="experienceCtaBooking" href={place.bookingUrl} target="_blank" rel="noreferrer">{bookingLabelText} ↗</a>
+              <a className="experienceCtaBooking" href={place.bookingUrl} data-track="booking" target="_blank" rel="noreferrer">{bookingLabelText} ↗</a>
             ) : null}
             <div className="experienceCtaTrip"><TripPicker item={savePayload} label="+ ZUM TRIP" /></div>
             <div className="experienceCtaSave"><SaveButton sourceId={place.id} sourceType={place.type} title={place.title} slug={place.slug} placeType={place.placeType} label="Merken" /></div>
             {place.bookingUrl && !config.bookingIsPrimaryCta ? (
-              <a className="experienceCtaBookingSecondary" href={place.bookingUrl} target="_blank" rel="noreferrer">{bookingLabelText} ↗</a>
+              <a className="experienceCtaBookingSecondary" href={place.bookingUrl} data-track="booking" target="_blank" rel="noreferrer">{bookingLabelText} ↗</a>
             ) : null}
           </div>
         </div>
@@ -336,7 +336,7 @@ export function ExperienceDetailView({ place }: { place: Place }) {
               <div className="experienceOfficialActions">
                 {place.website ? <a className="secondary" href={place.website} target="_blank" rel="noreferrer">OFFIZIELLE WEBSITE ↗</a> : null}
                 {place.bookingUrl ? (
-                  <a className="primary" href={place.bookingUrl} target="_blank" rel="noreferrer">{bookingLabelText} ↗</a>
+                  <a className="primary" href={place.bookingUrl} data-track="booking" target="_blank" rel="noreferrer">{bookingLabelText} ↗</a>
                 ) : null}
               </div>
             </div>

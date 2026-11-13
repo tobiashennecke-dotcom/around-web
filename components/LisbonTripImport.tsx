@@ -1,5 +1,6 @@
 "use client";
 
+import { isLoginRequiredError } from "@/lib/account-gate";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { EditorialJourney } from "@/lib/types";
@@ -23,8 +24,8 @@ export function LisbonTripImport({ destinationId, journey }: { destinationId: st
     try {
       const trip = await createUserTrip(`Meine Reise · ${journey.title}`, { destinationSourceId: destinationId });
       router.push(`/my-around/trips/${trip.id}`);
-    } catch {
-      setStatus("Deine eigene Reise konnte nicht angelegt werden. Bitte versuche es erneut.");
+    } catch (error) {
+      if (!isLoginRequiredError(error)) setStatus("Deine eigene Reise konnte nicht angelegt werden. Bitte versuche es erneut.");
       setNewTripBusy(false);
     }
   }
@@ -70,7 +71,8 @@ export function LisbonTripImport({ destinationId, journey }: { destinationId: st
         });
       }
       router.push(`/my-around/trips/${trip.id}`);
-    } catch {
+    } catch (error) {
+      if (isLoginRequiredError(error)) return;
       setStatus(createdTrip
         ? "Die Reise konnte nur teilweise angelegt werden. Bitte prüfe den Trip Planner, bevor du erneut importierst."
         : "Die Reise konnte nicht angelegt werden. Bitte versuche es erneut.");

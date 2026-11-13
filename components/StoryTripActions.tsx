@@ -1,5 +1,6 @@
 "use client";
 
+import { isLoginRequiredError } from "@/lib/account-gate";
 import { useEffect, useState } from "react";
 import { isSaved, SAVES_CHANGED_EVENT, toggleSave, type SavePayload } from "@/lib/supabase/saves";
 import { addItemToTrip, createUserTrip } from "@/lib/supabase/trips";
@@ -58,7 +59,12 @@ export function StoryTripActions({ places, tripTitle, destinationSourceId }: Pro
     setMessage("");
     try {
       for (const place of places) {
-        if (!(await isSaved(place.id))) await toggleSave(toPayload(place));
+        if (await isSaved(place.id)) continue;
+        const result = await toggleSave(toPayload(place));
+        if ("limitReached" in result && result.limitReached) {
+          setMessage("Ohne Konto ist nach fünf Saves Schluss. Melde dich an, dann geht's weiter.");
+          return;
+        }
       }
       setAllSaved(true);
       setMessage(`${places.length} Orte gemerkt.`);
@@ -80,8 +86,8 @@ export function StoryTripActions({ places, tripTitle, destinationSourceId }: Pro
         await addItemToTrip(trip.id, payload, payload.sourceRole === "stay" ? { stayFullTrip: true } : {});
       }
       window.location.href = `/my-around/trips/${trip.id}`;
-    } catch {
-      setMessage("Der Trip konnte nicht angelegt werden. Bitte noch einmal versuchen.");
+    } catch (error) {
+      if (!isLoginRequiredError(error)) setMessage("Der Trip konnte nicht angelegt werden. Bitte noch einmal versuchen.");
       setBusy(false);
     }
   }

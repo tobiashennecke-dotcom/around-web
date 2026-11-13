@@ -1,5 +1,6 @@
 "use client";
 
+import { isLoginRequiredError } from "@/lib/account-gate";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -73,6 +74,8 @@ export function TripsClient() {
       const trip = await createUserTrip(title);
       setTitle("");
       window.location.href = `/my-around/trips/${trip.id}`;
+    } catch (error) {
+      if (!isLoginRequiredError(error)) throw error;
     } finally {
       setBusy(false);
     }

@@ -1,3 +1,4 @@
+import { LoginRequiredError, requestLogin } from "@/lib/account-gate";
 import { createClient } from "./client";
 import type { SavePayload } from "./saves";
 import { normalizeContentRole } from "@/lib/content-role";
@@ -332,8 +333,9 @@ export async function createUserTrip(
 
   const { supabase, user } = await getAuthenticatedUser();
   if (!supabase || !user) {
-    await mutateLocal(trips => [trip, ...trips.filter(existing => existing.id !== trip.id)]);
-    return trip;
+    // New trips need an account (Phase 1). Existing local guest trips keep working.
+    requestLogin("trip");
+    throw new LoginRequiredError("trip");
   }
 
   const { error } = await supabase.from("trips").insert({

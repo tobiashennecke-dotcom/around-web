@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import type { ContentRole } from "@/lib/content-role";
+import { track } from "./track";
 
 export type EventName =
   | "account_created"
@@ -80,6 +81,13 @@ async function forwardCommunicationEvent(userEventId: string): Promise<void> {
  * communication layer. A failed Supabase insert never forwards anything.
  */
 export async function trackUserEvent(input: TrackUserEventInput): Promise<void> {
+  // Mirror into consent-aware product analytics (analytics_events), independent of the account history below.
+  track(input.eventName, {
+    sourceId: input.sourceId,
+    sourceType: input.sourceType,
+    sourceRole: input.sourceRole,
+    tripId: input.tripId
+  });
   try {
     const supabase = createClient();
     if (!supabase) return;

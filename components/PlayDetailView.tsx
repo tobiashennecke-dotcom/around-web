@@ -130,7 +130,7 @@ export function PlayDetailView({ place }: { place: Place }) {
             <div className="playCtaTrip"><TripPicker item={savePayload} label="+ ZUM TRIP" /></div>
             <div className="playCtaSave"><SaveButton sourceId={place.id} sourceType={place.type} title={place.title} slug={place.slug} placeType={place.placeType} label="Merken" /></div>
             {place.bookingUrl ? (
-              <a className="playCtaBooking" href={place.bookingUrl} target="_blank" rel="noreferrer">
+              <a className="playCtaBooking" href={place.bookingUrl} data-track="booking" target="_blank" rel="noreferrer">
                 {(place.bookingLabel || "Tee Times / Greenfees").toUpperCase()} ↗
               </a>
             ) : null}
@@ -255,7 +255,7 @@ export function PlayDetailView({ place }: { place: Place }) {
               <div className="playOfficialActions">
                 {place.website ? <a className="secondary" href={place.website} target="_blank" rel="noreferrer">OFFIZIELLE WEBSITE ↗</a> : null}
                 {place.bookingUrl ? (
-                  <a className="primary" href={place.bookingUrl} target="_blank" rel="noreferrer">
+                  <a className="primary" href={place.bookingUrl} data-track="booking" target="_blank" rel="noreferrer">
                     {(place.bookingLabel || "Tee Times / Greenfees").toUpperCase()} ↗
                   </a>
                 ) : null}
