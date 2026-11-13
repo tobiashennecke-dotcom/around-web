@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { loadProfile, saveProfile, type Profile } from "@/lib/profile/profile";
-import { PLAY_FREQUENCY, TRAVEL_PARTY, TRIP_EXTRAS } from "@/lib/profile/options";
+import { TRAVEL_COMPANIONS, TRIP_EXTRAS, TRIP_PURPOSES, type Option } from "@/lib/profile/options";
 import { track } from "@/lib/analytics/track";
 
 const HIDDEN_ON = ["/account", "/auth", "/studio", "/preview", "/admin", "/my-around/profil", "/datenschutz", "/impressum"];
@@ -21,8 +21,8 @@ export function ProfileOnboarding() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
-  const [answers, setAnswers] = useState<{ playFrequency: string | null; travelParty: string | null; tripExtras: string[] }>({
-    playFrequency: null, travelParty: null, tripExtras: []
+  const [answers, setAnswers] = useState<{ tripPurposes: string[]; travelCompanions: string[]; tripExtras: string[] }>({
+    tripPurposes: [], travelCompanions: [], tripExtras: []
   });
 
   useEffect(() => {
@@ -71,67 +71,43 @@ export function ProfileOnboarding() {
     }
   }
 
-  const steps = [
-    {
-      question: "Wie oft spielst du?",
-      body: (
-        <div className="chipGroup">
-          {PLAY_FREQUENCY.map(option => (
-            <button key={option.value} type="button" className="chip" aria-pressed={answers.playFrequency === option.value}
-              onClick={() => { setAnswers(a => ({ ...a, playFrequency: option.value })); setStep(1); }}>
-              {option.label}
-            </button>
-          ))}
-        </div>
-      )
-    },
-    {
-      question: "Mit wem bist du unterwegs?",
-      body: (
-        <div className="chipGroup">
-          {TRAVEL_PARTY.map(option => (
-            <button key={option.value} type="button" className="chip" aria-pressed={answers.travelParty === option.value}
-              onClick={() => { setAnswers(a => ({ ...a, travelParty: option.value })); setStep(2); }}>
-              {option.label}
-            </button>
-          ))}
-        </div>
-      )
-    },
-    {
-      question: "Was soll eine Reise neben Golf noch haben?",
-      body: (
-        <div className="chipGroup">
-          {TRIP_EXTRAS.map(option => {
-            const selected = answers.tripExtras.includes(option.value);
-            return (
-              <button key={option.value} type="button" className="chip" aria-pressed={selected}
-                onClick={() => setAnswers(a => ({
-                  ...a,
-                  tripExtras: selected ? a.tripExtras.filter(value => value !== option.value) : [...a.tripExtras, option.value]
-                }))}>
-                {option.label}
-              </button>
-            );
-          })}
-        </div>
-      )
-    }
+  type Key = keyof typeof answers;
+  const steps: { key: Key; question: string; options: readonly Option[] }[] = [
+    { key: "tripPurposes", question: "Wofür planst du Golfreisen?", options: TRIP_PURPOSES },
+    { key: "travelCompanions", question: "Wer kommt mit?", options: TRAVEL_COMPANIONS },
+    { key: "tripExtras", question: "Was gehört neben Golf dazu?", options: TRIP_EXTRAS }
   ];
+  const current = steps[step];
+
+  function toggle(key: Key, value: string) {
+    setAnswers(a => ({
+      ...a,
+      [key]: a[key].includes(value) ? a[key].filter(item => item !== value) : [...a[key], value]
+    }));
+  }
 
   return (
     <div className="loginGate" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
       <div className="loginGateBackdrop" aria-hidden="true" />
       <div className="loginGateSheet onboardingSheet">
-        <div className="eyebrow lime">DEIN AROUND · {step + 1}/3</div>
-        <h2 id="onboarding-title">{steps[step].question}</h2>
-        <p>Damit wir dir passende Plätze, Hotels und Stories zeigen. Dauert zehn Sekunden.</p>
-        {steps[step].body}
+        <div className="eyebrow lime">DEIN AROUND · {step + 1}/{steps.length}</div>
+        <h2 id="onboarding-title">{current.question}</h2>
+        <p>Mehrere Antworten möglich. Damit wir dir passende Plätze, Hotels und Stories zeigen.</p>
+        <div className="chipGroup">
+          {current.options.map(option => (
+            <button key={option.value} type="button" className="chip" aria-pressed={answers[current.key].includes(option.value)}
+              onClick={() => toggle(current.key, option.value)}>
+              {option.label}
+            </button>
+          ))}
+        </div>
         <div className="onboardingActions">
           {step > 0 ? <button type="button" className="accountTextButton" onClick={() => setStep(s => s - 1)}>← Zurück</button> : <span />}
-          {step === 2 ? (
+          {step < steps.length - 1 ? (
+            <button type="button" className="primary" onClick={() => setStep(s => s + 1)}>Weiter →</button>
+          ) : (
             <button type="button" className="primary" disabled={busy} onClick={() => finish(false)}>Fertig →</button>
-          ) : null}
+          )}
         </div>
         <div className="onboardingFoot">
           <button type="button" className="accountTextButton" disabled={busy} onClick={() => finish(true)}>Überspringen</button>

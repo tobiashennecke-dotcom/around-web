@@ -70,8 +70,8 @@ export default function DatenschutzPage() {
 
           <h3>Profil</h3>
           <p>
-            In deinem Profil kannst du freiwillig angeben, wie du spielst und reist (z. B. Handicap-Bereich,
-            Reisebegleitung, bevorzugte Monate, Regionen, Budget-Niveau). Wir nutzen diese Angaben, um dir
+            In deinem Profil kannst du freiwillig angeben, wie du spielst und reist (z. B. Reiseanlass, ob du für eine Mannschaft planst,
+            Reisebegleitung, Handicap-Bereich, Budget, Altersgruppe). Wir nutzen diese Angaben, um dir
             passende Inhalte zu zeigen (Art. 6 Abs. 1 lit. b DSGVO). Du kannst sie jederzeit ändern oder
             löschen, deine Daten herunterladen und dein Konto selbst löschen.
           </p>

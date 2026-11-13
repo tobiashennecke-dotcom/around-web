@@ -5,14 +5,15 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { EMPTY_PROFILE, loadProfile, saveProfile, type Profile } from "@/lib/profile/profile";
 import {
-  BUDGET_LEVEL, COURSE_PREFERENCES, HANDICAP_BAND, INTERESTS, MONTHS, PLAY_FREQUENCY,
-  TRAVEL_MODES, TRAVEL_PARTY, TRIP_EXTRAS, TRIP_LENGTH, WISHLIST_REGIONS, type Option
+  ACCOMMODATION_STYLES, AGE_BAND, BOOKING_CHANNEL, BUDGET_PER_NIGHT, COURSE_PREFERENCES, GROUP_SIZE,
+  HANDICAP_BAND, INTERESTS, MONTHS, ORGANIZER_ROLE, PLAY_FREQUENCY, ROUNDS_PER_TRIP, TRAVEL_COMPANIONS,
+  TRAVEL_MODES, TRIP_EXTRAS, TRIP_LENGTH, TRIP_PURPOSES, TRIPS_PER_YEAR, WISHLIST_REGIONS, type Option
 } from "@/lib/profile/options";
 import { getConsent, openConsentSettings, CONSENT_CHANGED_EVENT } from "@/lib/analytics/consent";
 import { track } from "@/lib/analytics/track";
 
-type ListKey = "coursePreferences" | "travelModes" | "wishlistRegions" | "tripExtras" | "interests";
-type OneKey = "handicapBand" | "playFrequency" | "travelParty" | "tripLength" | "budgetLevel";
+type ListKey = { [K in keyof Profile]: Profile[K] extends string[] ? K : never }[keyof Profile];
+type OneKey = { [K in keyof Profile]: Profile[K] extends string | null ? (null extends Profile[K] ? K : never) : never }[keyof Profile];
 
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -164,20 +165,31 @@ export function ProfileClient() {
         <Field label="Heimatflughafen" hint="Für Ziele, die man gut erreicht.">
           <input className="profileInput" value={draft.homeAirport} maxLength={80} onChange={e => set("homeAirport", e.target.value)} placeholder="z. B. München" />
         </Field>
+        <Field label="Altersgruppe" hint="Freiwillig. Hilft uns, Seniorenreisen und Familienangebote passend zu zeigen.">{oneOf("ageBand", AGE_BAND)}</Field>
+      </Block>
+
+      <Block title="Reisen">
+        <Field label="Wofür planst du Golfreisen?" hint="Mehrere Antworten möglich.">{manyOf("tripPurposes", TRIP_PURPOSES)}</Field>
+        <Field label="Organisierst du Reisen für andere?">{oneOf("organizerRole", ORGANIZER_ROLE)}</Field>
+        {draft.organizerRole && draft.organizerRole !== "none" ? (
+          <Field label="Wie groß ist die Gruppe meistens?">{oneOf("groupSize", GROUP_SIZE)}</Field>
+        ) : null}
+        <Field label="Wer kommt mit?">{manyOf("travelCompanions", TRAVEL_COMPANIONS)}</Field>
+        <Field label="Was gehört neben Golf dazu?">{manyOf("tripExtras", TRIP_EXTRAS)}</Field>
       </Block>
 
       <Block title="Golf">
         <Field label="Handicap">{oneOf("handicapBand", HANDICAP_BAND)}</Field>
         <Field label="Wie oft spielst du?">{oneOf("playFrequency", PLAY_FREQUENCY)}</Field>
+        <Field label="Runden pro Reise">{oneOf("roundsPerTrip", ROUNDS_PER_TRIP)}</Field>
+        <Field label="Was zählt am Platz?">{manyOf("coursePreferences", COURSE_PREFERENCES)}</Field>
         <Field label="Heimatclub">
           <input className="profileInput" value={draft.homeClub} maxLength={120} onChange={e => set("homeClub", e.target.value)} placeholder="optional" />
         </Field>
-        <Field label="Was zählt am Platz?">{manyOf("coursePreferences", COURSE_PREFERENCES)}</Field>
       </Block>
 
-      <Block title="Reisen">
-        <Field label="Mit wem?">{oneOf("travelParty", TRAVEL_PARTY)}</Field>
-        <Field label="Wie lange?">{oneOf("tripLength", TRIP_LENGTH)}</Field>
+      <Block title="Wann und wie oft">
+        <Field label="Golfreisen pro Jahr">{oneOf("tripsPerYear", TRIPS_PER_YEAR)}</Field>
         <Field label="Wann am liebsten?">
           <div className="chipGroup chipGroup--months">
             {MONTHS.map(month => (
@@ -190,10 +202,18 @@ export function ProfileClient() {
             ))}
           </div>
         </Field>
-        <Field label="Budget">{oneOf("budgetLevel", BUDGET_LEVEL)}</Field>
+        <Field label="Typische Dauer">{oneOf("tripLength", TRIP_LENGTH)}</Field>
+      </Block>
+
+      <Block title="Unterkunft und Budget">
+        <Field label="Wie wohnst du am liebsten?">{manyOf("accommodationStyles", ACCOMMODATION_STYLES)}</Field>
+        <Field label="Budget pro Nacht im Doppelzimmer">{oneOf("budgetPerNight", BUDGET_PER_NIGHT)}</Field>
+      </Block>
+
+      <Block title="Anreise und Buchung">
         <Field label="Anreise">{manyOf("travelModes", TRAVEL_MODES)}</Field>
+        <Field label="Wie buchst du meistens?">{oneOf("bookingChannel", BOOKING_CHANNEL)}</Field>
         <Field label="Wohin als Nächstes?">{manyOf("wishlistRegions", WISHLIST_REGIONS)}</Field>
-        <Field label="Was soll die Reise noch haben?">{manyOf("tripExtras", TRIP_EXTRAS)}</Field>
       </Block>
 
       <Block title="Themen">
