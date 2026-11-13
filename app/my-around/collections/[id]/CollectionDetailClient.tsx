@@ -1,5 +1,6 @@
 "use client";
 
+import { isLoginRequiredError } from "@/lib/account-gate";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -62,6 +63,8 @@ export function CollectionDetailClient({ id }: { id: string }) {
       const trip = await createUserTrip(collection.title, { destinationSourceId: destination?.sourceId });
       for (const item of collection.items) await addItemToTrip(trip.id, item);
       window.location.href = `/my-around/trips/${trip.id}`;
+    } catch (error) {
+      if (!isLoginRequiredError(error)) throw error;
     } finally {
       setPlanning(false);
     }

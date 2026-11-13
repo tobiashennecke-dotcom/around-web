@@ -183,7 +183,7 @@ export function StayDetailView({ place }: { place: Place }) {
           ) : null}
           <div className="stayVerdictActions">
             {place.bookingUrl ? (
-              <a className="stayCtaBooking" href={place.bookingUrl} target="_blank" rel="noreferrer">
+              <a className="stayCtaBooking" href={place.bookingUrl} data-track="booking" target="_blank" rel="noreferrer">
                 {(place.bookingLabel || "Verfügbarkeit prüfen").toUpperCase()} ↗
               </a>
             ) : null}
@@ -259,7 +259,7 @@ export function StayDetailView({ place }: { place: Place }) {
               <div className="stayOfficialActions">
                 {operatorConfirmed ? <small>Vom Betreiber bestätigt{lastVerified ? ` · ${lastVerified}` : ""}</small> : null}
                 {place.website ? <a className="textLink" href={place.website} target="_blank" rel="noreferrer">OFFIZIELLE WEBSITE ↗</a> : null}
-                {place.bookingUrl ? <a className="textLink" href={place.bookingUrl} target="_blank" rel="noreferrer">{(place.bookingLabel || "Verfügbarkeit prüfen").toUpperCase()} ↗</a> : null}
+                {place.bookingUrl ? <a className="textLink" href={place.bookingUrl} data-track="booking" target="_blank" rel="noreferrer">{(place.bookingLabel || "Verfügbarkeit prüfen").toUpperCase()} ↗</a> : null}
               </div>
             ) : null}
           </div>

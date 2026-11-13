@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AroundMark } from "./AroundLogo";
 import { ContactBand } from "./ContactBand";
+import { ConsentSettingsLink } from "./ConsentBanner";
 import { getContactChannel, getTopicsIndex } from "@/lib/content";
 
 export async function Footer() {
@@ -31,6 +32,7 @@ export async function Footer() {
           <span>@thisisaround.de</span>
           <Link href="/impressum">Impressum</Link>
           <Link href="/datenschutz">Datenschutz</Link>
+          <ConsentSettingsLink />
           <span>© AROUND</span>
         </div>
       </div>

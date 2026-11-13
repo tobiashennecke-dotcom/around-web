@@ -1,6 +1,8 @@
 import { createClient } from "./client";
 import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
 import { trackUserEvent, toEventSourceType } from "@/lib/analytics/user-events";
+import { track } from "@/lib/analytics/track";
+import { announceSaveHint, guestSaveDecision, GUEST_SAVE_LIMIT, requestLogin } from "@/lib/account-gate";
 
 export type SavePayload = {
   sourceId: string;
@@ -19,6 +21,8 @@ export type SavedList = {
 };
 
 const LOCAL_KEY = "around-guest-saves-v1";
+/** The save a guest tried beyond the limit; added to the account right after login. */
+const PENDING_KEY = "around-pending-save-v1";
 export const SAVES_CHANGED_EVENT = "around:saves-changed";
 
 let savedIdsPromise: Promise<Set<string>> | null = null;
@@ -45,6 +49,22 @@ function writeLocal(items: SavePayload[]) {
 function clearLocal() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(LOCAL_KEY);
+  localStorage.removeItem(PENDING_KEY);
+}
+
+function readPending(): SavePayload | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PENDING_KEY) || "null");
+    return parsed && typeof parsed.sourceId === "string" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writePending(item: SavePayload) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(PENDING_KEY, JSON.stringify(item));
 }
 
 function dbType(type: string) {
@@ -77,7 +97,9 @@ async function mergeGuestSavesIntoAccount(
   supabase: NonNullable<ReturnType<typeof createClient>>,
   userId: string
 ) {
+  const pending = readPending();
   const guestItems = readLocal();
+  if (pending && !guestItems.some(item => item.sourceId === pending.sourceId)) guestItems.push(pending);
   if (!guestItems.length) return;
 
   const rows = guestItems.map(item => ({
@@ -195,11 +217,23 @@ export async function toggleSave(payload: SavePayload) {
   if (!supabase || !user) {
     const items = readLocal();
     const exists = items.some(item => item.sourceId === payload.sourceId);
+    const decision = guestSaveDecision(items.length, exists);
+    const eventProps = { sourceId: payload.sourceId, sourceType: dbType(payload.sourceType), sourceRole: payload.sourceRole };
+
+    if (decision === "limit") {
+      writePending(payload);
+      track("save_limit_reached", eventProps);
+      requestLogin("save_limit");
+      return { saved: false, mode: "guest" as const, limitReached: true };
+    }
+
     const next = exists
       ? items.filter(item => item.sourceId !== payload.sourceId)
       : [...items, payload];
     writeLocal(next);
     notifySaveChange();
+    track(exists ? "content_unsaved" : "content_saved", eventProps);
+    if (decision === "add_with_hint") announceSaveHint(GUEST_SAVE_LIMIT - next.length);
     return { saved: !exists, mode: "guest" as const };
   }
 
@@ -256,6 +290,7 @@ export async function removeSave(payload: Pick<SavePayload, "sourceId" | "source
   if (!supabase || !user) {
     writeLocal(readLocal().filter(item => item.sourceId !== payload.sourceId));
     notifySaveChange();
+    track("content_unsaved", { sourceId: payload.sourceId, sourceType: dbType(payload.sourceType), sourceRole: payload.sourceRole });
     return;
   }
 

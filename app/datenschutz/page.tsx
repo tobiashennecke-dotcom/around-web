@@ -47,8 +47,10 @@ export default function DatenschutzPage() {
 
           <h2>4. Konto und Anmeldung</h2>
           <p>
-            Für My AROUND kannst du dich per E-Mail-Link (Magic Link) anmelden. Wir verarbeiten dafür deine
-            E-Mail-Adresse und technische Anmeldedaten. Anbieter ist Supabase Inc. (USA); die Daten werden
+            Für My AROUND kannst du dich per E-Mail-Link oder Code anmelden oder mit deinem Google-Konto.
+            Wir verarbeiten dafür deine E-Mail-Adresse und technische Anmeldedaten. Bei der Anmeldung mit
+            Google (Google Ireland Ltd., Gordon House, Barrow Street, Dublin 4, Irland) erhalten wir von
+            Google deine E-Mail-Adresse und deinen Namen, sonst nichts. Anbieter ist Supabase Inc. (USA); die Daten werden
             in der Region {LEGAL.supabaseRegion} gespeichert, mit Auftragsverarbeitungsvertrag und
             Standardvertragsklauseln. Rechtsgrundlage ist die Bereitstellung des von dir gewünschten
             Kontos (Art. 6 Abs. 1 lit. b DSGVO).
@@ -61,6 +63,25 @@ export default function DatenschutzPage() {
             nur lokal in deinem Browser (siehe 8.). Wenn du angemeldet bist, speichern wir außerdem, welche
             Inhalte du ansiehst, speicherst oder zu einem Trip hinzufügst, um My AROUND und Empfehlungen zu
             verbessern (Art. 6 Abs. 1 lit. f DSGVO). Diese Ereignisse enthalten keine E-Mail-Adresse.
+          </p>
+          <p>
+            Ohne Konto kannst du bis zu fünf Inhalte speichern; für mehr und für Trips brauchst du ein Konto.
+          </p>
+
+          <h3>Profil</h3>
+          <p>
+            In deinem Profil kannst du freiwillig angeben, wie du spielst und reist (z. B. Reiseanlass, ob du für eine Mannschaft planst,
+            Reisebegleitung, Handicap-Bereich, Budget, Altersgruppe). Wir nutzen diese Angaben, um dir
+            passende Inhalte zu zeigen (Art. 6 Abs. 1 lit. b DSGVO). Du kannst sie jederzeit ändern oder
+            löschen, deine Daten herunterladen und dein Konto selbst löschen.
+          </p>
+          <p>
+            Nur wenn du es in deinem Profil ausdrücklich erlaubst (Art. 6 Abs. 1 lit. a DSGVO):
+            (1) schicken wir dir Angebote von Partnern, die zu deinem Profil passen; Partner erhalten dabei
+            keine personenbezogenen Daten von dir. (2) fließen deine Profilangaben zusammengefasst und ohne
+            Namen in Auswertungen für Partner ein, etwa „30 % der Interessenten reisen zu zweit“. Ausgewiesen
+            werden nur Gruppen von mindestens zehn Personen. Beide Einwilligungen kannst du jederzeit im
+            Profil widerrufen.
           </p>
 
           <h2>6. Newsletter und Benachrichtigungen</h2>
@@ -97,13 +118,24 @@ export default function DatenschutzPage() {
             <li>Apple Podcasts und Apple Music: Apple Distribution International Ltd., Hollyhill Industrial Estate, Hollyhill, Cork, Irland. <a href="https://www.apple.com/de/legal/privacy/">Datenschutzerklärung</a></li>
           </ul>
 
-          <h2>8. Cookies und lokale Speicherung</h2>
+          <h2>8. Cookies, lokale Speicherung und Reichweitenmessung</h2>
           <p>
-            AROUND setzt keine Cookies zu Werbe- oder Analysezwecken. Für die Anmeldung werden technisch
+            AROUND setzt keine Werbe-Cookies und gibt keine Nutzungsdaten an Werbenetzwerke weiter. Für die Anmeldung werden technisch
             notwendige Cookies gesetzt. Ohne Konto speichert dein Browser deine gemerkten Inhalte,
             Collections und Trips lokal (localStorage); diese Daten verlassen dein Gerät nicht, bis du dich
             anmeldest. Beides ist für die von dir gewünschte Funktion unbedingt erforderlich
             (§ 25 Abs. 2 Nr. 2 TDDDG).
+          </p>
+          <p>
+            Um zu verstehen, welche Inhalte gelesen, gespeichert und geplant werden, zählen wir Seitenaufrufe,
+            Suchbegriffe, Lesetiefe, gespeicherte Inhalte, Trips und Klicks auf Buchungslinks in einer eigenen
+            Datenbank bei Supabase (Region {LEGAL.supabaseRegion}). Ohne deine Einwilligung geschieht das
+            anonym: ohne Kennung im Browser und ohne Verbindung zu deinem Konto (Art. 6 Abs. 1 lit. f DSGVO).
+            Wenn du im Hinweis „Einverstanden“ wählst, speichert dein Browser eine zufällige Kennung; damit
+            können wir mehrere Besuche zusammenhängend auswerten und sie nach einer Anmeldung deinem Konto
+            zuordnen (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO). Herkunftsangaben wie die Seite, von der
+            du kommst, oder Kampagnen-Parameter werden mitgezählt. Deine Wahl kannst du jederzeit über
+            „Cookie-Einstellungen“ im Seitenfuß ändern.
           </p>
 
           <h2>9. Speicherdauer</h2>

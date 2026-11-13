@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { MobileNav } from "@/components/MobileNav";
 import { Footer } from "@/components/Footer";
 import { ChromeGate } from "@/components/ChromeGate";
+import { AccountLayer } from "@/components/AccountLayer";
 import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -36,6 +37,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </ChromeGate>
         <ChromeGate>
           <MobileNav />
+        </ChromeGate>
+        <ChromeGate>
+          <AccountLayer />
         </ChromeGate>
       </body>
     </html>

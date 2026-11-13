@@ -3091,3 +3091,57 @@ img{display:block;max-width:100%}
 .accountTextButton{background:none;border:0;padding:6px 0;color:#F5F3EE;font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
 .accountTextButton:disabled{opacity:.5;cursor:default;text-decoration:none}
 .accountFinePrint{margin:14px 0 0;font-size:12px;color:#a9aca7}
+
+/* v1.27 Guest limit, login sheet, consent, onboarding, profile */
+.saveHint{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:16px;max-width:calc(100vw - 32px);padding:14px 18px;background:var(--around-blue);color:#fff;font-size:14px;font-weight:700}
+.saveHint a{color:var(--around-lime);font-weight:800;white-space:nowrap}
+.saveHint button{background:none;border:0;color:#fff;font-size:20px;line-height:1;cursor:pointer;padding:0 0 0 4px}
+.loginGate{position:fixed;inset:0;z-index:90;display:flex;align-items:flex-end;justify-content:center}
+.loginGateBackdrop{position:absolute;inset:0;background:rgba(33,35,34,.55);border:0;padding:0;cursor:default}
+.loginGateSheet{position:relative;width:min(560px,100%);max-height:92vh;overflow:auto;background:var(--around-ink);color:var(--around-warm);padding:36px 32px 28px;border-top:4px solid var(--around-lime);display:grid;gap:14px}
+.loginGateSheet h2{font-size:clamp(28px,4vw,40px);line-height:1;font-weight:900;letter-spacing:-.02em;margin:4px 0 0}
+.loginGateSheet p{margin:0 0 8px;color:#c9cbc6;line-height:1.5}
+.loginGateMail{display:block;text-align:center;padding:16px;border:1px solid #5b5e5a;color:var(--around-warm);font-weight:800;font-size:14px;letter-spacing:.04em;text-decoration:none}
+.loginGateMail:hover{border-color:var(--around-lime)}
+.loginGateSheet .accountTextButton{justify-self:center}
+@media (min-width:700px){.loginGate{align-items:center}}
+.chipGroup{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid currentColor;background:transparent;color:inherit;padding:10px 14px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;line-height:1.1}
+.chip[aria-pressed="true"]{background:var(--around-lime);border-color:var(--around-lime);color:var(--around-ink)}
+.onboardingSheet .chip{color:var(--around-warm);border-color:#5b5e5a}
+.onboardingSheet .chip[aria-pressed="true"]{color:var(--around-ink);border-color:var(--around-lime)}
+.onboardingActions,.onboardingFoot{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:8px}
+.onboardingFoot{border-top:1px solid #3c3f3b;padding-top:12px}
+.onboardingFoot a{color:var(--around-warm)}
+.consentBanner{position:fixed;left:16px;right:16px;bottom:16px;z-index:95;display:flex;gap:24px;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;padding:18px 20px;background:var(--around-warm);color:var(--around-ink);border:2px solid var(--around-ink)}
+.consentBannerText{display:grid;gap:6px;font-size:14px;line-height:1.45}
+.consentBannerText strong{font-size:16px;font-weight:900}
+.consentBannerText a{color:inherit;text-decoration:underline}
+.consentBannerText em{font-style:normal;font-size:12px;color:#6b6e69}
+.consentBannerActions{display:flex;gap:10px;flex-shrink:0}
+.consentButton{min-height:48px;padding:0 18px;border:2px solid var(--around-ink);background:transparent;color:var(--around-ink);font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.consentButton--accept{background:var(--around-ink);color:var(--around-warm)}
+.consentSettingsLink{background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}
+.consentSettingsLink:hover{color:var(--around-warm)}
+@media (max-width:700px){
+  .consentBanner{flex-direction:column;align-items:stretch;left:8px;right:8px;bottom:8px;gap:14px}
+  .consentBannerActions .consentButton{flex:1}
+  .saveHint{bottom:84px;font-size:13px}
+}
+.profileLayout{display:grid;gap:56px;max-width:880px}
+.profileBlock h2{font-size:clamp(28px,3.4vw,44px);font-weight:900;letter-spacing:-.02em;margin:0 0 20px;padding-top:14px;border-top:2px solid var(--around-ink)}
+.profileFields{display:grid;gap:28px}
+.profileField{display:grid;gap:10px}
+.profileLabel{color:var(--around-ink)}
+.profileHint{margin:0;font-size:13px;color:#6b6e69}
+.profileHint a{color:inherit;text-decoration:underline}
+.profileInput{width:100%;max-width:460px;background:#fff;border:1px solid var(--around-ink);padding:14px 16px;font-family:var(--around-font-sans);font-size:17px;color:var(--around-ink);outline:0}
+.profileInput::placeholder{color:#9b9d9a}
+.profileInput:focus{box-shadow:0 0 0 3px var(--around-lime)}
+.profileValue{margin:0;font-weight:700}
+.profileCheck{display:grid;grid-template-columns:22px 1fr;gap:14px;align-items:start;font-size:15px;line-height:1.5;cursor:pointer}
+.profileCheck input{width:20px;height:20px;margin-top:3px;accent-color:var(--around-ink)}
+.profileDarkLink{color:var(--around-ink);justify-self:start}
+.profileSaveBar{position:sticky;bottom:12px;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 16px;background:var(--around-ink);color:var(--around-warm);font-size:14px;font-weight:700}
+.profileDeleteRow{display:flex;gap:12px;flex-wrap:wrap}
+.profileDeleteRow .profileInput{max-width:220px}
