@@ -156,13 +156,13 @@ export function ProfileClient() {
     <div className="profileLayout">
       <Block title="Ich">
         <Field label="Name">
-          <input className="searchInput profileInput" value={draft.displayName} maxLength={80} onChange={e => set("displayName", e.target.value)} placeholder="Wie sollen wir dich nennen?" />
+          <input className="profileInput" value={draft.displayName} maxLength={80} onChange={e => set("displayName", e.target.value)} placeholder="Wie sollen wir dich nennen?" />
         </Field>
         <Field label="Wohnregion" hint="Bundesland oder Region reicht. Wir brauchen keine Adresse.">
-          <input className="searchInput profileInput" value={draft.homeRegion} maxLength={80} onChange={e => set("homeRegion", e.target.value)} placeholder="z. B. Oberbayern" />
+          <input className="profileInput" value={draft.homeRegion} maxLength={80} onChange={e => set("homeRegion", e.target.value)} placeholder="z. B. Oberbayern" />
         </Field>
         <Field label="Heimatflughafen" hint="Für Ziele, die man gut erreicht.">
-          <input className="searchInput profileInput" value={draft.homeAirport} maxLength={80} onChange={e => set("homeAirport", e.target.value)} placeholder="z. B. München" />
+          <input className="profileInput" value={draft.homeAirport} maxLength={80} onChange={e => set("homeAirport", e.target.value)} placeholder="z. B. München" />
         </Field>
       </Block>
 
@@ -170,7 +170,7 @@ export function ProfileClient() {
         <Field label="Handicap">{oneOf("handicapBand", HANDICAP_BAND)}</Field>
         <Field label="Wie oft spielst du?">{oneOf("playFrequency", PLAY_FREQUENCY)}</Field>
         <Field label="Heimatclub">
-          <input className="searchInput profileInput" value={draft.homeClub} maxLength={120} onChange={e => set("homeClub", e.target.value)} placeholder="optional" />
+          <input className="profileInput" value={draft.homeClub} maxLength={120} onChange={e => set("homeClub", e.target.value)} placeholder="optional" />
         </Field>
         <Field label="Was zählt am Platz?">{manyOf("coursePreferences", COURSE_PREFERENCES)}</Field>
       </Block>
@@ -229,7 +229,7 @@ export function ProfileClient() {
         </Field>
         <Field label="Konto löschen" hint="Löscht Konto, Profil, Saves, Collections und Trips endgültig. Tipp zur Bestätigung LÖSCHEN ein.">
           <div className="profileDeleteRow">
-            <input className="searchInput profileInput" value={deleteText} onChange={e => setDeleteText(e.target.value)} placeholder="LÖSCHEN" />
+            <input className="profileInput" value={deleteText} onChange={e => setDeleteText(e.target.value)} placeholder="LÖSCHEN" />
             <button type="button" className="secondary" disabled={busy || deleteText !== "LÖSCHEN"} onClick={deleteAccount}>Endgültig löschen</button>
           </div>
         </Field>
