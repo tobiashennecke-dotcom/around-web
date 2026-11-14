@@ -43,3 +43,51 @@ export function buildSteckbrief(profile: Profile, stats: SteckbriefData["stats"]
     badges: badges.filter(badge => badge.earned).map(badge => badge.label).slice(0, 6)
   };
 }
+
+/**
+ * Greedy line wrap by character count. Words longer than a line are cut
+ * with a hyphen, so nothing can run off the card. At most maxLines lines;
+ * the last one ends with "…" if text was dropped.
+ */
+export function wrapText(text: string, maxChars: number, maxLines = Infinity): string[] {
+  const width = Math.max(4, Math.floor(maxChars));
+  const words = text.trim().split(/\s+/).filter(Boolean).flatMap(word => {
+    if (word.length <= width) return [word];
+    const parts: string[] = [];
+    for (let i = 0; i < word.length; i += width - 1) {
+      const rest = word.slice(i);
+      parts.push(rest.length > width ? `${word.slice(i, i + width - 1)}-` : rest);
+      if (rest.length <= width) break;
+    }
+    return parts;
+  });
+  const lines: string[] = [];
+  for (const word of words) {
+    const last = lines[lines.length - 1];
+    if (last !== undefined && !last.endsWith("-") && (last + " " + word).length <= width) lines[lines.length - 1] = `${last} ${word}`;
+    else lines.push(word);
+  }
+  if (lines.length <= maxLines) return lines;
+  const kept = lines.slice(0, maxLines);
+  const tail = kept[maxLines - 1].replace(/-$/, "");
+  kept[maxLines - 1] = (tail.length >= width ? tail.slice(0, width - 1) : tail) + "…";
+  return kept;
+}
+
+/**
+ * Largest name size that fits in at most three lines (two for the big
+ * sizes). Prefers sizes where no word has to be cut; only very long single
+ * words fall back to hyphenation at the smallest size.
+ */
+export function nameLayout(name: string, usableWidth = 920): { size: number; lines: string[] } {
+  const upper = name.toUpperCase().trim();
+  const sizes = [150, 120, 100, 84, 72, 62, 54];
+  const longestWord = Math.max(0, ...upper.split(/\s+/).map(word => word.length));
+  for (const size of sizes) {
+    const perLine = usableWidth / (size * 0.55);
+    if (longestWord > perLine) continue;
+    const lines = wrapText(upper, perLine);
+    if (lines.length <= (size >= 120 ? 2 : 3)) return { size, lines };
+  }
+  return { size: 54, lines: wrapText(upper, usableWidth / (54 * 0.62), 3) };
+}

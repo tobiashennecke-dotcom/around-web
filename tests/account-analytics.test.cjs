@@ -126,3 +126,15 @@ test("pass counters and badges", () => {
   const earned = computeBadges({ profile, marks, tripCount: 0 }).filter(badge => badge.earned).map(badge => badge.id);
   assert.deepEqual(earned.sort(), ["captain", "early_bird", "first_stamp", "links_lover"]);
 });
+
+test("steckbrief text never runs off the card", () => {
+  const { wrapText, nameLayout } = load("lib/profile/steckbrief.ts");
+  assert.deepEqual(wrapText("Fairway ist auch nur eine Meinung", 20), ["Fairway ist auch nur", "eine Meinung"]);
+  for (const line of wrapText("Donaudampfschifffahrtsgesellschaftskapitän", 12)) assert.ok(line.length <= 12, line);
+  assert.equal(wrapText("eins zwei drei vier fünf sechs", 9, 2).length, 2);
+  assert.ok(wrapText("eins zwei drei vier fünf sechs", 9, 2)[1].endsWith("…"));
+  assert.equal(nameLayout("Tobi").size, 150);
+  const long = nameLayout("Maximilian Alexander von Hohenzollern-Sigmaringen der Dritte und noch viel mehr Namen");
+  assert.ok(long.lines.length <= 3);
+  assert.ok(long.size < 100);
+});
