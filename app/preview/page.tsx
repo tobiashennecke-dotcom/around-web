@@ -10,6 +10,7 @@ import { FieldStories } from "@/components/preview/FieldStories";
 import { AroundIt } from "@/components/preview/AroundIt";
 import { SaveDemo } from "@/components/preview/SaveDemo";
 import { EditorialUniverse } from "@/components/preview/EditorialUniverse";
+import { AudienceSection } from "@/components/preview/AudienceSection";
 import { PartnerSection } from "@/components/preview/PartnerSection";
 import { PreviewContact } from "@/components/preview/PreviewContact";
 import { PreviewStatus } from "@/components/preview/PreviewStatus";
@@ -51,6 +52,7 @@ export default async function PreviewPage() {
         <FieldStories content={content} />
         <AroundIt content={content} />
         <SaveDemo content={content} />
+        <AudienceSection content={content} />
         <EditorialUniverse content={content} />
         <PartnerSection content={content} />
         <PreviewContact content={content} />

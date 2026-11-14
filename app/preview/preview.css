@@ -662,3 +662,34 @@
   .pv-page .pv-header,
   .pv-page .pv-headerNav a{transition:none}
 }
+/* ---------- Built around the traveller (v1.30) ---------- */
+.pv-audience{background:var(--around-blue);color:#fff;border-bottom-color:rgba(255,255,255,.18)}
+.pv-audience .sectionTitle{color:#fff}
+.pv-audienceEyebrow{color:var(--around-lime)}
+.pv-audienceIntro{margin:22px 0 0;max-width:46ch;font-size:clamp(18px,1.8vw,22px);line-height:1.4}
+.pv-audienceIntro p{margin:0 0 8px}
+.pv-audienceGrid{list-style:none;margin:56px 0 0;padding:0;display:grid;grid-template-columns:1fr;border-top:2px solid #fff}
+.pv-audienceItem{position:relative;padding:26px 0 32px;border-bottom:1px solid rgba(255,255,255,.28)}
+.pv-audienceItemHead{display:flex;align-items:baseline;gap:14px}
+.pv-audienceNumber{font-size:clamp(40px,5vw,64px);line-height:1;font-weight:800;letter-spacing:-.05em;color:var(--around-lime)}
+.pv-audienceLabel{color:#fff;opacity:.85}
+.pv-audienceHeadline{margin:18px 0 10px;font-size:clamp(21px,2vw,26px);line-height:1.15;letter-spacing:-.01em;color:#fff}
+.pv-audienceCopy{margin:0;font-size:16px;line-height:1.55;max-width:38ch;color:rgba(255,255,255,.86)}
+.pv-audienceStatus{display:inline-block;margin-top:16px;padding:4px 8px;border:1px solid var(--around-lime);color:var(--around-lime);font-size:11px;font-weight:700;letter-spacing:.12em}
+.pv-audienceFootnote{margin-top:36px}
+.pv-audienceFootnote p{margin:0;font-size:15px;font-weight:700;letter-spacing:.02em;color:#fff}
+@media(min-width:760px){
+  .pv-audienceGrid{grid-template-columns:repeat(2,1fr);column-gap:40px}
+}
+@media(min-width:1180px){
+  .pv-audienceGrid{grid-template-columns:repeat(4,1fr);column-gap:32px}
+  .pv-audienceItem{border-bottom:0;padding-bottom:8px}
+}
+.pv-page .pv-audience :focus-visible{outline-color:var(--around-lime)}
+
+/* ---------- v1.30 polish: story teaser stacked like the other journey cards, logo in footer ---------- */
+.pv-page .pv-journeyStory{flex-direction:column;height:auto;border-color:rgba(245,243,238,.28)}
+.pv-page .pv-journeyStory .storyFeatureMedia{width:100%;aspect-ratio:16/10}
+.pv-page .pv-journeyStory .storyFeatureBody{padding:20px 22px 24px;gap:8px}
+.pv-page .pv-journeyStory .storyFeatureTitle{font-size:clamp(20px,1.9vw,24px);line-height:1.12}
+.pv-footerLogo{display:block;width:min(560px,78vw);height:auto;margin:22px auto 18px;color:var(--around-warm)}
