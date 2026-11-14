@@ -379,6 +379,46 @@ export const partnerPreview = defineType({
     }),
 
     defineField({
+      name: "audience",
+      title: "Built Around The Traveller",
+      description: "Profile, personalisation, planning and what partners get. Leave empty to use the built-in copy.",
+      type: "object",
+      group: "conversion",
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        defineField({ name: "eyebrow", title: "Eyebrow", type: "string" }),
+        headlineLinesField(),
+        paragraphsField("intro", "Intro paragraphs"),
+        defineField({
+          name: "items",
+          title: "Points",
+          type: "array",
+          validation: Rule => Rule.max(4),
+          of: [
+            {
+              type: "object",
+              name: "audienceItem",
+              fields: [
+                defineField({ name: "number", title: "Number", type: "string", description: "e.g. 01" }),
+                defineField({ name: "label", title: "Label", type: "string" }),
+                defineField({ name: "headline", title: "Headline", type: "string" }),
+                defineField({ name: "copy", title: "Copy", type: "text", rows: 2 }),
+                defineField({
+                  name: "status",
+                  title: "Status tag (optional)",
+                  type: "string",
+                  description: "e.g. IN DEVELOPMENT, for anything not live yet."
+                })
+              ],
+              preview: { select: { title: "headline", subtitle: "label" } }
+            }
+          ]
+        }),
+        defineField({ name: "footnote", title: "Independence footnote", type: "string" })
+      ]
+    }),
+
+    defineField({
       name: "pr",
       title: "For PR & Destinations",
       type: "object",

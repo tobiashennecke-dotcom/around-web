@@ -42,6 +42,9 @@ export type JourneyStep =
 
 export type Principle = { number: string; label: string; headline: string; copy: string };
 
+/** One point in the "Built around the traveller" section (profile, personalisation, planning, partners). */
+export type AudienceItem = { number: string; label: string; headline: string; copy: string; status?: string };
+
 export type FieldStoryCard = { role: "lead" | "secondary"; category: string; title: string; media: PreviewMedia; accent: Accent };
 
 export type AroundItConnection = { role: string; title: string; note: string; accent: Accent };
@@ -74,6 +77,7 @@ export type PartnerPreviewContent = {
     baseSavedCount: number;
   };
   editorialUniverse: { ticker: string; headlineLines: string[] };
+  audience: { eyebrow: string; headlineLines: string[]; intro: string[]; items: AudienceItem[]; footnote: string };
   pr: {
     eyebrow: string;
     headlineLines: string[];
@@ -300,12 +304,49 @@ export const previewContent: PartnerPreviewContent = {
     headlineLines: ["GOLF OPENS THE DOOR.", "WE LOOK THROUGH IT."]
   },
 
+  audience: {
+    eyebrow: "BUILT AROUND THE TRAVELLER",
+    headlineLines: ["IT KNOWS", "HOW YOU TRAVEL."],
+    intro: [
+      "With an AROUND account, travellers tell us how they play, who they travel with and what a good night costs them.",
+      "AROUND puts the right places first. And says why."
+    ],
+    items: [
+      {
+        number: "01",
+        label: "PROFILE",
+        headline: "Preferences, not demographics.",
+        copy: "Golf level, travel group, trip length, travel months, budget per night and what they want to do after the round."
+      },
+      {
+        number: "02",
+        label: "FOR YOU",
+        headline: "Recommendations with a reason.",
+        copy: "Places are matched to the profile and show why they fit: kids' club, half board, tennis nearby, a clear € price level."
+      },
+      {
+        number: "03",
+        label: "PLAN",
+        headline: "From saved to scheduled.",
+        copy: "Saves become trips. Stays by night, fixed tee times, flexible stops, and a plan check for whatever is still open."
+      },
+      {
+        number: "04",
+        label: "PARTNERS",
+        headline: "Insight, not data for sale.",
+        copy: "Aggregated, consent-based reports on what AROUND travellers save and plan. No personal data, no paid rankings.",
+        status: "IN DEVELOPMENT"
+      }
+    ],
+    footnote: "Partner content on AROUND is always labelled. Editorial selection is never for sale."
+  },
+
   pr: {
     eyebrow: "WORK WITH AROUND",
     headlineLines: ["GOT SOMETHING", "WE SHOULD KNOW ABOUT?"],
     body: [
       "We are building AROUND together with people who know their places best.",
-      "PR teams, destinations, golf clubs, hotels, brands and local experts are welcome to share relevant stories, openings, ideas and first-hand knowledge."
+      "PR teams, agencies, destinations, golf clubs, hotels, brands and local experts are welcome to share relevant stories, openings, ideas and first-hand knowledge."
     ],
     topics: ["DESTINATION", "GOLF", "STAY", "EAT", "DO", "PEOPLE", "OBJECTS"],
     subheading: "WHAT HELPS US MOST",
@@ -334,17 +375,18 @@ export const previewContent: PartnerPreviewContent = {
   },
 
   status: {
-    eyebrow: "CURRENT STATUS · SEPTEMBER 2026",
+    eyebrow: "CURRENT STATUS · NOVEMBER 2026",
     headlineLines: ["AROUND IS CURRENTLY", "IN PRIVATE PREVIEW."],
     body: [
-      "The platform, first destinations and editorial formats are currently being developed and tested ahead of the public release.",
-      "This page offers partners and PR teams an early look at what we're building."
+      "Nine destinations, the editorial formats, traveller accounts and the trip planner are running in private preview.",
+      "Early access opens on 13 April 2027. The public launch follows on 27 April 2027.",
+      "This page gives partners, agencies and PR teams an early look at what we're building."
     ]
   },
 
   footer: {
     tagline: "GOLF IS WHERE THE JOURNEY STARTS.",
-    instagram: { label: "Instagram", href: "https://instagram.com/thisisaround" },
+    instagram: { label: "Instagram", href: "https://www.instagram.com/thisisaround.de/" },
     closing: "SEE YOU AROUND."
   }
 };

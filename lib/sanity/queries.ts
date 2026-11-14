@@ -450,6 +450,10 @@ export const PARTNER_PREVIEW_QUERY = defineQuery(`
       destinationLabel, baseSavedCount
     },
     editorialUniverse{ ticker, headlineLines },
+    audience{
+      eyebrow, headlineLines, intro, footnote,
+      items[]{ number, label, headline, copy, status }
+    },
     pr{
       eyebrow, headlineLines, body, topics, subheading, helpItems, independenceLine
     },

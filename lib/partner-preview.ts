@@ -8,6 +8,7 @@ import {
   previewContent,
   type Accent,
   type AroundItConnection,
+  type AudienceItem,
   type Chapter,
   type FieldStoryCard,
   type JourneyStep,
@@ -161,6 +162,17 @@ function mapChapter(raw: Record<string, unknown>): Chapter {
   };
 }
 
+function mapAudienceItem(raw: Record<string, unknown>, i: number): AudienceItem {
+  const status = typeof raw.status === "string" && raw.status.trim() ? raw.status : undefined;
+  return {
+    number: str(raw.number, String(i + 1).padStart(2, "0")),
+    label: str(raw.label, ""),
+    headline: str(raw.headline, ""),
+    copy: str(raw.copy, ""),
+    ...(status ? { status } : {})
+  };
+}
+
 function mapPrinciple(raw: Record<string, unknown>): Principle {
   return { number: str(raw?.number, ""), label: str(raw?.label, ""), headline: str(raw?.headline, ""), copy: str(raw?.copy, "") };
 }
@@ -243,6 +255,16 @@ export async function getPartnerPreview(): Promise<PartnerPreviewContent> {
     editorialUniverse: {
       ticker: str(doc.editorialUniverse?.ticker, fb.editorialUniverse.ticker),
       headlineLines: arr<string>(doc.editorialUniverse?.headlineLines, fb.editorialUniverse.headlineLines)
+    },
+    audience: {
+      eyebrow: str(doc.audience?.eyebrow, fb.audience.eyebrow),
+      headlineLines: arr<string>(doc.audience?.headlineLines, fb.audience.headlineLines),
+      intro: arr<string>(doc.audience?.intro, fb.audience.intro),
+      items:
+        arr(doc.audience?.items, []).length > 0
+          ? arr<Record<string, unknown>>(doc.audience?.items, []).map(mapAudienceItem)
+          : fb.audience.items,
+      footnote: str(doc.audience?.footnote, fb.audience.footnote)
     },
     pr: {
       eyebrow: str(doc.pr?.eyebrow, fb.pr.eyebrow),
