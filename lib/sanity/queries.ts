@@ -41,6 +41,7 @@ const CARD_FIELDS = `
   _id,_type,title,slug,kicker,teaserTitle,teaserDescription,placeType,featured,aroundSelected,priority,accessTier,
   defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,
   compatibleDayparts,effortLevel,environment,weatherSensitivity,
+  suitability,activitiesNearby,stayPriceBand,
   coordinates,
   "destinationId": destination->_id,
   "summary": coalesce(summary, deck, ""),
@@ -231,6 +232,7 @@ export const PLACE_QUERY = defineQuery(`
   *[_type == "place" && slug.current == $slug && ${PLACE_ONLINE}][0]{
     _id,title,slug,kicker,summary,placeType,defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,whyWeLikeIt,aroundTake,goodToKnow,
     compatibleDayparts,effortLevel,environment,weatherSensitivity,
+    suitability,activitiesNearby,stayPriceBand,
     theFeel,bestFor,aroundMoment,knowBeforeYouGo,
     holes,par,courseCharacter,walkability,cartAvailability,practiceFacilities,guestPlay,season,
     stayCharacter,accommodationTypes,roomSummary,spaSummary,foodSummary,breakfastSummary,parkingSummary,dogPolicy,

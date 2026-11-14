@@ -138,3 +138,22 @@ test("steckbrief text never runs off the card", () => {
   assert.ok(long.lines.length <= 3);
   assert.ok(long.size < 100);
 });
+
+test("Für dich: profile answers meet place tags, with readable reasons", () => {
+  const { scoreFit, isRecommendation, hasFitSignals, personalizeOrder } = load("lib/personalization/score.ts");
+  const empty = { travelCompanions: [], organizerRoles: [], groupSize: null, tripPurposes: [], coursePreferences: [], handicapBand: null, tripExtras: [], budgetPerNight: null, interests: [] };
+  assert.equal(hasFitSignals(empty), false);
+  const family = { ...empty, travelCompanions: ["partner_golfs", "toddlers"], tripExtras: ["spa", "hiking"], budgetPerNight: "150_300" };
+  const hotel = { id: "h", type: "place", placeType: "stay", suitability: ["kids_friendly", "kids_care"], activitiesNearby: ["spa", "nightlife"], stayPriceBand: "150_300" };
+  const fit = scoreFit(hotel, family);
+  assert.ok(isRecommendation(fit));
+  assert.deepEqual(fit.reasons, ["Kinderbetreuung", "Passt zu deinem Budget", "Spa"]);
+  const luxury = { ...hotel, id: "l", suitability: [], activitiesNearby: [], stayPriceBand: "over_500" };
+  assert.equal(isRecommendation(scoreFit(luxury, family)), false);
+  const captain = { ...empty, organizerRoles: ["captain_women"] };
+  assert.deepEqual(scoreFit({ id: "c", type: "place", placeType: "course", suitability: ["groups"] }, captain).reasons, ["Für Gruppen & Mannschaften"]);
+  // Only interest/selection bonuses are not a recommendation.
+  assert.equal(isRecommendation(scoreFit({ id: "x", type: "place", placeType: "course", aroundSelected: true }, { ...empty, interests: ["play"] })), false);
+  const order = personalizeOrder([{ id: "a", type: "place" }, { id: "b", type: "place" }, hotel], family).map(item => item.id);
+  assert.equal(order[0], "h");
+});

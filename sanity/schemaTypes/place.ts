@@ -1,5 +1,6 @@
 import { defineField, defineType } from "sanity";
 import { topicsField } from "./topic";
+import { ACTIVITIES_NEARBY, PRICE_LEVEL, SUITABILITY } from "../../lib/fit-tags";
 import { PlaceGalleryBulkInput } from "../components/PlaceGalleryBulkInput";
 
 export const place = defineType({
@@ -15,6 +16,7 @@ export const place = defineType({
     {name:"experience",title:"EXPERIENCE Details",hidden:({document}) => !["do","culture","shop"].includes(document?.placeType as string)},
     {name:"details",title:"Details"},
     {name:"planning",title:"Planning"},
+    {name:"fit",title:"Passt zu"},
     {name:"media",title:"Media"},
     {name:"commercial",title:"Commercial"},
     {name:"publishing",title:"Publishing"},
@@ -78,6 +80,22 @@ export const place = defineType({
       options:{list:[{title:"Low",value:"low"},{title:"Medium",value:"medium"},{title:"High",value:"high"}],layout:"radio"}
     }),
 
+    defineField({
+      name:"suitability",title:"Geeignet für",type:"array",group:"fit",of:[{type:"string"}],
+      options:{list:SUITABILITY.map(item => ({title:item.label,value:item.value})),layout:"grid"},
+      description:"Nur ankreuzen, was sicher stimmt. Steuert die „Für dich“-Empfehlungen für Nutzer mit passendem Profil."
+    }),
+    defineField({
+      name:"activitiesNearby",title:"Neben Golf in der Nähe",type:"array",group:"fit",of:[{type:"string"}],
+      options:{list:ACTIVITIES_NEARBY.map(item => ({title:item.label,value:item.value})),layout:"grid"},
+      description:"Was man von hier aus gut machen kann. Gleiche Begriffe wie im Nutzerprofil."
+    }),
+    defineField({
+      name:"stayPriceBand",title:"Preisniveau pro Nacht (Doppelzimmer)",type:"string",group:"fit",
+      options:{list:PRICE_LEVEL.map(item => ({title:item.label,value:item.value})),layout:"radio"},
+      hidden:({document}) => document?.placeType !== "stay",
+      description:"Typischer Zimmerpreis, nicht pro Person. Nur für STAY."
+    }),
     defineField({name:"whyWeLikeIt",title:"Why we like it",type:"text",rows:7,group:"editorial"}),
     defineField({name:"aroundTake",title:"AROUND Take",type:"text",rows:4,group:"editorial",description:"Short editorial verdict / point of view."}),
     defineField({

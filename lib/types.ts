@@ -45,6 +45,11 @@ export type ContentCard = {
   effortLevel?: EffortLevel;
   environment?: PlaceEnvironment;
   weatherSensitivity?: WeatherSensitivity;
+  /** "Passt zu" tags (lib/fit-tags.ts), used for personalization. Places only. */
+  suitability?: string[];
+  activitiesNearby?: string[];
+  /** STAY price band per room night (lib/fit-tags.ts PRICE_LEVEL). */
+  stayPriceBand?: string;
   /** Geographic relevance inputs, used by lib/relevance.ts. Absent for content types without a location. */
   destinationId?: string;
   latitude?: number;
