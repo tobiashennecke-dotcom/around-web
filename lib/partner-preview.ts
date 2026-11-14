@@ -183,7 +183,8 @@ export async function getPartnerPreview(): Promise<PartnerPreviewContent> {
 
   let doc: Record<string, any> | null = null;
   try {
-    doc = await client.fetch(PARTNER_PREVIEW_QUERY);
+    // Revalidate every minute so Sanity edits reach the link-only page without a redeploy.
+    doc = await client.fetch(PARTNER_PREVIEW_QUERY, {}, { next: { revalidate: 60 } });
   } catch {
     return previewContent;
   }
