@@ -3213,3 +3213,15 @@ li[data-done="true"] .passBucketCheck{background:var(--around-lime);border-color
 .avatarEditorActions{display:grid;gap:10px;justify-items:start;max-width:360px}
 .avatarUploadButton{cursor:pointer;display:inline-flex;align-items:center}
 .avatarUploadButton[aria-disabled="true"]{opacity:.6;pointer-events:none}
+
+/* v1.29 personalization */
+.forYouSection{border-top:4px solid var(--around-lime)}
+.forYouGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:900px){.forYouGrid{grid-template-columns:1fr}}
+.forYouItem{display:grid;align-content:start;gap:10px}
+.forYouReasons{margin:0;padding:8px 10px;background:var(--around-ink);color:var(--around-lime);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.forYouSection--empty{padding:40px 0}
+.forYouPrompt{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.forYouPrompt p{margin:8px 0 0;font-size:22px}
+.placeFitNote{display:inline-flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:16px 0 0;padding:10px 14px;background:var(--around-ink);color:var(--around-warm);font-size:13px;font-weight:700;border-left:4px solid var(--around-lime)}
+.placeFitNote strong{color:var(--around-lime);letter-spacing:.12em;font-size:11px}

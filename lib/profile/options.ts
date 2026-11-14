@@ -145,10 +145,10 @@ export const ACCOMMODATION_STYLES = [
 ] as const satisfies readonly Option[];
 
 export const BUDGET_PER_NIGHT = [
-  { value: "under_150", label: "Bis 150 €" },
-  { value: "150_300", label: "150–300 €" },
-  { value: "300_500", label: "300–500 €" },
-  { value: "over_500", label: "Über 500 €" }
+  { value: "under_150", label: "€ · bis 150 €" },
+  { value: "150_300", label: "€€ · 150–300 €" },
+  { value: "300_500", label: "€€€ · 300–500 €" },
+  { value: "over_500", label: "€€€€ · über 500 €" }
 ] as const satisfies readonly Option[];
 
 export const BOOKING_CHANNEL = [

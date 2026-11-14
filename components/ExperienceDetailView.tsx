@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SaveButton } from "@/components/SaveButton";
+import { PlaceFitNote } from "@/components/PlaceFitNote";
 import { TripPicker } from "@/components/TripPicker";
 import { ContentCard } from "@/components/ContentCard";
 import { PlaceGallery } from "@/components/PlaceGallery";
@@ -226,6 +227,7 @@ export function ExperienceDetailView({ place }: { place: Place }) {
               <a className="experienceCtaBookingSecondary" href={place.bookingUrl} data-track="booking" target="_blank" rel="noreferrer">{bookingLabelText} ↗</a>
             ) : null}
           </div>
+          <PlaceFitNote item={{ id: place.id, type: "place", placeType: place.placeType, suitability: place.suitability, activitiesNearby: place.activitiesNearby, stayPriceBand: place.stayPriceBand, destinationId: place.destinationId }} />
         </div>
       </section>
 

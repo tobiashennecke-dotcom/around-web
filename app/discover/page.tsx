@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ContentCard, contentHref } from "@/components/ContentCard";
+import { ForYouRail } from "@/components/ForYouRail";
 import { discoverTeaser } from "@/lib/discover-teaser";
 import { getDiscoverContent } from "@/lib/content";
 import { normalizeContentRole, type ContentRole } from "@/lib/content-role";
@@ -123,6 +124,8 @@ export default async function DiscoverPage() {
           </div>
         </section>
       )}
+
+      <ForYouRail title="Passt zu dir." />
 
       {selected.length > 0 && (
         <section className="section selectedRailSection selectedRailSectionV13">

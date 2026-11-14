@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ImmersiveRun } from "./ImmersiveRun";
 import { ResearchDraftNote } from "./ResearchDraftNote";
 import { SaveButton } from "@/components/SaveButton";
+import { PlaceFitNote } from "@/components/PlaceFitNote";
+import { stayPriceLabel } from "@/lib/fit-tags";
 import { TripPicker } from "@/components/TripPicker";
 import { ContentCard } from "@/components/ContentCard";
 import { PlaceGallery } from "@/components/PlaceGallery";
@@ -99,6 +101,7 @@ export function StayDetailView({ place }: { place: Place }) {
     || (place.nearbyCourses?.[0] ? `${place.nearbyCourses[0].title} · ~${Math.round(place.nearbyCourses[0].distanceKm)} km` : undefined);
   const verdictFacts = [
     { label: "IDEAL FÜR", value: place.bestFor?.length ? place.bestFor.join(", ") : undefined },
+    { label: "PREIS", value: stayPriceLabel(place.stayPriceBand, place.stayBoard) },
     { label: "BLEIBEN", value: nights },
     { label: "GOLF", value: golfFact },
     { label: "REISEZEIT", value: [months, time ? `${time.label === "Keine" ? "keine Zeitverschiebung" : time.label}` : undefined].filter(Boolean).join(" · ") || undefined },
@@ -190,6 +193,7 @@ export function StayDetailView({ place }: { place: Place }) {
             <div className="stayCtaTrip"><TripPicker item={savePayload} label="+ ZUM TRIP" /></div>
             <div className="stayCtaSave"><SaveButton sourceId={place.id} sourceType={place.type} title={place.title} slug={place.slug} placeType={place.placeType} label="Merken" /></div>
           </div>
+          <PlaceFitNote item={{ id: place.id, type: "place", placeType: place.placeType, suitability: place.suitability, activitiesNearby: place.activitiesNearby, stayPriceBand: place.stayPriceBand, destinationId: place.destinationId }} />
         </div>
       </section>
 

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSearchContent, getTripAwareSearchContent } from "@/lib/content";
+import { loadFitProfile } from "@/lib/personalization/server";
+import { hasFitSignals, personalizeOrder } from "@/lib/personalization/score";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -14,5 +16,14 @@ export async function GET(request: Request) {
     ? await getTripAwareSearchContent(q, type, role, { anchorPlaceIds, destinationId })
     : await getSearchContent(q, type, role);
 
-  return NextResponse.json({ results });
+  // Light personal boost for signed-in users with a profile; editorial ranking stays the base.
+  let ordered = results;
+  try {
+    const fit = await loadFitProfile();
+    if (fit && hasFitSignals(fit.profile)) ordered = personalizeOrder(results, fit.profile, fit.context);
+  } catch {
+    ordered = results;
+  }
+
+  return NextResponse.json({ results: ordered });
 }

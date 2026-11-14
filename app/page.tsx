@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ContentCard, contentHref } from "@/components/ContentCard";
+import { ForYouRail } from "@/components/ForYouRail";
 import { StoryFeature } from "@/components/StoryFeature";
 import { getHomepageContent, getHomepageCuration } from "@/lib/content";
 import { getHomepageHero, heroImageUrl } from "@/lib/homepage-hero";
@@ -111,6 +112,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <ForYouRail />
 
       {lead && (
         <section className="section editSection">

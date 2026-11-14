@@ -3,6 +3,7 @@ import { ImmersiveRun } from "./ImmersiveRun";
 import { ResearchDraftNote } from "./ResearchDraftNote";
 import { SaveButton } from "@/components/SaveButton";
 import { PlaceMarkButtons } from "@/components/PlaceMarkButtons";
+import { PlaceFitNote } from "@/components/PlaceFitNote";
 import { TripPicker } from "@/components/TripPicker";
 import { ContentCard } from "@/components/ContentCard";
 import { PlaceGallery } from "@/components/PlaceGallery";
@@ -145,6 +146,7 @@ export function PlayDetailView({ place }: { place: Place }) {
             destinationSlug: place.destination?.slug,
             country: place.destinationCountry
           }} />
+          <PlaceFitNote item={{ id: place.id, type: "place", placeType: place.placeType, suitability: place.suitability, activitiesNearby: place.activitiesNearby, stayPriceBand: place.stayPriceBand, destinationId: place.destinationId }} />
         </div>
       </section>
 

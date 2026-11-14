@@ -1,3 +1,4 @@
+import { readActivities, readStayBoard, readStayPriceBand, readSuitability } from "@/lib/fit-tags";
 import { sanity } from "@/lib/sanity/client";
 import { storyReadClient } from "@/lib/sanity/read-client";
 import { normalizeContentRole } from "@/lib/content-role";
@@ -104,6 +105,9 @@ export function toCard(doc: any): ContentCard | null {
     effortLevel: type === "place" ? (doc.effortLevel || undefined) : undefined,
     environment: type === "place" ? (doc.environment || undefined) : undefined,
     weatherSensitivity: type === "place" ? (doc.weatherSensitivity || undefined) : undefined,
+    suitability: type === "place" ? readSuitability(doc.suitability) : undefined,
+    activitiesNearby: type === "place" ? readActivities(doc.activitiesNearby) : undefined,
+    stayPriceBand: type === "place" ? readStayPriceBand(doc.stayPriceBand) : undefined,
     destinationId: doc.destinationId || undefined,
     latitude: doc.coordinates?.lat,
     longitude: doc.coordinates?.lng,
@@ -457,6 +461,10 @@ export async function getPlace(slug: string): Promise<Place | null> {
         destinationId: destination?.id || "",
         destination: destination || undefined,
         destinationCountry: typeof doc.destinationCountry === "string" ? doc.destinationCountry : undefined,
+        suitability: readSuitability(doc.suitability),
+        activitiesNearby: readActivities(doc.activitiesNearby),
+        stayPriceBand: readStayPriceBand(doc.stayPriceBand),
+        stayBoard: readStayBoard(doc.stayBoard),
         placeType: doc.placeType || "do",
         defaultPlanningMode: doc.defaultPlanningMode || undefined,
         suggestedDurationMinutes: typeof doc.suggestedDurationMinutes === "number" ? doc.suggestedDurationMinutes : undefined,
