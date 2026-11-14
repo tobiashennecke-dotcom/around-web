@@ -24,6 +24,10 @@ export async function POST(request: Request) {
   }
   if (confirm !== "LÖSCHEN") return NextResponse.json({ error: "confirmation_required" }, { status: 400 });
 
+  // Storage files are not covered by the database cascade.
+  const { data: files } = await admin.storage.from("avatars").list(user.id);
+  if (files?.length) await admin.storage.from("avatars").remove(files.map(file => `${user.id}/${file.name}`));
+
   const { error } = await admin.auth.admin.deleteUser(user.id);
   if (error) return NextResponse.json({ error: "delete_failed" }, { status: 500 });
 

@@ -187,3 +187,110 @@ export function organizerRoles(value: unknown): string[] {
   return roles.includes("none") && roles.length > 1 ? roles.filter(role => role !== "none") : roles;
 }
 
+
+/* ---------- Steckbrief (fun) ---------- */
+
+export const PLAYER_TYPE = [
+  { value: "early_starter", label: "Der Frühstarter" },
+  { value: "range_philosopher", label: "Der Driving-Range-Philosoph" },
+  { value: "short_game_artist", label: "Der Kurzspiel-Künstler" },
+  { value: "long_hitter", label: "Der Longhitter mit Folgen" },
+  { value: "rules_expert", label: "Der Regelkundige" },
+  { value: "nineteenth_hole_pro", label: "Der 19.-Loch-Profi" }
+] as const satisfies readonly Option[];
+
+export const NEMESIS = [
+  { value: "bunker", label: "Bunker" },
+  { value: "water", label: "Wasser" },
+  { value: "short_putts", label: "Ein-Meter-Putts" },
+  { value: "first_tee", label: "Der erste Abschlag" },
+  { value: "wind", label: "Wind" },
+  { value: "flight_partner", label: "Mein Flightpartner" }
+] as const satisfies readonly Option[];
+
+export const TEE_TIME_PREFERENCE = [
+  { value: "first_tee_time", label: "Erste Startzeit (7:04)" },
+  { value: "morning", label: "Vormittag" },
+  { value: "midday", label: "Mittag" },
+  { value: "twilight", label: "Twilight" }
+] as const satisfies readonly Option[];
+
+export const WEATHER_TOLERANCE = [
+  { value: "sun_only", label: "Nur bei Sonne" },
+  { value: "clouds_ok", label: "Wolken gehen" },
+  { value: "drizzle_ok", label: "Nieselregen ist Golfwetter" },
+  { value: "always", label: "Immer, auch im Winter" }
+] as const satisfies readonly Option[];
+
+export const COURSE_TRANSPORT = [
+  { value: "carry", label: "Tragebag" },
+  { value: "trolley", label: "Trolley" },
+  { value: "e_trolley", label: "E-Trolley" },
+  { value: "cart", label: "Cart" }
+] as const satisfies readonly Option[];
+
+export const GAME_FORMAT = [
+  { value: "strokeplay", label: "Zählspiel" },
+  { value: "stableford", label: "Stableford" },
+  { value: "matchplay", label: "Matchplay" },
+  { value: "scramble", label: "Scramble" },
+  { value: "no_counting", label: "Hauptsache nicht zählen" }
+] as const satisfies readonly Option[];
+
+export const NINETEENTH_ORDER = [
+  { value: "weissbier", label: "Weißbier" },
+  { value: "radler", label: "Radler" },
+  { value: "spritz", label: "Spritz" },
+  { value: "gin_tonic", label: "Gin Tonic" },
+  { value: "coffee", label: "Kaffee" },
+  { value: "water_driving", label: "Wasser, ich fahre" }
+] as const satisfies readonly Option[];
+
+export type Memories = {
+  holeInOne?: { course?: string; hole?: number; date?: string; club?: string };
+  bestRound?: { course?: string; score?: string; date?: string };
+  favoriteHole?: { course?: string; hole?: number };
+  mostBeautifulCourse?: string;
+};
+
+export type Bag = { driver?: string; irons?: string; putter?: string; ball?: string };
+
+function str(value: unknown, max: number): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim().slice(0, max);
+  return trimmed || undefined;
+}
+
+function hole(value: unknown): number | undefined {
+  const number = typeof value === "string" ? Number(value) : value;
+  return typeof number === "number" && Number.isInteger(number) && number >= 1 && number <= 27 ? number : undefined;
+}
+
+function isoDate(value: unknown): string | undefined {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined;
+}
+
+function compact<T extends Record<string, unknown>>(value: T): T | undefined {
+  const entries = Object.entries(value).filter(([, v]) => v !== undefined);
+  return entries.length ? (Object.fromEntries(entries) as T) : undefined;
+}
+
+/** Keeps only known memory fields with sane values. */
+export function cleanMemories(value: unknown): Memories {
+  const input = (value && typeof value === "object" ? value : {}) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const result: Memories = {};
+  const hio = compact({ course: str(input.holeInOne?.course, 120), hole: hole(input.holeInOne?.hole), date: isoDate(input.holeInOne?.date), club: str(input.holeInOne?.club, 40) });
+  if (hio) result.holeInOne = hio;
+  const best = compact({ course: str(input.bestRound?.course, 120), score: str(input.bestRound?.score, 20), date: isoDate(input.bestRound?.date) });
+  if (best) result.bestRound = best;
+  const fav = compact({ course: str(input.favoriteHole?.course, 120), hole: hole(input.favoriteHole?.hole) });
+  if (fav) result.favoriteHole = fav;
+  const beautiful = str(input.mostBeautifulCourse, 120);
+  if (beautiful) result.mostBeautifulCourse = beautiful;
+  return result;
+}
+
+export function cleanBag(value: unknown): Bag {
+  const input = (value && typeof value === "object" ? value : {}) as Record<string, unknown>;
+  return compact({ driver: str(input.driver, 80), irons: str(input.irons, 80), putter: str(input.putter, 80), ball: str(input.ball, 80) }) || {};
+}

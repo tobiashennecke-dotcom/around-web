@@ -14,6 +14,11 @@ const COPY: Record<LoginReason, { eyebrow: string; title: string; text: string }
     title: "Mit Konto merkt sich AROUND alles.",
     text: "Ohne Konto ist nach fünf Saves Schluss. Mit Konto speicherst du unbegrenzt, auf jedem Gerät. Was du gerade speichern wolltest, ist danach schon drin."
   },
+  pass: {
+    eyebrow: "AROUND PASS",
+    title: "Sammle deine Plätze.",
+    text: "Gespielte Plätze und deine Bucket List liegen in deinem Konto. Jeder Platz gibt einen Stempel im AROUND Pass. Kein Passwort, nur Google oder ein Code per Mail."
+  },
   trip: {
     eyebrow: "TRIPS BRAUCHEN EIN KONTO",
     title: "Damit dein Plan nicht im Browser hängen bleibt.",

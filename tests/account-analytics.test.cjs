@@ -74,7 +74,7 @@ test("content routes map to content views", () => {
 });
 
 test("event vocabulary matches the DB constraint", () => {
-  const sql = readFileSync("supabase/migrations/20261113_analytics_events.sql", "utf8");
+  const sql = readFileSync("supabase/migrations/20261113_profile_fun.sql", "utf8");
   for (const name of ANALYTICS_EVENT_NAMES) assert.ok(sql.includes(`'${name}'`), name);
 });
 
@@ -96,4 +96,45 @@ test("profile values are validated against the vocabulary and the DB constraints
   const { organizerRoles } = options;
   assert.deepEqual(organizerRoles(["none", "captain_women", "club"]), ["captain_women", "club"]);
   assert.deepEqual(organizerRoles(["none"]), ["none"]);
+});
+
+test("fun profile: answers match the DB, memories and bag are cleaned", () => {
+  const sql = readFileSync("supabase/migrations/20261113_profile_fun.sql", "utf8");
+  const options = load("lib/profile/options.ts");
+  for (const list of [options.PLAYER_TYPE, options.NEMESIS, options.TEE_TIME_PREFERENCE, options.WEATHER_TOLERANCE, options.COURSE_TRANSPORT, options.GAME_FORMAT, options.NINETEENTH_ORDER]) {
+    for (const option of list) assert.ok(sql.includes(`'${option.value}'`), option.value);
+  }
+  assert.deepEqual(
+    options.cleanMemories({ holeInOne: { course: " Kössen ", hole: "7", date: "2025-06-01", club: "Eisen 8" }, bestRound: { course: "" }, junk: 1 }),
+    { holeInOne: { course: "Kössen", hole: 7, date: "2025-06-01", club: "Eisen 8" } }
+  );
+  assert.deepEqual(options.cleanMemories({ favoriteHole: { course: "X", hole: 99 } }), { favoriteHole: { course: "X" } });
+  assert.deepEqual(options.cleanBag({ driver: "  ", ball: "Pro V1", extra: "x" }), { ball: "Pro V1" });
+});
+
+test("pass counters and badges", () => {
+  const { passStats, computeBadges } = load("lib/profile/badges.ts");
+  const marks = [
+    { sourceId: "a", kind: "played", country: "Österreich", destinationId: "d1" },
+    { sourceId: "b", kind: "played", country: "österreich ", destinationId: "d1" },
+    { sourceId: "c", kind: "played", country: "Ägypten", destinationId: "d2" },
+    { sourceId: "a", kind: "bucket" },
+    { sourceId: "z", kind: "bucket" }
+  ];
+  assert.deepEqual(passStats(marks), { courses: 3, countries: 2, destinations: 2, bucketTotal: 2, bucketDone: 1 });
+  const profile = { coursePreferences: ["links"], teeTimePreference: "first_tee_time", weatherTolerance: null, organizerRoles: ["captain_women"], memories: {}, playerType: null, nemesis: null, nineteenthOrder: null, golfMotto: "" };
+  const earned = computeBadges({ profile, marks, tripCount: 0 }).filter(badge => badge.earned).map(badge => badge.id);
+  assert.deepEqual(earned.sort(), ["captain", "early_bird", "first_stamp", "links_lover"]);
+});
+
+test("steckbrief text never runs off the card", () => {
+  const { wrapText, nameLayout } = load("lib/profile/steckbrief.ts");
+  assert.deepEqual(wrapText("Fairway ist auch nur eine Meinung", 20), ["Fairway ist auch nur", "eine Meinung"]);
+  for (const line of wrapText("Donaudampfschifffahrtsgesellschaftskapitän", 12)) assert.ok(line.length <= 12, line);
+  assert.equal(wrapText("eins zwei drei vier fünf sechs", 9, 2).length, 2);
+  assert.ok(wrapText("eins zwei drei vier fünf sechs", 9, 2)[1].endsWith("…"));
+  assert.equal(nameLayout("Tobi").size, 150);
+  const long = nameLayout("Maximilian Alexander von Hohenzollern-Sigmaringen der Dritte und noch viel mehr Namen");
+  assert.ok(long.lines.length <= 3);
+  assert.ok(long.size < 100);
 });

@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/client";
 import {
   ACCOMMODATION_STYLES, AGE_BAND, BOOKING_CHANNEL, BUDGET_PER_NIGHT, COURSE_PREFERENCES, GROUP_SIZE, HANDICAP_BAND, INTERESTS, PLAY_FREQUENCY, ROUNDS_PER_TRIP, TRAVEL_COMPANIONS, TRAVEL_MODES, TRIPS_PER_YEAR, TRIP_EXTRAS, TRIP_LENGTH, TRIP_PURPOSES, WISHLIST_REGIONS,
-  organizerRoles, pickKnown, pickOne
+  COURSE_TRANSPORT, GAME_FORMAT, NEMESIS, NINETEENTH_ORDER, PLAYER_TYPE, TEE_TIME_PREFERENCE, WEATHER_TOLERANCE,
+  cleanBag, cleanMemories, organizerRoles, pickKnown, pickOne, type Bag, type Memories
 } from "./options";
 
 export type Profile = {
@@ -29,6 +30,16 @@ export type Profile = {
   wishlistRegions: string[];
   interests: string[];
   ageBand: string | null;
+  playerType: string | null;
+  nemesis: string | null;
+  teeTimePreference: string | null;
+  weatherTolerance: string | null;
+  courseTransport: string | null;
+  gameFormat: string | null;
+  nineteenthOrder: string | null;
+  golfMotto: string;
+  memories: Memories;
+  bag: Bag;
   consentPartnerOffers: boolean;
   consentMarketResearch: boolean;
   onboardingCompletedAt: string | null;
@@ -60,6 +71,16 @@ export const EMPTY_PROFILE: Profile = {
   wishlistRegions: [],
   interests: [],
   ageBand: null,
+  playerType: null,
+  nemesis: null,
+  teeTimePreference: null,
+  weatherTolerance: null,
+  courseTransport: null,
+  gameFormat: null,
+  nineteenthOrder: null,
+  golfMotto: "",
+  memories: {},
+  bag: {},
   consentPartnerOffers: false,
   consentMarketResearch: false,
   onboardingCompletedAt: null,
@@ -91,6 +112,16 @@ const COLUMNS = [
   "wishlist_regions",
   "interests",
   "age_band",
+  "player_type",
+  "nemesis",
+  "tee_time_preference",
+  "weather_tolerance",
+  "course_transport",
+  "game_format",
+  "nineteenth_order",
+  "golf_motto",
+  "memories",
+  "bag",
   "consent_partner_offers",
   "consent_market_research",
   "onboarding_completed_at",
@@ -134,6 +165,16 @@ export function profileFromRow(row: any): Profile {
     wishlistRegions: pickKnown(row.wishlist_regions, WISHLIST_REGIONS),
     interests: pickKnown(row.interests, INTERESTS),
     ageBand: pickOne(row.age_band, AGE_BAND),
+    playerType: pickOne(row.player_type, PLAYER_TYPE),
+    nemesis: pickOne(row.nemesis, NEMESIS),
+    teeTimePreference: pickOne(row.tee_time_preference, TEE_TIME_PREFERENCE),
+    weatherTolerance: pickOne(row.weather_tolerance, WEATHER_TOLERANCE),
+    courseTransport: pickOne(row.course_transport, COURSE_TRANSPORT),
+    gameFormat: pickOne(row.game_format, GAME_FORMAT),
+    nineteenthOrder: pickOne(row.nineteenth_order, NINETEENTH_ORDER),
+    golfMotto: row.golf_motto || "",
+    memories: cleanMemories(row.memories),
+    bag: cleanBag(row.bag),
     consentPartnerOffers: Boolean(row.consent_partner_offers),
     consentMarketResearch: Boolean(row.consent_market_research),
     onboardingCompletedAt: row.onboarding_completed_at || null,
@@ -169,6 +210,16 @@ export function profileToRow(patch: Partial<Profile>, previous?: Profile): Recor
   if ("wishlistRegions" in patch) row.wishlist_regions = pickKnown(patch.wishlistRegions, WISHLIST_REGIONS);
   if ("interests" in patch) row.interests = pickKnown(patch.interests, INTERESTS);
   if ("ageBand" in patch) row.age_band = pickOne(patch.ageBand, AGE_BAND);
+  if ("playerType" in patch) row.player_type = pickOne(patch.playerType, PLAYER_TYPE);
+  if ("nemesis" in patch) row.nemesis = pickOne(patch.nemesis, NEMESIS);
+  if ("teeTimePreference" in patch) row.tee_time_preference = pickOne(patch.teeTimePreference, TEE_TIME_PREFERENCE);
+  if ("weatherTolerance" in patch) row.weather_tolerance = pickOne(patch.weatherTolerance, WEATHER_TOLERANCE);
+  if ("courseTransport" in patch) row.course_transport = pickOne(patch.courseTransport, COURSE_TRANSPORT);
+  if ("gameFormat" in patch) row.game_format = pickOne(patch.gameFormat, GAME_FORMAT);
+  if ("nineteenthOrder" in patch) row.nineteenth_order = pickOne(patch.nineteenthOrder, NINETEENTH_ORDER);
+  if ("golfMotto" in patch) row.golf_motto = clean(patch.golfMotto, 120) || null;
+  if ("memories" in patch) row.memories = cleanMemories(patch.memories);
+  if ("bag" in patch) row.bag = cleanBag(patch.bag);
   if ("consentPartnerOffers" in patch) {
     row.consent_partner_offers = Boolean(patch.consentPartnerOffers);
     if (Boolean(patch.consentPartnerOffers) !== Boolean(previous?.consentPartnerOffers)) row.consent_partner_offers_at = now;

@@ -73,7 +73,10 @@ export default function DatenschutzPage() {
             In deinem Profil kannst du freiwillig angeben, wie du spielst und reist (z. B. Reiseanlass, ob du für eine Mannschaft planst,
             Reisebegleitung, Handicap-Bereich, Budget, Altersgruppe). Wir nutzen diese Angaben, um dir
             passende Inhalte zu zeigen (Art. 6 Abs. 1 lit. b DSGVO). Du kannst sie jederzeit ändern oder
-            löschen, deine Daten herunterladen und dein Konto selbst löschen.
+            löschen, deine Daten herunterladen und dein Konto selbst löschen. Ein Profilbild ist freiwillig;
+            es wird verkleinert bei Supabase gespeichert, ist nur für dich abrufbar und wird mit deinem Konto
+            gelöscht. Wenn du dich mit Google anmeldest, zeigen wir bis zu einem eigenen Upload dein
+            Google-Profilbild an.
           </p>
           <p>
             Nur wenn du es in deinem Profil ausdrücklich erlaubst (Art. 6 Abs. 1 lit. a DSGVO):

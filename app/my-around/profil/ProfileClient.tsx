@@ -7,10 +7,13 @@ import { EMPTY_PROFILE, loadProfile, saveProfile, type Profile } from "@/lib/pro
 import {
   ACCOMMODATION_STYLES, AGE_BAND, BOOKING_CHANNEL, BUDGET_PER_NIGHT, COURSE_PREFERENCES, GROUP_SIZE,
   HANDICAP_BAND, INTERESTS, MONTHS, ORGANIZER_ROLE, PLAY_FREQUENCY, ROUNDS_PER_TRIP, TRAVEL_COMPANIONS,
-  TRAVEL_MODES, TRIP_EXTRAS, TRIP_LENGTH, TRIP_PURPOSES, TRIPS_PER_YEAR, WISHLIST_REGIONS, type Option
+  TRAVEL_MODES, TRIP_EXTRAS, TRIP_LENGTH, TRIP_PURPOSES, TRIPS_PER_YEAR, WISHLIST_REGIONS, type Option,
+  COURSE_TRANSPORT, GAME_FORMAT, NEMESIS, NINETEENTH_ORDER, PLAYER_TYPE, TEE_TIME_PREFERENCE, WEATHER_TOLERANCE,
+  type Bag, type Memories
 } from "@/lib/profile/options";
 import { getConsent, openConsentSettings, CONSENT_CHANGED_EVENT } from "@/lib/analytics/consent";
 import { track } from "@/lib/analytics/track";
+import { AvatarEditor } from "@/components/AvatarEditor";
 
 type ListKey = { [K in keyof Profile]: Profile[K] extends string[] ? K : never }[keyof Profile];
 type OneKey = { [K in keyof Profile]: Profile[K] extends string | null ? (null extends Profile[K] ? K : never) : never }[keyof Profile];
@@ -101,6 +104,16 @@ export function ProfileClient() {
     );
   }
 
+  function setMemory<K extends keyof Memories>(key: K, value: Memories[K]) {
+    setDraft(current => ({ ...current, memories: { ...current.memories, [key]: value } }));
+    setMessage("");
+  }
+
+  function setBag(key: keyof Bag, value: string) {
+    setDraft(current => ({ ...current, bag: { ...current.bag, [key]: value } }));
+    setMessage("");
+  }
+
   async function save() {
     setBusy(true);
     setMessage("");
@@ -155,7 +168,15 @@ export function ProfileClient() {
 
   return (
     <div className="profileLayout">
+      <nav className="profileQuickNav">
+        <Link href="/my-around/pass">MEIN AROUND PASS →</Link>
+        <Link href="/my-around/steckbrief">STECKBRIEF TEILEN →</Link>
+      </nav>
+
       <Block title="Ich">
+        <Field label="Profilbild">
+          <AvatarEditor name={draft.displayName || email || "A"} />
+        </Field>
         <Field label="Name">
           <input className="profileInput" value={draft.displayName} maxLength={80} onChange={e => set("displayName", e.target.value)} placeholder="Wie sollen wir dich nennen?" />
         </Field>
@@ -239,6 +260,66 @@ export function ProfileClient() {
         <Field label="Anreise">{manyOf("travelModes", TRAVEL_MODES)}</Field>
         <Field label="Wie buchst du meistens?">{oneOf("bookingChannel", BOOKING_CHANNEL)}</Field>
         <Field label="Wohin als Nächstes?">{manyOf("wishlistRegions", WISHLIST_REGIONS)}</Field>
+      </Block>
+
+      <Block title="Steckbrief">
+        <Field label="Welcher Spielertyp bist du?">{oneOf("playerType", PLAYER_TYPE)}</Field>
+        <Field label="Deine Nemesis">{oneOf("nemesis", NEMESIS)}</Field>
+        <Field label="Startzeit, wenn du wählen darfst">{oneOf("teeTimePreference", TEE_TIME_PREFERENCE)}</Field>
+        <Field label="Bei welchem Wetter spielst du noch?">{oneOf("weatherTolerance", WEATHER_TOLERANCE)}</Field>
+        <Field label="Tragen, Trolley oder Cart?">{oneOf("courseTransport", COURSE_TRANSPORT)}</Field>
+        <Field label="Lieblingsspielform">{oneOf("gameFormat", GAME_FORMAT)}</Field>
+        <Field label="Die Order am 19. Loch">{oneOf("nineteenthOrder", NINETEENTH_ORDER)}</Field>
+        <Field label="Dein Golf-Motto" hint="Eine Zeile. Landet auf deinem Steckbrief.">
+          <input className="profileInput" value={draft.golfMotto} maxLength={120} onChange={e => set("golfMotto", e.target.value)} placeholder="z. B. Fairway ist auch nur eine Meinung." />
+        </Field>
+      </Block>
+
+      <Block title="Erinnerungen">
+        <Field label="Hole-in-One" hint="Platz, Loch, Datum, Schläger. Bringt das Abzeichen „Hole-in-One-Club“.">
+          <div className="profileRow">
+            <input className="profileInput" value={draft.memories.holeInOne?.course || ""} maxLength={120} placeholder="Platz"
+              onChange={e => setMemory("holeInOne", { ...draft.memories.holeInOne, course: e.target.value })} />
+            <input className="profileInput profileInput--short" type="number" min={1} max={27} value={draft.memories.holeInOne?.hole ?? ""} placeholder="Loch"
+              onChange={e => setMemory("holeInOne", { ...draft.memories.holeInOne, hole: e.target.value ? Number(e.target.value) : undefined })} />
+            <input className="profileInput profileInput--date" type="date" value={draft.memories.holeInOne?.date || ""}
+              onChange={e => setMemory("holeInOne", { ...draft.memories.holeInOne, date: e.target.value || undefined })} />
+            <input className="profileInput profileInput--short" value={draft.memories.holeInOne?.club || ""} maxLength={40} placeholder="Schläger"
+              onChange={e => setMemory("holeInOne", { ...draft.memories.holeInOne, club: e.target.value })} />
+          </div>
+        </Field>
+        <Field label="Beste Runde">
+          <div className="profileRow">
+            <input className="profileInput" value={draft.memories.bestRound?.course || ""} maxLength={120} placeholder="Platz"
+              onChange={e => setMemory("bestRound", { ...draft.memories.bestRound, course: e.target.value })} />
+            <input className="profileInput profileInput--short" value={draft.memories.bestRound?.score || ""} maxLength={20} placeholder="Score / Punkte"
+              onChange={e => setMemory("bestRound", { ...draft.memories.bestRound, score: e.target.value })} />
+            <input className="profileInput profileInput--date" type="date" value={draft.memories.bestRound?.date || ""}
+              onChange={e => setMemory("bestRound", { ...draft.memories.bestRound, date: e.target.value || undefined })} />
+          </div>
+        </Field>
+        <Field label="Lieblingsloch der Welt">
+          <div className="profileRow">
+            <input className="profileInput" value={draft.memories.favoriteHole?.course || ""} maxLength={120} placeholder="Platz"
+              onChange={e => setMemory("favoriteHole", { ...draft.memories.favoriteHole, course: e.target.value })} />
+            <input className="profileInput profileInput--short" type="number" min={1} max={27} value={draft.memories.favoriteHole?.hole ?? ""} placeholder="Loch"
+              onChange={e => setMemory("favoriteHole", { ...draft.memories.favoriteHole, hole: e.target.value ? Number(e.target.value) : undefined })} />
+          </div>
+        </Field>
+        <Field label="Der schönste Platz bisher">
+          <input className="profileInput" value={draft.memories.mostBeautifulCourse || ""} maxLength={120} placeholder="Platz"
+            onChange={e => setMemory("mostBeautifulCourse", e.target.value)} />
+        </Field>
+      </Block>
+
+      <Block title="What's in my bag">
+        <div className="profileBagGrid">
+          {([["driver", "Driver"], ["irons", "Eisen"], ["putter", "Putter"], ["ball", "Ball"]] as const).map(([key, label]) => (
+            <Field key={key} label={label}>
+              <input className="profileInput" value={draft.bag[key] || ""} maxLength={80} placeholder="Marke und Modell" onChange={e => setBag(key, e.target.value)} />
+            </Field>
+          ))}
+        </div>
       </Block>
 
       <Block title="Themen">

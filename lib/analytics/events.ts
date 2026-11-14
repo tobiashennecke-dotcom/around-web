@@ -21,7 +21,10 @@ export const ANALYTICS_EVENT_NAMES = [
   "booking_clicked",
   "onboarding_completed",
   "onboarding_skipped",
-  "profile_updated"
+  "profile_updated",
+  "place_played",
+  "place_bucketed",
+  "steckbrief_shared"
 ] as const;
 
 export type AnalyticsEventName = (typeof ANALYTICS_EVENT_NAMES)[number];

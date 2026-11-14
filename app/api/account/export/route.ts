@@ -8,6 +8,7 @@ const OWN_TABLES: { table: string; column: string }[] = [
   { table: "saved_items", column: "user_id" },
   { table: "user_collections", column: "user_id" },
   { table: "trips", column: "user_id" },
+  { table: "user_place_marks", column: "user_id" },
   { table: "user_events", column: "user_id" }
 ];
 
