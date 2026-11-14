@@ -1,6 +1,6 @@
 import { defineField, defineType } from "sanity";
 import { topicsField } from "./topic";
-import { ACTIVITIES_NEARBY, PRICE_LEVEL, SUITABILITY } from "../../lib/fit-tags";
+import { ACTIVITIES_NEARBY, PRICE_LEVEL, PRICE_RULE, STAY_BOARD, SUITABILITY } from "../../lib/fit-tags";
 import { PlaceGalleryBulkInput } from "../components/PlaceGalleryBulkInput";
 
 export const place = defineType({
@@ -94,7 +94,18 @@ export const place = defineType({
       name:"stayPriceBand",title:"Preisniveau pro Nacht (Doppelzimmer)",type:"string",group:"fit",
       options:{list:PRICE_LEVEL.map(item => ({title:item.label,value:item.value})),layout:"radio"},
       hidden:({document}) => document?.placeType !== "stay",
-      description:"Typischer Zimmerpreis, nicht pro Person. Nur für STAY."
+      description:`Messregel: ${PRICE_RULE}`
+    }),
+    defineField({
+      name:"stayBoard",title:"Verpflegung im Preis",type:"string",group:"fit",
+      options:{list:STAY_BOARD.map(item => ({title:item.label,value:item.value})),layout:"radio"},
+      hidden:({document}) => document?.placeType !== "stay",
+      description:"Was im Preis der Preisstufe enthalten ist."
+    }),
+    defineField({
+      name:"stayPriceCheckedAt",title:"Preis geprüft am",type:"date",group:"fit",
+      hidden:({document}) => document?.placeType !== "stay",
+      description:"Wann die Preisstufe zuletzt mit aktuellen Preisen abgeglichen wurde."
     }),
     defineField({name:"whyWeLikeIt",title:"Why we like it",type:"text",rows:7,group:"editorial"}),
     defineField({name:"aroundTake",title:"AROUND Take",type:"text",rows:4,group:"editorial",description:"Short editorial verdict / point of view."}),

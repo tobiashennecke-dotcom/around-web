@@ -3,6 +3,7 @@ import { ImmersiveRun } from "./ImmersiveRun";
 import { ResearchDraftNote } from "./ResearchDraftNote";
 import { SaveButton } from "@/components/SaveButton";
 import { PlaceFitNote } from "@/components/PlaceFitNote";
+import { stayPriceLabel } from "@/lib/fit-tags";
 import { TripPicker } from "@/components/TripPicker";
 import { ContentCard } from "@/components/ContentCard";
 import { PlaceGallery } from "@/components/PlaceGallery";
@@ -100,6 +101,7 @@ export function StayDetailView({ place }: { place: Place }) {
     || (place.nearbyCourses?.[0] ? `${place.nearbyCourses[0].title} · ~${Math.round(place.nearbyCourses[0].distanceKm)} km` : undefined);
   const verdictFacts = [
     { label: "IDEAL FÜR", value: place.bestFor?.length ? place.bestFor.join(", ") : undefined },
+    { label: "PREIS", value: stayPriceLabel(place.stayPriceBand, place.stayBoard) },
     { label: "BLEIBEN", value: nights },
     { label: "GOLF", value: golfFact },
     { label: "REISEZEIT", value: [months, time ? `${time.label === "Keine" ? "keine Zeitverschiebung" : time.label}` : undefined].filter(Boolean).join(" · ") || undefined },

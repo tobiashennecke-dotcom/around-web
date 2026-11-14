@@ -1,4 +1,4 @@
-import { readActivities, readStayPriceBand, readSuitability } from "@/lib/fit-tags";
+import { readActivities, readStayBoard, readStayPriceBand, readSuitability } from "@/lib/fit-tags";
 import { sanity } from "@/lib/sanity/client";
 import { storyReadClient } from "@/lib/sanity/read-client";
 import { normalizeContentRole } from "@/lib/content-role";
@@ -464,6 +464,7 @@ export async function getPlace(slug: string): Promise<Place | null> {
         suitability: readSuitability(doc.suitability),
         activitiesNearby: readActivities(doc.activitiesNearby),
         stayPriceBand: readStayPriceBand(doc.stayPriceBand),
+        stayBoard: readStayBoard(doc.stayBoard),
         placeType: doc.placeType || "do",
         defaultPlanningMode: doc.defaultPlanningMode || undefined,
         suggestedDurationMinutes: typeof doc.suggestedDurationMinutes === "number" ? doc.suggestedDurationMinutes : undefined,

@@ -162,6 +162,8 @@ export type Place = ContentCard & SeoFields & {
   destination?: ContentCard;
   /** Country of the place's destination (AROUND Pass counters). */
   destinationCountry?: string;
+  /** What the STAY price band includes (lib/fit-tags.ts STAY_BOARD). */
+  stayBoard?: string;
   placeType: PlaceType;
   whyWeLikeIt: string;
   aroundTake?: string;

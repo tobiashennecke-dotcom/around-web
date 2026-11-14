@@ -232,7 +232,7 @@ export const PLACE_QUERY = defineQuery(`
   *[_type == "place" && slug.current == $slug && ${PLACE_ONLINE}][0]{
     _id,title,slug,kicker,summary,placeType,defaultPlanningMode,suggestedDurationMinutes,suggestedDaypart,suggestedTime,whyWeLikeIt,aroundTake,goodToKnow,
     compatibleDayparts,effortLevel,environment,weatherSensitivity,
-    suitability,activitiesNearby,stayPriceBand,
+    suitability,activitiesNearby,stayPriceBand,stayBoard,
     theFeel,bestFor,aroundMoment,knowBeforeYouGo,
     holes,par,courseCharacter,walkability,cartAvailability,practiceFacilities,guestPlay,season,
     stayCharacter,accommodationTypes,roomSummary,spaSummary,foodSummary,breakfastSummary,parkingSummary,dogPolicy,
