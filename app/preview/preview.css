@@ -722,3 +722,37 @@
   .pv-saveTap{display:none}
   .pv-saveStep .saveButtonV14,.pv-saveToast{transition:none;animation:none}
 }
+
+/* ---------- v1.32: Around it as a scroll sequence ---------- */
+.pv-aroundItFlow{margin-top:56px;display:grid;grid-template-columns:1fr;gap:40px}
+.pv-aroundItStart{display:block;margin-bottom:12px;color:var(--around-muted)}
+.pv-aroundItTrail{list-style:none;margin:0;padding:0 0 0 28px;border-left:2px solid var(--around-ink);display:grid;gap:56px}
+.pv-aroundItStop{position:relative;max-width:420px}
+.pv-aroundItStop:before{content:"";position:absolute;left:-37px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--around-warm);border:3px solid var(--around-lime)}
+.pv-aroundItStop--pink:before{border-color:var(--around-pink)}
+.pv-aroundItStop--blue:before{border-color:var(--around-blue)}
+.pv-aroundItStopRole{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;font-size:12px;font-weight:800;letter-spacing:.12em}
+.pv-aroundItStopIndex{font-size:28px;line-height:1;letter-spacing:-.04em}
+.pv-page .pv-aroundItStopCard .cardMedia{aspect-ratio:16/10}
+.pv-page .pv-aroundItAnchorCard{max-width:420px;margin:0}
+@media(min-width:900px){
+  .pv-aroundItFlow{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:72px;align-items:start}
+  .pv-aroundItAnchorSticky{position:sticky;top:130px}
+  .pv-aroundItTrail{gap:min(28vh,220px);padding-top:8vh;padding-bottom:12vh}
+}
+
+/* ---------- v1.32: FIND IT. SAVE IT. GO THERE. plays itself ---------- */
+.pv-saveHeadlineLine{transition:color .35s ease,opacity .35s ease}
+.pv-saveHeadline[data-phase] .pv-saveHeadlineLine{opacity:.28}
+.pv-saveHeadline[data-phase="idle"] .pv-saveHeadlineLine[data-step="0"],
+.pv-saveHeadline[data-phase="saved"] .pv-saveHeadlineLine[data-step="1"],
+.pv-saveHeadline[data-phase="trip"] .pv-saveHeadlineLine[data-step="2"]{opacity:1}
+.pv-saveDemoStage .saveLabelButton{transition:background-color .25s ease,color .25s ease,border-color .25s ease}
+.pv-saveDemoStage[data-phase="saved"] .saveLabelButton{animation:pvSavePop .45s cubic-bezier(.2,.9,.3,1.4)}
+.pv-saveTripButton{transition:all .3s ease}
+.pv-saveDemoStage[data-phase="trip"] .pv-saveTripButton{opacity:1;background:var(--around-blue);border-color:var(--around-blue);color:#fff}
+.pv-saveDemoStage .pv-saveStatus{transition:color .3s ease}
+.pv-saveDemoStage[data-phase="trip"] .pv-saveStatus{color:var(--around-blue);font-weight:700}
+@media (prefers-reduced-motion:reduce){
+  .pv-saveHeadline[data-phase] .pv-saveHeadlineLine{opacity:1}
+}

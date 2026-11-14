@@ -47,7 +47,7 @@ export type AudienceItem = { number: string; label: string; headline: string; co
 
 export type FieldStoryCard = { role: "lead" | "secondary"; category: string; title: string; media: PreviewMedia; accent: Accent };
 
-export type AroundItConnection = { role: string; title: string; note: string; accent: Accent };
+export type AroundItConnection = { role: string; title: string; note: string; accent: Accent; stamp?: string; kicker?: string; media?: PreviewMedia };
 
 export type PartnerPreviewContent = {
   seo: { title: string; description: string; ogImage: string; noindex: boolean };
@@ -378,8 +378,8 @@ export const previewContent: PartnerPreviewContent = {
     eyebrow: "CURRENT STATUS",
     headlineLines: ["AROUND IS CURRENTLY", "IN PRIVATE PREVIEW."],
     body: [
-      "Nine destinations, the editorial formats, traveller accounts and the trip planner are running in private preview.",
-      "Early access opens on 13 April 2027. The public launch follows on 27 April 2027.",
+      "Test destinations, the editorial formats, traveller accounts and the trip planner are running in private preview.",
+      "Early access and public launch: spring 2027.",
       "This page gives partners, agencies and PR teams an early look at what we're building."
     ]
   },

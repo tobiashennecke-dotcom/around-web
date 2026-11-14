@@ -81,6 +81,8 @@ type RawTeaser = {
   descriptionOverride?: string;
   accent?: Accent;
   image?: unknown;
+  /** heroImage of the referenced document, read directly so teasers keep their picture even when the referenced content is still offline in the app. */
+  refImage?: unknown;
   placeholderLabel?: string;
 } | null | undefined;
 
@@ -103,6 +105,10 @@ function resolveTeaser(raw: RawTeaser, width: number, aspect: number, fallback: 
   if (hasAsset(raw?.image)) {
     const url = heroImageUrl(raw!.image as RawSanityImage, width, aspect);
     if (url) media = { src: url, alt: (raw!.image as { alt?: string }).alt || title };
+  }
+  if (!media && hasAsset(raw?.refImage)) {
+    const url = heroImageUrl(raw!.refImage as RawSanityImage, width, aspect);
+    if (url) media = { src: url, alt: (raw!.refImage as { alt?: string }).alt || title };
   }
   if (!media && card?.image) media = { src: card.image, alt: title };
   if (!media && raw?.placeholderLabel) media = { assetNeeded: "sanity-missing-image", label: raw.placeholderLabel };
@@ -148,7 +154,15 @@ function mapFieldStoryCard(raw: Record<string, unknown>): FieldStoryCard {
 
 function mapConnection(raw: Record<string, unknown>): AroundItConnection {
   const teaser = resolveTeaser(raw?.teaser as RawTeaser, 640, 4 / 3, EMPTY_TEASER_FALLBACK);
-  return { role: str(raw?.role, ""), title: teaser.title, note: teaser.description ?? "", accent: teaser.accent };
+  return {
+    role: str(raw?.role, ""),
+    title: teaser.title,
+    note: teaser.description ?? "",
+    accent: teaser.accent,
+    stamp: teaser.stamp,
+    kicker: teaser.kicker,
+    media: teaser.media
+  };
 }
 
 function mapChapter(raw: Record<string, unknown>): Chapter {

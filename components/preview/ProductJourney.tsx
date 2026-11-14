@@ -10,7 +10,7 @@ function StepPreview({ step, active = true }: { step: JourneyStep; active?: bool
   if (step.kind === "discover") {
     return (
       <div className="pv-journeyPreview pv-journeyDiscover">
-        <div className="pv-discoverBar">Golf und die Lücke danach…</div>
+        <div className="pv-discoverBar">Golf, and what comes after…</div>
         <div className="pv-discoverFilters">
           {step.filters.map((f) => (
             <span key={f} className="tag pv-discoverTag">
