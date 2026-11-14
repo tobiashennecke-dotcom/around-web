@@ -693,3 +693,32 @@
 .pv-page .pv-journeyStory .storyFeatureBody{padding:20px 22px 24px;gap:8px}
 .pv-page .pv-journeyStory .storyFeatureTitle{font-size:clamp(20px,1.9vw,24px);line-height:1.12}
 .pv-footerLogo{display:block;width:min(560px,78vw);height:auto;margin:22px auto 18px;color:var(--around-warm)}
+
+/* ---------- v1.31: animated SAVE step ---------- */
+.pv-saveStep{position:relative}
+.pv-saveStep .card{position:relative;overflow:visible}
+.pv-cardSaveWrap{position:relative;display:inline-flex;align-items:center;gap:12px}
+.pv-cardSaveHint{font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--around-muted);transition:color .25s ease}
+.pv-saveStep[data-phase="saved"] .pv-cardSaveHint{color:var(--around-ink)}
+.pv-saveStep .saveButtonV14{transition:background-color .25s ease,border-color .25s ease,transform .2s ease}
+.pv-saveStep[data-phase="tap"] .saveButtonV14{transform:scale(.88)}
+.pv-saveStep[data-phase="saved"] .saveButtonV14{animation:pvSavePop .45s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes pvSavePop{0%{transform:scale(.88)}60%{transform:scale(1.14)}100%{transform:scale(1)}}
+/* the "finger": a lime ring that travels onto the save button and taps */
+.pv-saveTap{position:absolute;right:-2px;top:50%;margin-top:-23px;width:46px;height:46px;border-radius:50%;
+  border:2px solid var(--around-lime);background:rgba(214,234,42,.18);pointer-events:none;opacity:0;
+  transform:translate(-90px,-70px) scale(1.2)}
+.pv-saveStep[data-phase="idle"] .pv-saveTap{opacity:0}
+.pv-saveStep[data-phase="tap"] .pv-saveTap{opacity:1;transform:translate(0,0) scale(.8);transition:transform .45s ease,opacity .2s ease}
+.pv-saveStep[data-phase="saved"] .pv-saveTap{opacity:0;transform:translate(0,0) scale(1.9);transition:transform .5s ease,opacity .5s ease}
+.pv-saveToast{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;
+  background:var(--around-lime);color:var(--around-ink);font-size:14px;line-height:1.35;
+  opacity:0;transform:translateY(10px);transition:opacity .35s ease,transform .35s ease}
+.pv-saveToast strong{font-weight:800}
+.pv-saveStep[data-phase="saved"] .pv-saveToast{opacity:1;transform:none;transition-delay:.15s}
+.pv-saveToastBadge{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 auto;border-radius:50%;background:var(--around-ink)}
+.pv-saveToastMark{width:20px;height:20px;color:var(--around-warm)}
+@media (prefers-reduced-motion:reduce){
+  .pv-saveTap{display:none}
+  .pv-saveStep .saveButtonV14,.pv-saveToast{transition:none;animation:none}
+}

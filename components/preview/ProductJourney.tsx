@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import type { JourneyStep, PartnerPreviewContent } from "@/lib/preview-content";
 import { PreviewCard } from "./PreviewCard";
 import { PreviewMedia } from "./PreviewMedia";
+import { SaveStepDemo } from "./SaveStepDemo";
 
-function StepPreview({ step }: { step: JourneyStep }) {
+function StepPreview({ step, active = true }: { step: JourneyStep; active?: boolean }) {
   if (step.kind === "discover") {
     return (
       <div className="pv-journeyPreview pv-journeyDiscover">
@@ -42,6 +43,14 @@ function StepPreview({ step }: { step: JourneyStep }) {
     );
   }
 
+  if (step.kind === "save") {
+    return (
+      <div className="pv-journeyPreview">
+        <SaveStepDemo card={step.card} active={active} />
+      </div>
+    );
+  }
+
   return (
     <div className="pv-journeyPreview">
       <PreviewCard
@@ -51,7 +60,6 @@ function StepPreview({ step }: { step: JourneyStep }) {
         description={step.card.description}
         accent={step.card.accent}
         media={step.card.media}
-        withSave={step.kind === "save"}
       />
     </div>
   );
@@ -116,7 +124,7 @@ export function ProductJourney({ content }: { content: PartnerPreviewContent }) 
           <div className="pv-journeyStickyInner">
             {steps.map((step, i) => (
               <div key={step.label || i} className="pv-journeyPanel" data-active={i === active} aria-hidden={i !== active}>
-                <StepPreview step={step} />
+                <StepPreview step={step} active={i === active} />
               </div>
             ))}
           </div>

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { PreviewMedia as PreviewMediaType } from "@/lib/preview-content";
 import { PreviewMedia } from "./PreviewMedia";
 import { PreviewSaveButton } from "./PreviewSaveButton";
@@ -13,6 +14,10 @@ type Props = {
   media?: PreviewMediaType;
   withSave?: boolean;
   className?: string;
+  /** Controlled save state + phase hooks for the animated SAVE step (ProductJourney). */
+  saved?: boolean;
+  saveHint?: string;
+  children?: ReactNode;
 };
 
 /**
@@ -21,7 +26,7 @@ type Props = {
  * with no <Link> into unreleased product routes — this page never leads a
  * visitor into the live app.
  */
-export function PreviewCard({ stamp, kicker, title, description, accent, media, withSave, className }: Props) {
+export function PreviewCard({ stamp, kicker, title, description, accent, media, withSave, className, saved, saveHint, children }: Props) {
   const tagClass = accent === "blue" ? "tag blue" : accent === "pink" ? "tag pink" : "tag";
 
   return (
@@ -37,10 +42,15 @@ export function PreviewCard({ stamp, kicker, title, description, accent, media, 
         {withSave && (
           <div className="cardMeta">
             <span>{stamp}</span>
-            <PreviewSaveButton title={title} />
+            <span className="pv-cardSaveWrap">
+              {saveHint ? <span className="pv-cardSaveHint">{saveHint}</span> : null}
+              <PreviewSaveButton title={title} saved={saved} />
+              {saveHint ? <span className="pv-saveTap" aria-hidden="true" /> : null}
+            </span>
           </div>
         )}
       </div>
+      {children}
     </article>
   );
 }
