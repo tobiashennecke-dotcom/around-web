@@ -375,7 +375,7 @@ export const previewContent: PartnerPreviewContent = {
   },
 
   status: {
-    eyebrow: "CURRENT STATUS · NOVEMBER 2026",
+    eyebrow: "CURRENT STATUS",
     headlineLines: ["AROUND IS CURRENTLY", "IN PRIVATE PREVIEW."],
     body: [
       "Nine destinations, the editorial formats, traveller accounts and the trip planner are running in private preview.",

@@ -1,4 +1,5 @@
 import type { PartnerPreviewContent } from "@/lib/preview-content";
+import { AroundWordmark } from "@/components/AroundLogo";
 
 export function PreviewFooter({ content }: { content: PartnerPreviewContent }) {
   const { tagline, instagram, closing } = content.footer;
@@ -7,9 +8,7 @@ export function PreviewFooter({ content }: { content: PartnerPreviewContent }) {
     <footer className="pv-footer">
       <div className="container pv-footerTop">
         <div className="eyebrow lime">AROUND · PRIVATE PREVIEW</div>
-        <div className="footerGiant" aria-label="AROUND">
-          AROUND
-        </div>
+        <AroundWordmark className="pv-footerLogo" title="AROUND" />
         <p className="pv-footerTagline">{tagline}</p>
       </div>
       <div className="container pv-footerLinks">

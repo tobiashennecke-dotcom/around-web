@@ -686,3 +686,10 @@
   .pv-audienceItem{border-bottom:0;padding-bottom:8px}
 }
 .pv-page .pv-audience :focus-visible{outline-color:var(--around-lime)}
+
+/* ---------- v1.30 polish: story teaser stacked like the other journey cards, logo in footer ---------- */
+.pv-page .pv-journeyStory{flex-direction:column;height:auto;border-color:rgba(245,243,238,.28)}
+.pv-page .pv-journeyStory .storyFeatureMedia{width:100%;aspect-ratio:16/10}
+.pv-page .pv-journeyStory .storyFeatureBody{padding:20px 22px 24px;gap:8px}
+.pv-page .pv-journeyStory .storyFeatureTitle{font-size:clamp(20px,1.9vw,24px);line-height:1.12}
+.pv-footerLogo{display:block;width:min(560px,78vw);height:auto;margin:22px auto 18px;color:var(--around-warm)}
