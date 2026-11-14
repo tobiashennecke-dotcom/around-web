@@ -32,10 +32,10 @@ export function PreviewSaveButton({ title, label, saved: controlledSaved, onTogg
       data-saved={saved}
       onClick={handleClick}
       aria-pressed={saved}
-      aria-label={`${title} ${saved ? "nicht mehr speichern (Demo)" : "speichern (Demo)"}`}
+      aria-label={`${saved ? "Unsave" : "Save"} ${title} (demo)`}
     >
       <span className="saveDrop" aria-hidden="true" />
-      {label ? <span>{saved ? "Gespeichert" : label}</span> : null}
+      {label ? <span>{saved ? "Saved" : label}</span> : null}
     </button>
   );
 }

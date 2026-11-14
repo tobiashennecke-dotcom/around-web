@@ -92,7 +92,7 @@ img{display:block;max-width:100%}
 .card p{color:#5e625e;line-height:1.45}
 .cardMeta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-size:10px;text-transform:uppercase;letter-spacing:.08em}
 .tag{display:inline-block;padding:6px 8px;background:var(--around-lime);font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
-.tag.blue{background:var(--around-blue);color:#fff}.tag.pink{background:var(--around-pink)}
+.tag.blue{background:var(--around-blue);color:#fff}.tag.pink{background:var(--around-pink);color:var(--around-ink)}
 .storyRailSection .sectionTitle{margin:14px 0 40px}
 .storyRailIntro{font-size:16px;line-height:1.5;color:#5e625e;max-width:640px;margin:-20px 0 32px}
 .tripStoryCard{display:flex;flex-direction:column;gap:10px}

@@ -395,6 +395,7 @@ export const COLLECTION_QUERY = defineQuery(`
  */
 const PARTNER_PREVIEW_TEASER_FIELDS = `
   "ref": reference->{${CARD_FIELDS}},
+  "refImage": reference->heroImage{asset,hotspot,crop,alt},
   titleOverride,
   kickerOverride,
   descriptionOverride,
